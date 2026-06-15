@@ -1,0 +1,1716 @@
+{
+  "name": "SEO Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "6fc613cc-24c0-4e5a-a6e4-ebe1f18d3b5a",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -432,
+        0
+      ],
+      "id": "7c61a4ae-c63d-4412-84d8-3e82ce27d2aa",
+      "name": "Webhook",
+      "webhookId": "6fc613cc-24c0-4e5a-a6e4-ebe1f18d3b5a"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "blogs",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "keyValue": "={{ $json.query.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        0
+      ],
+      "id": "ef6ac5f4-a850-4eea-82c6-5482829d02c0",
+      "name": "Get a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "AZPyAU41elqcvzrq",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-5-chat",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        32,
+        -64
+      ],
+      "id": "9532e54f-75c9-45ab-b438-09fce055ad74",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "pEiLaxRT18kXjXYb",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"most_searched_query1\": \"\",\n  \"most_searched_query2\": \"\",\n  \"most_searched_query3\": \"\",\n  \"most_searched_query4\": \"\",\n  \"most_searched_query5\": \"\",\n  \"most_searched_query6\": \"\",\n  \"most_searched_query7\": \"\",\n  \"most_searched_query8\": \"\",\n  \"most_searched_query9\": \"\",\n  \"most_searched_query10\": \"\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        208,
+        -48
+      ],
+      "id": "8104d1be-4586-4bed-b8a6-36cdea23c084",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-5-chat",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        64,
+        320
+      ],
+      "id": "78217308-ae53-4949-b84e-0bb6206f42ee",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "pEiLaxRT18kXjXYb",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"most_googled_question1\": \"\",\n  \"most_googled_question2\": \"\",\n  \"most_googled_question3\": \"\",\n  \"most_googled_question4\": \"\",\n  \"most_googled_question5\": \"\",\n  \"most_googled_question6\": \"\",\n  \"most_googled_question7\": \"\",\n  \"most_googled_question8\": \"\",\n  \"most_googled_question9\": \"\",\n  \"most_googled_question10\": \"\",\n  \"most_googled_question11\": \"\",\n  \"most_googled_question12\": \"\",\n  \"most_googled_question13\": \"\",\n  \"most_googled_question14\": \"\",\n  \"most_googled_question15\": \"\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        208,
+        320
+      ],
+      "id": "3fac0fdf-beb2-471b-93a6-bab199221a7a",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Can you make a better and High search title out of this title \"{{ $json.title }}\"",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        64,
+        -224
+      ],
+      "id": "be7e4cbc-3f98-411f-951a-deb3c7fc8b31",
+      "name": "MS"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Give me most googled questions about this title \"{{ $json.title }}\"",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        64,
+        128
+      ],
+      "id": "3489a990-9014-4f48-a6bc-e5c7ca337b7c",
+      "name": "MSQ"
+    },
+    {
+      "parameters": {
+        "url": "https://serpapi.com/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "engine",
+              "value": "google"
+            },
+            {
+              "name": "q",
+              "value": "={{ $json.most_searched_questions[0] }}"
+            },
+            {
+              "name": "location",
+              "value": "United States"
+            },
+            {
+              "name": "google_domain",
+              "value": "google.com"
+            },
+            {
+              "name": "gl",
+              "value": "us"
+            },
+            {
+              "name": "hl",
+              "value": "en"
+            },
+            {
+              "name": "api_key",
+              "value": "d78dcd488c9c30eefaa13620197dd331e62c7de9bb79da9fa51d7192bdb6a015"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1344,
+        -272
+      ],
+      "id": "526c2b57-2258-4d8c-b21a-275f599b61b4",
+      "name": "Ranked 1"
+    },
+    {
+      "parameters": {
+        "url": "https://serpapi.com/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "engine",
+              "value": "google"
+            },
+            {
+              "name": "q",
+              "value": "={{ $json.most_searched_questions[1] }}"
+            },
+            {
+              "name": "location",
+              "value": "United States"
+            },
+            {
+              "name": "google_domain",
+              "value": "google.com"
+            },
+            {
+              "name": "gl",
+              "value": "us"
+            },
+            {
+              "name": "hl",
+              "value": "en"
+            },
+            {
+              "name": "api_key",
+              "value": "d78dcd488c9c30eefaa13620197dd331e62c7de9bb79da9fa51d7192bdb6a015"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1328,
+        -112
+      ],
+      "id": "cb6a5205-aa4a-470d-8041-3b140f9814f9",
+      "name": "Ranked 2"
+    },
+    {
+      "parameters": {
+        "url": "https://serpapi.com/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "engine",
+              "value": "google"
+            },
+            {
+              "name": "q",
+              "value": "={{ $json.most_searched_questions[1] }}"
+            },
+            {
+              "name": "location",
+              "value": "United States"
+            },
+            {
+              "name": "google_domain",
+              "value": "google.com"
+            },
+            {
+              "name": "gl",
+              "value": "us"
+            },
+            {
+              "name": "hl",
+              "value": "en"
+            },
+            {
+              "name": "api_key",
+              "value": "d78dcd488c9c30eefaa13620197dd331e62c7de9bb79da9fa51d7192bdb6a015"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1344,
+        48
+      ],
+      "id": "fe4dc577-72ff-451f-981d-2434a89deb30",
+      "name": "Ranked 3"
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1792,
+        -128
+      ],
+      "id": "a6448c8c-05b7-4010-aa71-cbf0962f216f",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get first incoming item (SerpAPI response)\nconst data = $input.first().json;\n\n// Extract position 1 organic result link safely\nconst position1Link = data.organic_results?.[0]?.link || null;\n\n// Return as single JSON item\nreturn [\n  {\n    json: {\n      position_1_link: position1Link\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1536,
+        48
+      ],
+      "id": "1022f14e-a6a0-468a-9db6-8ab958b80079",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get first incoming item (SerpAPI response)\nconst data = $input.first().json;\n\n// Extract position 1 organic result link safely\nconst position1Link = data.organic_results?.[0]?.link || null;\n\n// Return as single JSON item\nreturn [\n  {\n    json: {\n      position_1_link: position1Link\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1536,
+        -112
+      ],
+      "id": "6cea2845-3ecd-4259-9cec-313bb38a73bf",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get first incoming item (SerpAPI response)\nconst data = $input.first().json;\n\n// Extract position 1 organic result link safely\nconst position1Link = data.organic_results?.[0]?.link || null;\n\n// Return as single JSON item\nreturn [\n  {\n    json: {\n      position_1_link: position1Link\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1520,
+        -272
+      ],
+      "id": "a9befb46-046f-412d-8911-8f83a0c684c0",
+      "name": "Code in JavaScript3"
+    },
+    {
+      "parameters": {
+        "url": "=https://bhqdoszwyesxquoupmdn.supabase.co/storage/v1/object/company-docs/{{ $('Webhook').item.json.query.storagePaths[0] }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJocWRvc3p3eWVzeHF1b3VwbWRuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MTg0MzgxOSwiZXhwIjoyMDg3NDE5ODE5fQ.BMk_27fW40XMxbscoiGTgwfRrCBRoCnas-rNZ_GXIME"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJocWRvc3p3eWVzeHF1b3VwbWRuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MTg0MzgxOSwiZXhwIjoyMDg3NDE5ODE5fQ.BMk_27fW40XMxbscoiGTgwfRrCBRoCnas-rNZ_GXIME"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2560,
+        -112
+      ],
+      "id": "500ecfd3-8608-4a82-ad77-07e968cf5ee2",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        2736,
+        -112
+      ],
+      "id": "ea134c80-2b24-40c1-8c0b-a76c7db01807",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-5-chat",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        3216,
+        80
+      ],
+      "id": "9773f29c-eb99-492c-b90d-88099ea45c20",
+      "name": "OpenRouter Chat Model2",
+      "credentials": {
+        "openRouterApi": {
+          "id": "pEiLaxRT18kXjXYb",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an prompt engineer about making research paper. I will give you some details and example so that you give me exact prompt similar to example that I gave you below:\n\n{\n\"Example_prompt\":\"Create a in-depth research paper about \"Cold Email Deliverability Checklist: How to Land in the Primary Inbox\" Dig up all \nthe information about the title! and also fine how Sendr fits into it, how Sendr could help be the better tool for cold email \noutreach and gets higher conversion and Boost Reply Rates, Here is a PDF of in-depth research about Sendr, also dig what you \ncan on the internet about Sendr, which isn't on the attached PDF!, Dig up all the information about Cold Email Deliverability \nChecklist: How to Land in the Primary Inbox! I'm trying to write a blog about \"Cold Email Deliverability Checklist: How \nto Land in the Primary Inbox\" for Sendr, I just need a in-depth research paper about \"Cold Email Deliverability Checklist: \nHow to Land in the Primary Inbox\" and how Sendr Could be better tool for GTM strategy, cold email outreach and sales \nengagement platform at getting higher reply rate by it’s effective workflow automation and video outreach tool, better at \nhumanize cold email outreach and a Must-have Go-to-Market (GTM), AI email automation enhancer, AI Outreach Tools / \nSoftware for Sales Teams, how it makes video outreach more personal and scalable and gets more reply rate! \",\n\n\"research_about\": {{ $json.title }}\n\"Company_summary\":\"{{ $('Code in JavaScript4').item.json.text }}\",\n\"Company_name\":\"{{ $('Webhook').item.json.query.companyName }}\"\n\n}\n\nnow according to the Example_prompt give me exact prompt. Only output prompt no other than that",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        3264,
+        -112
+      ],
+      "id": "2f7b9f20-0a10-4ce9-aac6-e355a141928f",
+      "name": "PC"
+    },
+    {
+      "parameters": {
+        "jsCode": "// This extracts the 'text' property from only the first item in the input array\nconst firstItem = $input.all()[0];\n\nreturn {\n  text: firstItem.json.text\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2912,
+        -112
+      ],
+      "id": "b415ec1f-3301-4d5a-8e89-4a45aebd7cbf",
+      "name": "Code in JavaScript4"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-5-chat",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        3632,
+        128
+      ],
+      "id": "e98fd150-6518-4264-8e46-89d034658f08",
+      "name": "OpenRouter Chat Model3",
+      "credentials": {
+        "openRouterApi": {
+          "id": "pEiLaxRT18kXjXYb",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}\n\nAlso extract information from these given links and include it in the research paper as well:  \n({{ $('Code in JavaScript5').item.json.link1 }}) \n({{ $('Code in JavaScript5').item.json.link2 }}) \n \n({{ $('Code in JavaScript5').item.json.link3 }}) \n \nmake a detailed research paper about all the things mentioned above, for me to use it in my blog! ",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        3648,
+        -112
+      ],
+      "id": "c1133ca9-bfca-449c-8fcb-0b15e486be34",
+      "name": "RS"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-5-chat",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        3760,
+        528
+      ],
+      "id": "dd15718d-1bbf-4558-89ab-f8017fcf9b9f",
+      "name": "OpenRouter Chat Model4",
+      "credentials": {
+        "openRouterApi": {
+          "id": "pEiLaxRT18kXjXYb",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Assume input comes from previous node\nconst input = items.map(item => item.json); // get JSON from n8n items\n\n// Prepare output object\nconst output = {};\n\n// Loop over all objects and extract the 'position_1_link'\ninput.forEach((item, index) => {\n    if(item.position_1_link) {\n        output[`link${index + 1}`] = item.position_1_link;\n    }\n});\n\n// Return in n8n format\nreturn [{ json: output }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1952,
+        -112
+      ],
+      "id": "764fabd7-0b09-428d-9fff-4ee23f4e08a8",
+      "name": "Code in JavaScript5"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"results\": [\n    {\n      \"url\": \"URL_1\",\n      \"one_word_keywords\": [\n        {\"keyword\": \"word1\", \"density\": 4.2},\n        {\"keyword\": \"word2\", \"density\": 4.0},\n        {\"keyword\": \"word3\", \"density\": 4.0}\n      ],\n      \"two_word_keywords\": [\n        {\"keyword\": \"phrase1\", \"density\": 2.1},\n        {\"keyword\": \"phrase2\", \"density\": 2.0}\n      ],\n      \"three_word_keywords\": [\n        {\"keyword\": \"three word1\", \"density\": 1.1},\n        {\"keyword\": \"three word2\", \"density\": 1.0}\n      ]\n    },\n    {\n      \"url\": \"URL_2\",\n      \"one_word_keywords\": [\n        {\"keyword\": \"word1\", \"density\": 4.5},\n        {\"keyword\": \"word2\", \"density\": 4.3},\n        {\"keyword\": \"word3\", \"density\": 4.0}\n      ],\n      \"two_word_keywords\": [\n        {\"keyword\": \"phrase1\", \"density\": 2.2},\n        {\"keyword\": \"phrase2\", \"density\": 2.0}\n      ],\n      \"three_word_keywords\": [\n        {\"keyword\": \"three word1\", \"density\": 1.2},\n        {\"keyword\": \"three word2\", \"density\": 1.0}\n      ]\n    },\n    {\n      \"url\": \"URL_3\",\n      \"one_word_keywords\": [\n        {\"keyword\": \"word1\", \"density\": 4.1},\n        {\"keyword\": \"word2\", \"density\": 4.0},\n        {\"keyword\": \"word3\", \"density\": 4.0}\n      ],\n      \"two_word_keywords\": [\n        {\"keyword\": \"phrase1\", \"density\": 2.3},\n        {\"keyword\": \"phrase2\", \"density\": 2.0}\n      ],\n      \"three_word_keywords\": [\n        {\"keyword\": \"three word1\", \"density\": 1.1},\n        {\"keyword\": \"three word2\", \"density\": 1.0}\n      ]\n    }\n  ]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        3904,
+        528
+      ],
+      "id": "8f25b989-35d9-4c19-a35b-f9efd7eaea25",
+      "name": "Structured Output Parser2"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Analyze the content of each URL I provide. For each URL:\n\n1. Count the total words in the page (including headings, paragraphs, and meta text).  \n2. Identify **important keywords** based on density relative to word count:  \n   - One-word keywords: any word used **4% or more** of total words  \n   - Two-word keywords: any phrase used **2% or more** of total words  \n   - Three-word keywords: any phrase used **1% or more** of total words  \n3. Ignore navigation, footers, and repeated boilerplate text.  \n4. Return **JSON only** in this format:\n\nInput URLs (JSON):\n{\n  \"url\": [\"{{ $json.top3_ranked_websites[0] }}\", \"{{ $json.top3_ranked_websites[1] }}\", \"{{ $json.top3_ranked_websites[2] }}\"]\n}",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        3760,
+        304
+      ],
+      "id": "4ef5a088-120c-4263-b18c-c9563a4aafc1",
+      "name": "KD"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-5-chat",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        2000,
+        496
+      ],
+      "id": "10b4b02f-de82-48ee-805f-15ad9dfe33b0",
+      "name": "OpenRouter Chat Model5",
+      "credentials": {
+        "openRouterApi": {
+          "id": "pEiLaxRT18kXjXYb",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an prompt engineer. I will give you some details and example so that you give me exact prompt similar to example that I gave you below:\n{\n\"Example_prompt\":\"I need outline of H2s and H3s for this blog: \"{{ $json.title }}\". Analyze the Web, google and the internet and the created The H2s and H3s must be \nHighly search googled questions on google! Like: \n● \"{{ $json.most_searched_questions[0] }}\" \n● \"{{ $json.most_searched_questions[1] }}\" \n● \"{{ $json.most_searched_questions[2] }}\" \n● \"{{ $json.most_searched_questions[3] }}\" \n● \"{{ $json.most_searched_questions[4] }}\" \n\n \nIncorporate the above questions as H2s or H3s as well! All the H2s and H3s Titles and questions must be \nhighly search questions from google and some questions should show how {{ $json.company_name }}'s is a best tool or service or platform using company_summary, \n\nThe total work count of the blog must be 4000 words, make the H2 and H3s \noutlines according to the word count! I'm writing this blog for company_name! \nokay list them down in bullet points and label each as H2 or H3 at from and I only want straight questions \nsoo! Use the information from the company summary and research paper to generate H2s and H3s outline! \",\n\n\"Highly_search_googled_queries\":\"{{ $json.most_searched_query }}\",\n\"Company_summary\":\"{{ $json.company_desc }}\",\n\"Company_name\":\"{{ $json.company_name }}\",\n\"research_paper\":\"{{ $json.research_paper }}\"\n\n}\n\nnow according to the Example_prompt give me exact prompt. Only output prompt no other than that modify according to the company_summary and company_name and the Highly_search_googled_questions ",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        2048,
+        304
+      ],
+      "id": "42f08a7c-db95-4985-bf09-0ffc96416358",
+      "name": "OT-PC"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-5-chat",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        2832,
+        480
+      ],
+      "id": "81895268-71ab-45da-bd19-cab67addbaf0",
+      "name": "OpenRouter Chat Model6",
+      "credentials": {
+        "openRouterApi": {
+          "id": "pEiLaxRT18kXjXYb",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        2832,
+        304
+      ],
+      "id": "b03a353c-82c4-40da-8980-bfdaddf6e288",
+      "name": "OT"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "[\n  {\n    \"h2\": \"Why are my cold emails going to spam in 2026?\",\n    \"h3\": [\n      \"What are the new Google and Yahoo sender requirements?\",\n      \"How does domain reputation affect email deliverability?\",\n      \"Is my email content triggering spam filters?\",\n      \"Why is personalization the key to inbox placement?\"\n    ]\n  },\n  {\n    \"h2\": \"How to tell if my domain is blacklisted?\",\n    \"h3\": [\n      \"What are the best tools to check domain health?\",\n      \"What is the difference between a domain blocklist and an IP blocklist?\",\n      \"How do I remove my domain from a blacklist?\"\n    ]\n  },\n  {\n    \"h2\": \"How to set up SPF, DKIM, and DMARC for cold email?\",\n    \"h3\": [\n      \"What is SPF and how do I configure it correctly?\",\n      \"How to generate DKIM keys for Google Workspace and Outlook?\",\n      \"What DMARC policy should I use for cold outreach?\",\n      \"Why is technical authentication not enough without engagement?\"\n    ]\n  },\n  {\n    \"h2\": \"How long does it take to warm up an email domain?\",\n    \"h3\": [\n      \"What is the best email warmup schedule for a new domain?\",\n      \"Can I skip the warmup process if I use an aged domain?\",\n      \"How does automated warmup differ from manual warming?\"\n    ]\n  },\n  {\n    \"h2\": \"What is the best daily sending limit for cold email?\",\n    \"h3\": [\n      \"How many cold emails can I safely send per day per inbox?\",\n      \"Does sending volume impact open rates?\",\n      \"How to scale outreach without getting banned?\"\n    ]\n  },\n  {\n    \"h2\": \"Why did my open rate suddenly drop?\",\n    \"h3\": [\n      \"Am I using too many spam trigger words in my subject lines?\",\n      \"How often should I clean my email list?\",\n      \"Why is valid contact data crucial for preventing bounce spikes?\"\n    ]\n  },\n  {\n    \"h2\": \"How to fix cold email reputation?\",\n    \"h3\": [\n      \"What steps should I take immediately after a reputation drop?\",\n      \"How to use Google Postmaster Tools to monitor domain health?\",\n      \"Should I buy a new domain or repair the old one?\"\n    ]\n  },\n  {\n    \"h2\": \"How to avoid the Gmail Promotions tab?\",\n    \"h3\": [\n      \"Difference between Primary, Social, and Promotions tabs?\",\n      \"Does removing images help land in the Primary inbox?\",\n      \"How does HTML vs. Plain Text affect placement?\",\n      \"Can adding an unsubscribe link hurt deliverability?\"\n    ]\n  },\n  {\n    \"h2\": \"How to Boost Your Response Rates with AI Personalization?\",\n    \"h3\": [\n      \"Why is generic text outreach failing in 2026?\",\n      \"How to use AI to personalize sales outreach at scale?\",\n      \"What is the best AI outreach tool to personalize your sales outreach?\"\n    ]\n  },\n  {\n    \"h2\": \"How to create personalized landing pages at scale?\",\n    \"h3\": [\n      \"Do links in cold emails always trigger spam filters?\",\n      \"How to send attachments without going to spam?\",\n      \"Why are personalized landing pages better than standard website links?\"\n    ]\n  },\n  {\n    \"h2\": \"What is the evolving Go-to-market strategy for cold email?\",\n    \"h3\": [\n      \"Is cold email dead or just changing?\",\n      \"How to integrate video prospecting into your GTM strategy?\",\n      \"Why is Sendr the best sales engagement platform for modern GTM teams?\"\n    ]\n  },\n  {\n    \"h2\": \"Final Checklist: How to maintain 95%+ deliverability?\",\n    \"h3\": [\n      \"What is the daily routine for a high-performing SDR?\",\n      \"How often should I rotate my email content?\",\n      \"Ready to start? (Call to Action for Sendr)\"\n    ]\n  }\n]"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        2976,
+        480
+      ],
+      "id": "a67dfd15-a402-464e-8394-1a856bde1857",
+      "name": "Structured Output Parser3"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get input JSON from previous node\nconst input = $input.item.json.output.results;\n\n// Initialize an array to hold all keywords\nlet allKeywords = [];\n\n// Loop through each URL result\ninput.forEach(item => {\n  // Extract one-word, two-word, three-word keywords\n  ['one_word_keywords', 'two_word_keywords', 'three_word_keywords'].forEach(type => {\n    if (item[type]) {\n      item[type].forEach(kwObj => {\n        allKeywords.push(kwObj.keyword);\n      });\n    }\n  });\n});\n\n// Remove duplicates (optional)\nallKeywords = [...new Set(allKeywords)];\n\n// Convert to comma-separated string\nconst keywordsString = allKeywords.map(k => `\"${k}\"`).join(', ');\n\n// Return as JSON\nreturn [\n  {\n    json: {\n      \"Keyword\": keywordsString\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4064,
+        304
+      ],
+      "id": "bf1ccd0d-5981-454d-9750-d03aa6bff7c7",
+      "name": "Code in JavaScript6"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "blogs",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Webhook').item.json.query.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "keywords",
+              "fieldValue": "={ {{ $json.Keyword }} }"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        4224,
+        304
+      ],
+      "id": "d919d1ed-87ff-4c0d-a240-a6020e7900b0",
+      "name": "Update a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "AZPyAU41elqcvzrq",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "google/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        4432,
+        496
+      ],
+      "id": "5640ed30-e1ee-4ddf-a7c4-366cfdd8c09f",
+      "name": "OpenRouter Chat Model7",
+      "credentials": {
+        "openRouterApi": {
+          "id": "pEiLaxRT18kXjXYb",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "blogs",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Webhook').item.json.query.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "company_desc",
+              "fieldValue": "={{ $json.text }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        3072,
+        -112
+      ],
+      "id": "45b6a9cf-84e5-40b2-85f2-643d748b4f2d",
+      "name": "Update a row1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "AZPyAU41elqcvzrq",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json.output;\n\nlet formattedText = '';\n\ndata.forEach(section => {\n  formattedText += `H2: ${section.h2}\\n`;\n  \n  section.h3.forEach(sub => {\n    formattedText += `H3: ${sub}\\n`;\n  });\n\n  formattedText += `\\n`; // extra space between sections\n});\n\nreturn [\n  {\n    json: {\n      text: formattedText.trim()\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3248,
+        304
+      ],
+      "id": "9c181235-ea0f-48e3-95bb-10058a8f5b8e",
+      "name": "Code in JavaScript7"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "blogs",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Webhook').item.json.query.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "outline",
+              "fieldValue": "={{ $json.text }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        3456,
+        304
+      ],
+      "id": "185813e8-ee54-4bd1-9fc0-330c7c790db7",
+      "name": "Update a row2",
+      "credentials": {
+        "supabaseApi": {
+          "id": "AZPyAU41elqcvzrq",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Generate a 4000-word, fully SEO-optimized and AI SEO-optimized blog titled (very important): “{{ $json.title }}” \n\nThe content must be:  \n● 100% unique, plagiarism-free \n● High-readability \n● deeply informative \n● structured mostly in bullet points for maximum AI SEO optimization. \n● Clear user intent \n● Give direct answer to the viewers \n\nREQUIREMENTS \n1. Mandatory Brand Mentions \nThroughout the blog, naturally mention {{ $json.company_name }} as: \n● The best [industry/category] tool in the market\n● Offering [key product/service features]\n● A platform for [primary benefit/outcome]\n\nusing company summary:\"{{ $json.company_desc }}\"\nI have created a research paper about the topic/title I want to write a blog about. Use the following research paper as the primary source of information when generating the content. Base the article strictly on the insights, data, and explanations from this research paper. Expand on ideas where helpful for clarity, but do not introduce unrelated information or drift away from the material provided. Ensure the final content remains detailed, informative, and faithful to the research paper while adapting it into blog-style content around the given title/topic.\n\nResearch Paper: \"{{ $json.research_paper }}\"\n\n2. Required CTAs \nInclude that are appropirate to company like “Start Free Trial (No Credit Card Required), or any creative way of CTA” use company summary for this.\n→ Add these CTAs in: \n● The first section \n● The mid section \n● Final section \n\n3. Keyword Requirements \nThe blog must reach exactly 4000 words. (very important) \nEach keyword below must reach 3% keyword density (very important):\n{{ $json.keywords[0] }},{{ $json.keywords[1] }},{{ $json.keywords[2] }},{{ $json.keywords[3] }},{{ $json.keywords[4] }},{{ $json.keywords[5] }},{{ $json.keywords[6] }},{{ $json.keywords[7] }},{{ $json.keywords[8] }},{{ $json.keywords[9] }},{{ $json.keywords[10] }},{{ $json.keywords[11] }},{{ $json.keywords[12] }}.\n\n4. Use Information from the Provided company summary \nIntegrate any relevant insights about: \n● company’s features \n● company’s services/prduct\n● company’s industry\n● company’s niche\n● what the company does\n\n5. Structure Requirements \nFollow only the H2 and H3 titles provided below. \nDo NOT add new H2s, but feel free to expand with bullets, examples, workflows, and explanations \nunder each heading and the answers must be direct to the questions, no false information should be \nadded on the blog. \nH2 + H3 OUTLINE (USE EXACTLY AS PROVIDED) \n{{ $json.outline }}\n\nOUTPUT FORMAT \nDeliver the entire article in DOC-style format (Headings, spacing, structure kept clean and readable).",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        4432,
+        304
+      ],
+      "id": "b655c5dc-ab63-4e3c-9428-644438b146f5",
+      "name": "P"
+    },
+    {
+      "parameters": {
+        "model": "anthropic/claude-sonnet-4.6",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        4720,
+        480
+      ],
+      "id": "bbe89919-88f5-4a3a-a910-59685575208d",
+      "name": "OpenRouter Chat Model8",
+      "credentials": {
+        "openRouterApi": {
+          "id": "pEiLaxRT18kXjXYb",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Check for any plagarism in the blog on the internet.If there are plagarism paraphrase it but do not remove any important keywords which are incorporated on the blog, \nKeywords:{{ $('Update a row').item.json.keywords[0] }},\n{{ $('Update a row').item.json.keywords[1] }},\n{{ $('Update a row').item.json.keywords[2] }},\n{{ $('Update a row').item.json.keywords[3] }},\n{{ $('Update a row').item.json.keywords[4] }},\n{{ $('Update a row').item.json.keywords[5] }},\n{{ $('Update a row').item.json.keywords[6] }},\n{{ $('Update a row').item.json.keywords[7] }},\n{{ $('Update a row').item.json.keywords[8] }},\n{{ $('Update a row').item.json.keywords[9] }},\n{{ $('Update a row').item.json.keywords[10] }},\n{{ $('Update a row').item.json.keywords[11] }},\n{{ $('Update a row').item.json.keywords[12] }},\n{{ $('Update a row').item.json.keywords[13] }},\n{{ $('Update a row').item.json.keywords[14] }},\n{{ $('Update a row').item.json.keywords[15] }}.\n\n** Input **\nBlog: {{ $json.output }}\n\nPrepare the final format as it is, don't output other than the blog.\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        4752,
+        304
+      ],
+      "id": "87339516-bb4a-42e6-882c-51b10e2e21b6",
+      "name": "P1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "blogs",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Webhook').item.json.query.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "content",
+              "fieldValue": "={{ $json.output }}"
+            },
+            {
+              "fieldId": "content_from_ai",
+              "fieldValue": "True"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        5104,
+        304
+      ],
+      "id": "5dd32e45-9eb1-4ea3-a889-6918f98e10ea",
+      "name": "Update a row3",
+      "credentials": {
+        "supabaseApi": {
+          "id": "AZPyAU41elqcvzrq",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "blogs",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Webhook').item.json.query.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "most_searched_query",
+              "fieldValue": "=1. {{ $json.output.most_searched_query1 }}\n2. {{ $json.output.most_searched_query2 }}\n3. {{ $json.output.most_searched_query3 }}\n4. {{ $json.output.most_searched_query4 }}\n5. {{ $json.output.most_searched_query5 }}\n6. {{ $json.output.most_searched_query6 }}\n7. {{ $json.output.most_searched_query7 }}\n8. {{ $json.output.most_searched_query8 }}\n9. {{ $json.output.most_searched_query9 }}\n10. {{ $json.output.most_searched_query10 }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        368,
+        -224
+      ],
+      "id": "d79a46d0-5a9e-4bd0-a16e-15b239373495",
+      "name": "Update a row4",
+      "credentials": {
+        "supabaseApi": {
+          "id": "AZPyAU41elqcvzrq",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        656,
+        -112
+      ],
+      "id": "2837a0af-8c68-4e55-b163-bc3211259b68",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "blogs",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Webhook').item.json.query.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "most_searched_questions",
+              "fieldValue": "={{ $json.questions }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        512,
+        16
+      ],
+      "id": "c0c50efc-33c0-4d8f-bec5-f309389166cb",
+      "name": "Update a row5",
+      "credentials": {
+        "supabaseApi": {
+          "id": "AZPyAU41elqcvzrq",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "blogs",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "keyValue": "={{ $('Webhook').item.json.query.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        960,
+        -112
+      ],
+      "id": "0dd492ec-e2d4-494a-8184-61ac88601b8c",
+      "name": "Get a row2",
+      "credentials": {
+        "supabaseApi": {
+          "id": "AZPyAU41elqcvzrq",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all input items\nconst items = $input.all();\n\nif (items.length < 2) {\n  return items;\n}\n\nconst item1 = items[0].json;\nconst item2 = items[1].json;\n\n// Deep merge: item1 is the base, item2 fills in any missing/null fields\nconst merged = { ...item1 };\n\nfor (const key of Object.keys(item2)) {\n  // If the base value is null/undefined/empty but item2 has a value, use item2's\n  if (\n    merged[key] === null ||\n    merged[key] === undefined ||\n    merged[key] === \"\"\n  ) {\n    merged[key] = item2[key];\n  }\n\n  // For arrays, merge unique values\n  if (Array.isArray(merged[key]) && Array.isArray(item2[key])) {\n    merged[key] = [...new Set([...merged[key], ...item2[key]])];\n  }\n}\n\nreturn [{ json: merged }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        -112
+      ],
+      "id": "f1cd15d0-331d-4233-ac11-b9ff584b9319",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.myNewField = 1;\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        -112
+      ],
+      "id": "5d1359ed-6242-43ec-a33e-ca354ead1f5d",
+      "name": "Code in JavaScript9"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get input JSON from previous node\nconst input = $input.item.json.output;\n\n// Extract all questions into an array\nconst questionsArray = Object.keys(input)\n  .filter(key => key.startsWith('most_googled_question'))\n  .sort((a, b) => {\n    const numA = parseInt(a.replace('most_googled_question', ''));\n    const numB = parseInt(b.replace('most_googled_question', ''));\n    return numA - numB;\n  })\n  .map(key => input[key]);\n\n// Return as single item with array\nreturn [\n  {\n    json: {\n      questions: questionsArray\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        352,
+        48
+      ],
+      "id": "5e4aa147-4b90-46ca-aad5-dad34ce863c8",
+      "name": "Code in JavaScript10"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "blogs",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Webhook').item.json.query.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "research_paper",
+              "fieldValue": "={{ $json.text }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        4000,
+        -112
+      ],
+      "id": "7828f138-a367-437b-80a2-1b6caaf9274b",
+      "name": "Update a row6",
+      "credentials": {
+        "supabaseApi": {
+          "id": "AZPyAU41elqcvzrq",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "blogs",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "keyValue": "={{ $('Webhook').item.json.query.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        4176,
+        -112
+      ],
+      "id": "473e46f1-48fc-4d03-b224-86b3a4f9307a",
+      "name": "Get a row3",
+      "credentials": {
+        "supabaseApi": {
+          "id": "AZPyAU41elqcvzrq",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "blogs",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Webhook').item.json.query.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "top3_ranked_websites",
+              "fieldValue": "={{ $json.links }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2384,
+        -112
+      ],
+      "id": "b17014ef-1200-4b2b-8a22-c3fb4af09274",
+      "name": "Update a row7",
+      "credentials": {
+        "supabaseApi": {
+          "id": "AZPyAU41elqcvzrq",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get input JSON from previous node\nconst input = $input.item.json;\n\n// Extract all links into an array\nconst linksArray = Object.keys(input)\n  .filter(key => key.startsWith('link'))\n  .sort((a, b) => {\n    const numA = parseInt(a.replace('link', ''));\n    const numB = parseInt(b.replace('link', ''));\n    return numA - numB;\n  })\n  .map(key => input[key]);\n\n// Return as single item with array\nreturn [\n  {\n    json: {\n      links: linksArray\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2160,
+        -112
+      ],
+      "id": "42d439bf-9338-4c3a-a943-e2179e8e769a",
+      "name": "Code in JavaScript11"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a row": {
+      "main": [
+        [
+          {
+            "node": "MS",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "MSQ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "MS",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "MS",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "MSQ",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "MSQ",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MS": {
+      "main": [
+        [
+          {
+            "node": "Update a row4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MSQ": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ranked 1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ranked 2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ranked 3": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "PC",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript4": {
+      "main": [
+        [
+          {
+            "node": "Update a row1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "RS",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PC": {
+      "main": [
+        [
+          {
+            "node": "RS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "KD",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript5": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript11",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser2": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "KD",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RS": {
+      "main": [
+        [
+          {
+            "node": "Update a row6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "OT-PC",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OT-PC": {
+      "main": [
+        [
+          {
+            "node": "OT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model6": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "OT",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser3": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "OT",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OT": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KD": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript6": {
+      "main": [
+        [
+          {
+            "node": "Update a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model7": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "P",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row1": {
+      "main": [
+        [
+          {
+            "node": "PC",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript7": {
+      "main": [
+        [
+          {
+            "node": "Update a row2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row2": {
+      "main": [
+        [
+          {
+            "node": "KD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row": {
+      "main": [
+        [
+          {
+            "node": "P",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P": {
+      "main": [
+        [
+          {
+            "node": "P1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model8": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "P1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P1": {
+      "main": [
+        [
+          {
+            "node": "Update a row3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row4": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row5": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Get a row2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a row2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript10": {
+      "main": [
+        [
+          {
+            "node": "Update a row5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript9": {
+      "main": [
+        [
+          {
+            "node": "Ranked 1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Ranked 2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Ranked 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row6": {
+      "main": [
+        [
+          {
+            "node": "Get a row3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a row3": {
+      "main": [
+        [
+          {
+            "node": "OT-PC",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row7": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript11": {
+      "main": [
+        [
+          {
+            "node": "Update a row7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "3911ad6b-3185-4166-a845-8c36cff0cd03",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f55df694425350dea3f1541c702a2c2421decfcb120c29876aa3c3525c6c33a0"
+  },
+  "id": "FWtKpUqccnllF2WT",
+  "tags": []
+}

@@ -47,7 +47,7 @@ export default function BlogOutput({ blog }) {
                 <div className="space-y-4">
                     <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 text-[10px] font-bold uppercase tracking-widest border border-emerald-500/20">
                         <CheckCircle size={10} />
-                        Production Ready Synthesis
+                        AI-Optimized Draft
                     </div>
                     <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-foreground leading-tight max-w-2xl">
                         {blog.title}
@@ -86,9 +86,9 @@ export default function BlogOutput({ blog }) {
                     <Card className="p-8 md:p-12 bento-card border-primary/5 shadow-2xl shadow-primary/5 min-h-[600px] bg-card/50">
                         <div className="flex items-center gap-1.5 mb-8 text-[11px] font-bold text-muted-foreground/50 uppercase tracking-[0.3em]">
                             <FileText size={12} />
-                            Semantic Composition
+                            Blog Content
                         </div>
-                        <div className="prose prose-invert max-w-none blog-content">
+                        <div className="prose max-w-none blog-content">
                             <ReactMarkdown
                                 components={{
                                     h1: ({ children }) => (
@@ -213,7 +213,7 @@ export default function BlogOutput({ blog }) {
                         <div className="flex items-center justify-between mb-8">
                             <div className="space-y-1">
                                 <h4 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">SEO Index</h4>
-                                <p className="text-xs font-medium text-muted-foreground/60">Algorithm v2.4 Intelligence</p>
+                                <p className="text-xs font-medium text-muted-foreground/60">Keyword coverage score</p>
                             </div>
                             <div className={cn("text-3xl font-black tracking-tighter cinematic-glow", getScoreColor(seoScore))}>
                                 {seoScore}%
@@ -305,18 +305,15 @@ export default function BlogOutput({ blog }) {
                             )}
 
                             {blog.research_paper && (
-                                <div className="space-y-2 pt-2 border-t border-dashed">
-                                    <h5 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 mb-2">Reference Material</h5>
-                                    <a
-                                        href={blog.research_paper}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-primary bg-primary/10 hover:bg-primary/20 px-4 py-2.5 rounded-xl transition-colors w-full justify-center"
-                                    >
+                                <details className="space-y-2 pt-2 border-t border-dashed group">
+                                    <summary className="flex items-center gap-2 cursor-pointer list-none text-[11px] font-bold uppercase tracking-widest text-primary bg-primary/10 hover:bg-primary/20 px-4 py-2.5 rounded-xl transition-colors justify-center">
                                         <FileText size={14} />
                                         View Research Paper
-                                    </a>
-                                </div>
+                                    </summary>
+                                    <div className="mt-3 max-h-72 overflow-y-auto whitespace-pre-wrap rounded-lg bg-muted/40 p-4 text-[11px] leading-relaxed text-muted-foreground">
+                                        {blog.research_paper}
+                                    </div>
+                                </details>
                             )}
                         </Card>
                     )}
@@ -330,11 +327,11 @@ export default function BlogOutput({ blog }) {
                             <TrendingUp size={18} className="text-primary" />
                         </div>
                         <div>
-                            <h4 className="text-sm font-extrabold tracking-tight mb-1">Boost Domain Authority</h4>
-                            <p className="text-[11px] opacity-70 font-medium leading-relaxed">This composition is optimized for secondary LSI clusters. Reach out to our team to automate link-building for this asset.</p>
+                            <h4 className="text-sm font-extrabold tracking-tight mb-1">Built to be AI-cited</h4>
+                            <p className="text-[11px] opacity-70 font-medium leading-relaxed">Direct-answer blocks, question headings, stats and named entities — structured so Google and AI search engines quote it.</p>
                         </div>
                         <Button variant="outline" className="w-full h-9 text-[10px] font-extrabold uppercase tracking-widest border-primary/20 hover:bg-primary/5 text-primary">
-                            Automation Studio
+                            GenFlows Glass Box
                         </Button>
                     </div>
                 </div>

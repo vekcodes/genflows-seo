@@ -1,7 +1,11 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap");
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
 @theme {
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+
+  /* token -> CSS var bridge (shadcn-style) */
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
   --color-card: hsl(var(--card));
@@ -21,6 +25,18 @@
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
+
+  /* GenFlows brand palette (direct names: bg-navy, text-orange, …) */
+  --color-navy: #0a1f35;
+  --color-orange: #e67e22;
+  --color-cloud: #edeff7;
+  --color-smoke: #d3d6e0;
+  --color-steel: #bcbfcc;
+  --color-space: #9da2b3;
+  --color-graphite: #6e7180;
+  --color-arsenic: #40424d;
+  --color-phantom: #1e1e24;
+
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
@@ -28,77 +44,63 @@
 
 @layer base {
   :root {
-    --background: 330 3% 12%;
-    --foreground: 0 0% 98%;
-    --card: 330 3% 12%;
-    --card-foreground: 0 0% 98%;
-    --popover: 330 3% 12%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 11 100% 50%;
+    --background: 0 0% 100%; /* white */
+    --foreground: 211 68% 12%; /* navy */
+    --card: 0 0% 100%;
+    --card-foreground: 211 68% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 211 68% 12%;
+    --primary: 28 80% 52%; /* orange */
     --primary-foreground: 0 0% 100%;
-    --secondary: 330 3% 18%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 330 3% 18%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 330 3% 18%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 330 3% 20%;
-    --input: 330 3% 20%;
-    --ring: 11 100% 50%;
+    --secondary: 228 38% 95%; /* cloud */
+    --secondary-foreground: 211 68% 12%;
+    --muted: 228 38% 95%; /* cloud */
+    --muted-foreground: 230 9% 47%; /* graphite */
+    --accent: 28 80% 95%; /* orange tint */
+    --accent-foreground: 211 68% 12%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 226 17% 88%; /* smoke */
+    --input: 226 17% 88%;
+    --ring: 28 80% 52%; /* orange */
     --radius: 0.75rem;
   }
 }
 
 @layer base {
   * {
-    @apply border-border;
+    border-color: hsl(var(--border));
   }
-
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
-/* Cinematic Colors & Bento Elements */
-:root {
-  --cinematic-gold: 43 100% 70%;
-  --cinematic-blue: 210 100% 60%;
-  --cinematic-overlay: rgba(0, 0, 0, 0.02);
-}
-
-.dark {
-  --cinematic-overlay: rgba(255, 255, 255, 0.02);
-}
-
+/* Cards */
 .bento-card {
-  @apply rounded-xl border bg-card text-card-foreground shadow-sm transition-all duration-300 hover:shadow-md hover:border-accent/40;
+  @apply rounded-xl border bg-card text-card-foreground shadow-sm transition-all duration-300;
 }
 
-.cinematic-glow {
-  position: relative;
+/* Form inputs */
+.input {
+  @apply w-full rounded-lg border bg-white px-3 py-2.5 text-sm text-navy outline-none transition-colors;
+}
+.input:focus {
+  border-color: hsl(var(--ring));
 }
 
-.cinematic-glow::after {
-  content: "";
-  position: absolute;
-  inset: -10px;
-  background: radial-gradient(circle at center, hsla(var(--primary), 0.05), transparent 70%);
-  pointer-events: none;
-  z-index: -1;
-}
-
-/* Glassmorphism for bento boxes */
-.glass-box {
-  background: rgba(var(--background), 0.6);
-  backdrop-filter: blur(12px);
-  border: 1px solid hsla(var(--border), 0.4);
-}
+/* GenFlows type scale helpers */
+.gf-h1 { font-size: 64px; line-height: 1.04; font-weight: 800; letter-spacing: -0.02em; }
+.gf-h2 { font-size: 48px; line-height: 1.08; font-weight: 800; letter-spacing: -0.02em; }
+.gf-sub1 { font-size: 32px; line-height: 1.2; font-weight: 700; }
+.gf-sub2 { font-size: 24px; line-height: 1.3; font-weight: 600; }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+  .text-balance { text-wrap: balance; }
 }
+
+/* Thin custom scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground) / 0.5); }

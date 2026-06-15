@@ -1,147 +1,59 @@
-import { useState, useEffect } from 'react'
-import Sidebar from './components/Sidebar'
-import MainPanel from './components/MainPanel'
-import { supabase } from './lib/supabase'
+import { NavLink, Outlet } from 'react-router-dom'
+import { CalendarDays, Building2, FlaskConical } from 'lucide-react'
+import CompanySwitcher from './components/CompanySwitcher'
 
-function App() {
-  const [sessions, setSessions] = useState([])
-  const [activeSession, setActiveSession] = useState(null)
-  const [sidebarOpen, setSidebarOpen] = useState(true)
-  const [loading, setLoading] = useState(true)
+const navItems = [
+  { to: '/calendar', label: 'Calendar', icon: CalendarDays },
+  { to: '/companies', label: 'Companies', icon: Building2 },
+  { to: '/autoresearch', label: 'Autoresearch', icon: FlaskConical },
+]
 
-  useEffect(() => {
-    fetchSessions()
-  }, [])
-
-  const fetchSessions = async () => {
-    try {
-      setLoading(true)
-      const { data, error } = await supabase
-        .from('sessions')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      if (error) throw error
-      setSessions(data || [])
-    } catch (err) {
-      console.error('Error fetching sessions:', err)
-      // Fallback to mock data for demo
-      setSessions([
-        { id: '1', title: 'E-commerce SEO Strategy', timestamp: '2h ago', status: 'complete' },
-        { id: '2', title: 'SaaS Landing Page Blog', timestamp: 'Yesterday', status: 'complete' },
-        { id: '3', title: 'Tech Startup Article', timestamp: '3 days ago', status: 'complete' },
-      ])
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const createNewSession = async () => {
-    const newSessionData = {
-      title: 'New SEO Project',
-      status: 'active'
-    }
-
-    try {
-      const { data, error } = await supabase
-        .from('sessions')
-        .insert([newSessionData])
-        .select()
-
-      if (error) throw error
-
-      const session = data[0]
-      setSessions(prev => [session, ...prev])
-      setActiveSession(session.id)
-    } catch (err) {
-      console.error('Error creating session:', err)
-      // Fallback for demo
-      const mockSession = {
-        id: Date.now().toString(),
-        ...newSessionData,
-        timestamp: 'Just now'
-      }
-      setSessions(prev => [mockSession, ...prev])
-      setActiveSession(mockSession.id)
-    }
-  }
-
-  const deleteSession = async (id) => {
-    try {
-      // Delete associated blogs first
-      await supabase
-        .from('blogs')
-        .delete()
-        .eq('session_id', id)
-
-      const { error } = await supabase
-        .from('sessions')
-        .delete()
-        .eq('id', id)
-
-      if (error) throw error
-
-      setSessions(prev => prev.filter(s => s.id !== id))
-      if (activeSession === id) {
-        setActiveSession(null)
-      }
-    } catch (err) {
-      console.error('Error deleting session:', err)
-      // Local update for demo/unconnected environments
-      setSessions(prev => prev.filter(s => s.id !== id))
-      if (activeSession === id) setActiveSession(null)
-    }
-  }
-
-  const renameSession = async (id, newTitle) => {
-    try {
-      const { error: sessionError } = await supabase
-        .from('sessions')
-        .update({ title: newTitle })
-        .eq('id', id)
-
-      if (sessionError) throw sessionError
-
-      // Sync project title in blogs table
-      await supabase
-        .from('blogs')
-        .update({ project: newTitle })
-        .eq('session_id', id)
-
-      setSessions(prev => prev.map(s => s.id === id ? { ...s, title: newTitle } : s))
-    } catch (err) {
-      console.error('Error renaming session:', err)
-      // Local update for demo
-      setSessions(prev => prev.map(s => s.id === id ? { ...s, title: newTitle } : s))
-    }
-  }
-
+export default function App() {
   return (
-    <div className="flex h-screen w-full bg-background overflow-hidden selection:bg-primary selection:text-primary-foreground">
-      <Sidebar
-        open={sidebarOpen}
-        onToggle={() => setSidebarOpen(o => !o)}
-        sessions={sessions}
-        activeSession={activeSession}
-        onSelectSession={setActiveSession}
-        onNewSession={createNewSession}
-        onDeleteSession={deleteSession}
-        onRenameSession={renameSession}
-        loading={loading}
-      />
-      <div className="flex-1 flex flex-col min-w-0 bg-transparent">
-        <MainPanel
-          sidebarOpen={sidebarOpen}
-          onToggleSidebar={() => setSidebarOpen(o => !o)}
-          activeSession={activeSession}
-          onNewSession={createNewSession}
-          onSessionUpdate={(id, updates) => {
-            setSessions(prev => prev.map(s => s.id === id ? { ...s, ...updates } : s))
-          }}
-        />
+    <div className="flex h-screen w-full overflow-hidden bg-cloud/40">
+      {/* Sidebar (navy — GenFlows secondary surface) */}
+      <aside className="flex w-60 shrink-0 flex-col bg-navy text-white">
+        <div className="flex items-center gap-2.5 px-5 h-16 border-b border-white/10">
+          <img src="/genflows_agency_logo.jpg" alt="GenFlows" className="h-8 w-8 rounded-md object-contain bg-white/5" />
+          <div className="leading-tight">
+            <div className="text-sm font-extrabold tracking-tight">GenFlows</div>
+            <div className="text-[10px] uppercase tracking-[0.2em] text-white/50">SEO Engine</div>
+          </div>
+        </div>
+
+        <nav className="flex-1 px-3 py-5 space-y-1">
+          {navItems.map(({ to, label, icon: Icon }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) =>
+                `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors ${
+                  isActive ? 'bg-orange text-white' : 'text-white/70 hover:bg-white/10 hover:text-white'
+                }`
+              }
+            >
+              <Icon size={17} />
+              {label}
+            </NavLink>
+          ))}
+        </nav>
+
+        <div className="px-5 py-4 border-t border-white/10 text-[10px] leading-relaxed text-white/40">
+          Glass Box content engine — visible, engineered, ownable growth.
+        </div>
+      </aside>
+
+      {/* Main column */}
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="flex h-16 shrink-0 items-center justify-between gap-4 border-b bg-white px-6">
+          <CompanySwitcher />
+        </header>
+        <main className="flex-1 overflow-y-auto">
+          <div className="mx-auto max-w-[1400px] px-6 py-8">
+            <Outlet />
+          </div>
+        </main>
       </div>
     </div>
   )
 }
-
-export default App
