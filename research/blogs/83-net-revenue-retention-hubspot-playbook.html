@@ -1,0 +1,151 @@
+<!-- TITLE TAG: Net Revenue Retention Playbook: Renewals in HubSpot -->
+<!-- META: HubSpot has no native renewal pipeline. Here's how RevOps teams build NRR-driven renewal and expansion motions using deal stages, properties, and workflows. -->
+<!-- SLUG: blog/net-revenue-retention-hubspot-playbook-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+<div style="color:#e8732b;font-weight:700;text-transform:uppercase;font-size:13px;letter-spacing:0.5px;margin-bottom:8px;">TL;DR</div>
+<ul style="margin:0;padding-left:20px;">
+<li style="margin-bottom:6px;"><strong>Net revenue retention (NRR)</strong> = (Starting recurring revenue + expansion − churn/downgrades) ÷ Starting recurring revenue. Unlike gross revenue retention, it can exceed 100%.</li>
+<li style="margin-bottom:6px;"><strong>HubSpot has no dedicated "renewal" object.</strong> HubSpot's own documentation recommends building a separate renewal pipeline manually — there's no out-of-the-box equivalent to a Salesforce CS add-on.</li>
+<li style="margin-bottom:6px;"><strong>Recurring-revenue reporting is tier-gated.</strong> Revenue Analytics (the report that tracks NRR-relevant new/existing/lost recurring revenue) requires Sales Hub or Service Hub Enterprise; auto-renewing contracts and renewal quotes require Revenue Hub.</li>
+<li style="margin-bottom:6px;"><strong>The biggest operational gap is ownership, not tooling</strong> — expansion deals stall between CS (owns the relationship, no quota) and Sales/AM (owns the quota, not looped in until it's a risk).</li>
+<li><strong>A dedicated CS platform (ChurnZero, Vitally, PlanHat) adds health scoring and usage-data ingestion HubSpot doesn't have natively</strong> — but a well-built pipeline and property set in HubSpot covers the fundamentals for teams not ready for that spend.</li>
+</ul>
+</div>
+
+<p>If you're running outbound to fill the top of the funnel, the temptation is to treat every closed deal as done. It isn't. Net revenue retention — how much recurring revenue you keep and grow from customers you already have — usually determines whether a B2B pipeline actually compounds or just treads water. And if you're running that revenue engine in HubSpot rather than Salesforce-plus-a-CS-suite, the honest answer is that HubSpot doesn't hand you a renewal motion out of the box. You have to build one.</p>
+
+<p><em>Note: benchmark figures below are cited to their original source and marked VERIFIED or DIRECTIONAL. Where a widely-repeated number couldn't be traced to a real, named source, we've said so rather than restating it as fact.</em></p>
+
+<h2>The Short Answer</h2>
+<p>NRR measures the percentage of recurring revenue you keep from your existing customer base over a period, including expansion (upsells, seat growth, cross-sell) and net of churn and downgrades. It can go above 100% because expansion is added back in — which is the whole point: NRR is the single number that tells you whether your existing base is growing or shrinking on its own, independent of new-logo sales. HubSpot gives you the raw ingredients to track and act on it (deal properties, workflows, contracts, and — on Enterprise tiers — a recurring-revenue report), but not a packaged "renewal module." Most RevOps teams end up building a separate renewal pipeline with its own stages, tying it to a health-score property and a clear ownership rule between CS and Sales, and deciding case-by-case whether a bolt-on CS platform earns its cost.</p>
+
+<h2>NRR vs. GRR: Why the Distinction Matters</h2>
+<p>Net revenue retention and gross revenue retention (GRR) are often used interchangeably in casual conversation, and that's a mistake — they answer different questions.</p>
+<ul>
+<li><strong>GRR</strong> only counts churn and downgrades against your starting revenue base. It excludes expansion entirely, which caps it at 100%. GRR answers: "How much of my starting revenue did I keep, ignoring any growth?"</li>
+<li><strong>NRR</strong> adds expansion revenue back in. It answers: "How much did my existing customer base actually grow or shrink, all-in?" A company can have 90% GRR (losing 10% of its base to churn/downgrades) but still post 115% NRR if the customers who stayed expanded enough to more than offset that loss.</li>
+</ul>
+<p>The formula, consistent across every vendor and finance glossary that publishes it: <strong>NRR = (Starting Recurring Revenue + Expansion Revenue − Churned/Downgrade Revenue) ÷ Starting Recurring Revenue</strong>. <em>(VERIFIED — Stripe, Zuora, and ChurnZero all independently publish the identical formula.)</em></p>
+<p>Why this matters for a RevOps team building the motion in HubSpot: if you only track "did the deal renew, yes/no," you're measuring something closer to logo retention, not NRR. A customer can renew (logo retained) while quietly downgrading seats — and if nobody's watching downgrades as a distinct signal, that erosion is invisible until the ARR report comes in soft at the end of the quarter.</p>
+
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:16px 20px;margin:22px 0;border-radius:6px;">
+<strong>Common trap:</strong> confusing NRR with logo/customer-count retention. A team can retain 100% of accounts and still post NRR under 100% if seats or usage contracted across the base — or lose several accounts entirely and still post NRR above 100% if the survivors expanded hard enough. Track them as two separate numbers.
+</div>
+
+<h2>What's a "Good" NRR Number?</h2>
+<p>This is where a lot of blog content overreaches. There is no single agreed "good" NRR — it varies meaningfully by company stage and ARR band, and most of the specific numbers circulating online trace back to the same handful of secondary aggregations of a couple of industry benchmark reports, not to one clean, citable dataset.</p>
+<p>What's directionally consistent across multiple sources: earlier-stage companies (roughly under $10M ARR) tend to post higher NRR — often cited in the 105–145% range — because a smaller, more concentrated customer base can swing further on a handful of large expansions. Later-stage companies (over $100M ARR) tend to converge closer to 105–125%, since the base is larger and more averaged-out. <em>(DIRECTIONAL — this range comes from a billing-vendor analysis of public-company disclosures, not from the disclosures themselves; treat as a rough shape, not a precise benchmark.)</em> A frequently-cited industry figure puts median NRR for SaaS companies around 110% in recent benchmark surveys. <em>(DIRECTIONAL — this number is repeated widely citing an industry benchmark report, but we could not independently confirm the exact figure on the report's own primary page; cite it as a commonly-referenced industry figure, not a hard number.)</em></p>
+<p>The one number that isn't a benchmark claim at all, just arithmetic: <strong>100% NRR is the break-even floor</strong> — below it, your existing base is shrinking even before you add a single new customer. Above it, expansion is outrunning churn. That's the number worth anchoring internal targets to before reaching for an external "good NRR" figure that may not map to your stage or motion.</p>
+
+<h2>Why HubSpot Doesn't Give You This For Free</h2>
+<p>HubSpot's own documentation is explicit that renewal and recurring-revenue motions are something you build, not something that ships configured. Three concrete gaps, straight from HubSpot's knowledge base:</p>
+<ul>
+<li><strong>No native renewal pipeline.</strong> HubSpot's contracts documentation recommends "establishing a dedicated renewal pipeline" as a manual setup step for teams using auto-renewing (evergreen) contracts — confirming there's no pipeline that appears automatically.</li>
+<li><strong>Recurring-revenue reporting is Enterprise-gated.</strong> The "Recurring revenue deal type" property (New business / Renewal / Upgrade / Downgrade) is available broadly, but the Revenue Analytics report that turns it into new/existing/lost recurring-revenue tracking requires Sales Hub Enterprise or Service Hub Enterprise.</li>
+<li><strong>Renewal quotes require Revenue Hub.</strong> Generating a renewal quote directly from a contract is a Revenue Hub feature (with a seat requirement), not something available on Sales Hub alone.</li>
+</ul>
+<p>HubSpot's own blog confirms the practical result of this: renewal reminders and cadences are something "service reps can build" via workflows and custom properties — there's no native "notify me 90 days before this renews" toggle. If you've seen agency or consultant content describing HubSpot as automatically creating a renewal deal and assigning a CSM task at a fixed day count (120 days is a commonly-cited figure), that's describing someone's custom workflow build, not a native HubSpot behavior — don't take it as a documented feature.</p>
+
+<h2>Building the Renewal & Expansion Motion in HubSpot</h2>
+<h3>1. A separate pipeline, not a recycled deal stage</h3>
+<p>The single most consistent piece of practitioner guidance — echoed in HubSpot's own community and documentation — is to run renewals through a <em>separate pipeline</em> from new business, not as a late stage bolted onto the original deal. Reusing the original deal or pipeline corrupts your new-business win-rate and cycle-time reporting, since renewal cycle times and close rates behave completely differently from net-new sales.</p>
+<h3>2. A property set that actually drives the workflow</h3>
+<p>At minimum: a renewal/contract end date, the "Recurring revenue deal type" property, a health-score property (even a simple manually-set or engagement-derived score beats nothing), and a deal owner field that's explicitly the AM/CS owner, not whoever originally closed the new-business deal. These are the fields your renewal-pipeline workflows key off of.</p>
+<h3>3. Time-boxed workflow triggers, not a single reminder</h3>
+<p>A commonly-used practitioner cadence is staged reminders at roughly 120/90/60 days before contract end, escalating in urgency and audience (CSM first, then CSM+AM, then a manager-visibility flag if there's no logged engagement). <em>(DIRECTIONAL — this is a widely-repeated practitioner convention across agency and consultant content, not a documented HubSpot standard; build your own cadence around your actual sales-cycle length rather than copying it verbatim.)</em> The reason lead time matters: complex, multi-stakeholder renewals often need 90+ days to surface budget risk or build an expansion case before the contract lapses — starting at 30 days out is often too late to do anything but react.</p>
+<h3>4. A named handoff rule between CS and Sales</h3>
+<p>This is the gap that costs the most revenue in practice, and it's an ownership problem, not a tooling problem: Customer Success typically owns the relationship but doesn't carry a sales quota, while the AM or Sales rep who owns the quota often isn't looped in until the account is already flashing red. A lifecycle-stage change plus an automatic deal-owner reassignment — triggered off the health-score or renewal-date property — is the standard way to force that handoff to happen on a schedule instead of waiting for someone to notice.</p>
+
+<div style="background:#f4f7fb;border-left:4px solid #1f3a5f;padding:16px 20px;margin:22px 0;border-radius:6px;">
+<strong>Note:</strong> the "Recurring revenue deal type" property is a static reporting tag. Setting it does nothing on its own — no reminder fires, no task gets created — unless it's wired into a workflow. Teams sometimes set the property correctly and then wonder why "nothing is automated."
+</div>
+
+<h2>Native HubSpot vs. Bolt-On CS Platform vs. Custom Build</h2>
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;">
+<th style="padding:10px 12px;">Capability</th>
+<th style="padding:10px 12px;">Native in HubSpot</th>
+<th style="padding:10px 12px;">Bolt-on tool (ChurnZero/Vitally/PlanHat)</th>
+<th style="padding:10px 12px;">Custom build required</th>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Recurring revenue (MRR/ARR) on a deal</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes — auto-calculated with recurring line items</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">—</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">—</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Deal-type tagging (New/Renewal/Upgrade/Downgrade)</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes — native property</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">—</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Reporting/dashboards on top of it</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Recurring-revenue / NRR-style reporting</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Sales Hub / Service Hub Enterprise only</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Most CS platforms report this natively</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Lower tiers: custom reports/dashboards</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Dedicated renewal pipeline</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No — HubSpot's own docs say to build one</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Often included as a template</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes — standard practitioner pattern</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Renewal quotes from a contract</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Revenue Hub (seat required)</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">—</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">—</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Customer health scoring</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No native health-score object</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes — purpose-built (ChurnZero, Vitally, PlanHat)</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Crude version via weighted custom property</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Product usage / adoption data as a retention signal</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes — typically ingested natively</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Custom integration/webhook if no CS platform</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;">CS-to-Sales renewal/expansion handoff</td>
+<td style="padding:10px 12px;">No native "handoff" object</td>
+<td style="padding:10px 12px;">Sometimes via the platform's own workflows</td>
+<td style="padding:10px 12px;">Yes — lifecycle-stage change + owner reassignment</td>
+</tr>
+</table>
+
+<h2>Do You Actually Need a Dedicated CS Platform?</h2>
+<p>Not necessarily, and not right away. A well-built pipeline, a real property set, and disciplined workflow automation in HubSpot covers the fundamentals for a lot of teams — particularly ones that are still early in formalizing a renewal motion at all. Where a dedicated platform like ChurnZero, Vitally, or PlanHat earns its cost is purpose-built health scoring, direct product-usage-data ingestion, and pre-built renewal playbooks — none of which HubSpot does natively. All three integrate with HubSpot via bidirectional sync (accounts, contacts, deals, and in Vitally's and PlanHat's case, custom objects and health scores pushed back into HubSpot) rather than replacing it. None of the three CS platforms publish list pricing — it's a "contact sales," size-based model across the board, so treat any specific dollar figure you see quoted for them as directional, not a rate card.</p>
+
+<h2>Six Traps That Undercut an NRR-Driven Motion</h2>
+<ol>
+<li><strong>Watching churn and ignoring downgrades.</strong> A full cancellation gets noticed. A seat reduction or tier downgrade often doesn't — and it erodes NRR just as directly.</li>
+<li><strong>Starting the renewal conversation too late.</strong> Complex, multi-stakeholder renewals frequently need 90+ days of lead time; starting at 30 days is often a save attempt, not a renewal strategy.</li>
+<li><strong>No single owner for expansion deals.</strong> CS owns the relationship without a quota; Sales/AM owns the quota without visibility. Expansion revenue falls in that gap by default unless a handoff rule forces it to move.</li>
+<li><strong>Recycling the original deal for the renewal.</strong> This corrupts new-business win-rate and cycle-time reporting — run renewals through a separate pipeline.</li>
+<li><strong>Treating a property as if it were a workflow.</strong> Tagging a deal "Renewal" does nothing by itself; it has to trigger something.</li>
+<li><strong>Quoting a single "good NRR" number as gospel.</strong> The benchmark varies by stage and by which report you're reading — anchor internal targets to your own trend and to the 100% break-even floor before importing an external number.</li>
+</ol>
+
+<h2>Frequently Asked Questions</h2>
+<h3>What is net revenue retention (NRR)?</h3>
+<p>NRR measures the percentage of recurring revenue a company retains from its existing customer base over a period, including expansion (upsells/cross-sells) and net of churn and downgrades. It's calculated as (Starting Recurring Revenue + Expansion − Churn) ÷ Starting Recurring Revenue.</p>
+<h3>What's the difference between NRR and gross revenue retention (GRR)?</h3>
+<p>GRR only counts churn and downgrades against the starting revenue base and excludes any expansion revenue, which caps it at 100%. NRR adds back expansion revenue, so it can exceed 100% when upsells outweigh churn — making NRR the more complete picture of account-level growth.</p>
+<h3>Does HubSpot have a native renewal pipeline or deal type?</h3>
+<p>Not a dedicated, purpose-built renewal object out of the box. HubSpot offers a "Recurring revenue deal type" property (New business/Renewal/Upgrade/Downgrade) and, with a Revenue Hub subscription, renewal quotes generated from contracts — but HubSpot's own documentation recommends manually building a separate renewal pipeline with custom stages.</p>
+<h3>What HubSpot tier do you need to track recurring revenue and NRR?</h3>
+<p>Revenue Analytics — the built-in report that tracks new/existing/lost recurring revenue — requires Sales Hub Enterprise or Service Hub Enterprise. Auto-renewing contracts and renewal quotes require a Revenue Hub subscription and seat.</p>
+<h3>Do you need a separate customer success platform if you use HubSpot?</h3>
+<p>Not necessarily for early-stage teams — a well-built renewal pipeline, health-score property, and workflow automation in HubSpot can cover the basics. Dedicated CS platforms add purpose-built health scoring, usage-data ingestion, and playbook automation that HubSpot doesn't natively provide, and they integrate with HubSpot via bidirectional sync rather than replacing it.</p>
+<h3>What's the most common mistake teams make with NRR-driven renewal motions?</h3>
+<p>Waiting until the renewal date is close to start expansion conversations, and having no single clear owner — AM, CS, or Sales — for expansion-stage deals, both of which cause expansion revenue to get missed or renewal risk to surface too late to act on.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+<p><strong>If your HubSpot deal stages already need a rework before a renewal pipeline can sit on top of them cleanly, start with <a href="/blog/hubspot-deal-stages-outbound-teams-2026">how to set up HubSpot deal stages for outbound teams</a> — or <a href="/">talk to our team</a> about building the RevOps foundation (deal stages, properties, reporting) your renewal and expansion motion needs to run on.</strong></p>
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. Sources cited inline; benchmark figures without a traceable primary source are marked directional. Last updated September 2026.</em></p>

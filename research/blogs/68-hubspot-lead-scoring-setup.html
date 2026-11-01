@@ -1,0 +1,352 @@
+<!-- TITLE TAG: HubSpot Lead Scoring Setup for Outbound Teams (2026) -->
+<!-- META: How to build fit, engagement and combined scores in HubSpot in 2026 — the edition gates, the native A1–C3 grid, decay, and scoring cold outbound replies. -->
+<!-- SLUG: blog/hubspot-lead-scoring-setup-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+<p style="margin:0 0 8px;color:#e8732b;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;font-size:13px;">TL;DR</p>
+<ul style="margin:0;padding-left:20px;">
+<li style="margin-bottom:6px;"><strong>Most HubSpot lead scoring guides on page one are out of date.</strong> They teach you to hand-build a fit-versus-engagement 2×2 out of two custom properties and a calculated field. HubSpot now ships that grid natively, labelled <strong>A1 through C3</strong>.</li>
+<li style="margin-bottom:6px;"><strong>Contact scoring is Marketing Hub only.</strong> Sales Hub can score <em>companies and deals</em> — not contacts. If you run Sales Hub Professional and expect to score individual prospects, you cannot. This is the least-reported gate in the product.</li>
+<li style="margin-bottom:6px;"><strong>Score limits per HubSpot's own catalog:</strong> Marketing Hub Pro 5, Marketing Hub Enterprise 50, Sales Hub Pro 5, Sales Hub Enterprise 10. Starter and Free have none. The "25 scores" figure circulating in blog posts is a retired legacy limit.</li>
+<li style="margin-bottom:6px;"><strong>Calls only score if they were dialled through HubSpot.</strong> HubSpot documents this plainly. If your team dials on Aircall, Orum or Nooks, every one of those conversations is invisible to your score.</li>
+<li style="margin-bottom:6px;"><strong>A cold email reply logged as a timeline note is not scorable.</strong> Scoring reads event types, object properties and segment membership — and most outbound integrations write to the timeline by default. Promote the reply to a property first.</li>
+<li style="margin-bottom:6px;"><strong>Stop scoring email opens.</strong> The strongest argument isn't Apple Mail Privacy Protection — it's that HubSpot's own documented example weights a marketing email open at <strong>2 points against 15</strong> for a demo-page click, and its own predictive property is built on clicks and meetings booked with opens unmentioned.</li>
+<li><strong>Decay is native, with one silent hole:</strong> it works on event groups, and it does not work on segment membership criteria. Which is exactly where your outbound reply data will live.</li>
+</ul>
+</div>
+
+<p>Lead scoring in HubSpot has a documentation problem. HubSpot rebuilt the feature, retired the property most guides were written around, and shipped a native fit-versus-engagement grid — and a large share of the tutorials still ranking walk you through the old model. Follow one of them and you will spend an afternoon building something the product already does, on top of a property that may no longer update.</p>
+
+<p>This is the build guide, written for a team running outbound. It covers what the tool is now, which edition you need for each piece of it, how the criteria logic actually behaves (it is not what you would guess), and the part no other guide covers: how to get a cold email reply or a LinkedIn connection accept into a field HubSpot's scoring engine can actually read.</p>
+
+<p>If you want the vendor-neutral strategy layer first — which signals are worth scoring at all, and how to weight them — start with our <a href="/blog/data-driven-lead-scoring-how-gtm-engineers-prioritize-prospects-for-outbound">guide to data-driven lead scoring for outbound</a>. This post is the HubSpot implementation.</p>
+
+<p><em>Every mechanic, limit and edition gate below was read from HubSpot's own knowledge base or its published Product &amp; Services Catalog. Where a widely-repeated claim is unverifiable or contradicts HubSpot's own docs, we say so rather than repeat it. A few points are flagged directional — treat those as things to confirm in your own portal. Product gating changes; verify before you buy a tier for a feature.</em></p>
+
+<h2>The Short Answer</h2>
+
+<p>In 2026, HubSpot lead scoring lives at <strong>Marketing &gt; Lead Scoring</strong> and lets you build three kinds of score: <strong>fit</strong> (from property values), <strong>engagement</strong> (from actions and events), and <strong>combined</strong> (both, with a native A1–C3 grid). You build the score, and HubSpot creates the score properties for you — a combined score creates three, plus a fourth colour-coded threshold property if you enable thresholds.</p>
+
+<p>The correct setup for an outbound team is a <strong>single combined score on contacts</strong>, with fit driven by your ICP firmographics and engagement driven by meetings booked, inbound callbacks and outbound reply signals — with email opens either excluded or weighted near zero. Route on the <strong>threshold label</strong>, not the raw number.</p>
+
+<p>The two things that will actually block you are edition gating and data plumbing, in that order. Handle both before you open the score builder.</p>
+
+<h2>What Changed, and Why Old Guides Mislead</h2>
+
+<p>HubSpot's current tool is officially the <strong>lead scoring tool</strong> — not "HubSpot Score" and not "predictive lead scoring", both of which name older things. The legacy knowledge-base articles on setting up score properties now redirect to the new documentation; the old article is gone.</p>
+
+<p>The legacy <code>HubSpot score</code> property is the confusing part, and we are going to be straight about it rather than tidy. It <strong>still appears</strong> in HubSpot's current default-contact-properties documentation, described in the present tense as being set automatically based on criteria in the lead scoring tool. Meanwhile every secondary source describes a phased sunset through 2025 — no new score properties from around May, no editing from around July, and legacy scores frozen at end of August 2025 with history intact <em>(directional: we could not reach HubSpot's own community announcement to confirm those dates, so treat them as approximate)</em>.</p>
+
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:16px 20px;margin:20px 0;border-radius:5px;">
+<p style="margin:0;"><strong>The safe rule regardless of which reading is right:</strong> the <code>hubspotscore</code> property still exists on contact records, and you should not build new logic on it. Create named score properties in the current tool, which you control and can audit. If you inherited a portal with workflows or active lists triggering on legacy score increases, check them — the widely-reported failure mode is that they stopped firing silently, and nothing migrated automatically <em>(directional)</em>.</p>
+</div>
+
+<h2>Edition Gating: Check This Before Anything Else</h2>
+
+<p>Lead scoring requires <strong>Professional or Enterprise</strong> on Marketing Hub or Sales Hub. Starter and Free have no lead scoring at all. Beyond that, the gating is asymmetric in a way that catches outbound teams specifically.</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;">
+<th style="padding:10px 12px;">Score type</th>
+<th style="padding:10px 12px;">Objects it can score</th>
+<th style="padding:10px 12px;">Minimum edition</th>
+<th style="padding:10px 12px;">Reads</th>
+<th style="padding:10px 12px;">Key constraint</th>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Fit</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Contacts (Marketing Hub only), Companies</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Marketing Hub Pro <em>or</em> Sales Hub Pro</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Property values, segment membership, associated-record properties</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No decay. <code>Contains any of</code> is <strong>non-additive</strong></td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Engagement</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Contacts (Marketing Hub only), Companies</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Marketing Hub Pro <em>or</em> Sales Hub Pro</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Event rules with frequency + time frame; AI-recommended rules</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Calls score <strong>only if dialled in HubSpot</strong>. <code>Contains any of</code> is <strong>additive</strong></td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Combined</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Contacts (Marketing Hub only), Companies, <strong>Deals (Sales Hub only)</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Marketing Hub Pro <em>or</em> Sales Hub Pro</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Both event groups and property groups</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Creates 3 score properties + 1 threshold property. Deal scores are combined-only</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>AI-built score</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Contacts</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Marketing Hub Enterprise</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Your own contact data, targeting a lifecycle transition within a timeframe</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Needs 50 contacts minimum (25 converted, 25 not). Evaluation takes up to an hour</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>AI rules</strong> (high-impact events)</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Contacts, Companies</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Marketing Hub Pro <em>or</em> Sales Hub Pro</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Last 90 days of activity, events up to 14 days before conversion</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Not a score — rules inside one. Engagement and combined only</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Health score</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Contacts, Companies</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Service Hub Pro</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Behavioural and demographic data</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Separate tool for retention, not acquisition — don't conflate the two</td>
+</tr>
+</table>
+
+<p>Per HubSpot's published catalog, the score counts are <strong>Marketing Hub Professional 5, Marketing Hub Enterprise 50, Sales Hub Professional 5, Sales Hub Enterprise 10</strong>. Note that Sales Hub Enterprise gets five times fewer scores than Marketing Hub Enterprise — a real constraint if you planned a score per segment. Automatic lead rotation, which you will want downstream, is Professional and above. For the wider cost picture, our <a href="/blog/hubspot-sales-hub-pricing-2026">HubSpot Sales Hub pricing breakdown</a> covers what each tier actually costs.</p>
+
+<div style="background:#f4f7fb;border-left:4px solid #1f3a5f;padding:16px 20px;margin:20px 0;border-radius:5px;">
+<p style="margin:0;"><strong>The gate that surprises outbound teams:</strong> HubSpot documents <strong>contact scoring as Marketing Hub only</strong>. A Sales-Hub-only portal — which is what a lot of outbound-led companies run — can score companies and deals, but not individual contacts. Since prospect-level scoring is the whole point for an outbound team, confirm this against your own subscription before you plan around it. If you are Sales Hub only, the workable fallback is company-level fit scoring plus <a href="/blog/hubspot-deal-stages-outbound-teams-2026">a disciplined deal-stage model</a>.</p>
+</div>
+
+<h2>The Native A1–C3 Grid (Stop Building Your Own)</h2>
+
+<p>This is the single biggest reason to ignore older tutorials. Fit-versus-engagement scoring has always been the right model: high fit and high engagement means call now, low fit and high engagement means someone is browsing who will never buy, high fit and low engagement means a nurture or an outbound touch. Guides have taught readers to build that grid manually.</p>
+
+<p>You no longer have to. A <strong>combined score</strong> stores fit, engagement and total as three separate properties, and its threshold property uses nine labels: <strong>A1, A2, A3, B1, B2, B3, C1, C2, C3</strong>. Letters are fit — A is high, C is low. Numbers are engagement — 1 is high, 3 is low. HubSpot's own worked example of the interesting cell is <strong>C1: a low-fit but highly engaged contact.</strong></p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;">
+<th style="padding:10px 12px;">Label</th>
+<th style="padding:10px 12px;">Reads as</th>
+<th style="padding:10px 12px;">What an outbound team should do with it</th>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>A1</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">High fit, high engagement</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Route to a rep immediately. This is the only tier that should trigger a notification</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>A2 / A3</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">High fit, mid or low engagement</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Your outbound target list. Fit is confirmed; engagement is your job to create</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>B1 / B2</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Mid fit, mid-to-high engagement</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Worth a sequence, not worth an alert. Review monthly — a full B1 column usually means loose fit criteria</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>C1</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Low fit, high engagement</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">The trap tier. Students, competitors, job seekers, consultants. Do not route. A growing C1 count is a content-versus-ICP mismatch signal</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>C2 / C3 / B3</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Low fit or dormant</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Suppress. Keep them out of sequences so your <a href="/blog/crm-data-hygiene-outbound-teams-2026">CRM hygiene</a> and your sender reputation both hold</td>
+</tr>
+</table>
+
+<p>Single fit-only or engagement-only scores get <strong>High / Medium / Low</strong> labels instead. HubSpot's example split is 70–100 High, 40–69 Medium, and −100 to 39 Low. That last range is worth reading twice: <strong>HubSpot scores can go negative.</strong> The claim repeated across several guides that HubSpot scores cannot drop below zero is wrong — HubSpot states plainly that scores will be negative if more points are subtracted than added, and that if you don't want that you must restrict yourself to additive criteria.</p>
+
+<p>Your fit criteria are only as good as the ICP definition behind them. If you have not written that down, do it first with our <a href="/blog/icp-definition-template-b2b-framework-2026">ICP definition template</a>, and get the firmographic fields populated — <a href="/blog/clay-hubspot-integration-sync-crm-2026">Clay's HubSpot integration</a> is the usual way outbound teams fill employee count, industry and tech stack at volume.</p>
+
+<h2>How the Criteria Logic Actually Behaves</h2>
+
+<p>Scores are built from <strong>score groups</strong>. Each group has its own point cap, and group caps are your weighting mechanism — HubSpot's own example uses an overall limit of 100 with a sales-engagement group capped at 60 and a marketing-engagement group capped at 40. Event groups appear in engagement and combined scores; property groups appear in fit and combined scores.</p>
+
+<p>Four behaviours are genuinely counter-intuitive, and getting them wrong is how a score ends up meaningless:</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;">
+<th style="padding:10px 12px;">Behaviour</th>
+<th style="padding:10px 12px;">What actually happens</th>
+<th style="padding:10px 12px;">What to do</th>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>There is no AND across rules</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Separate rules in the same group fire independently. AND only applies <em>within</em> a single rule, when you stack criteria on the same property or event</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Stack criteria inside one rule when you mean AND. Don't assume two rules in a group combine</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>There is no OR builder at all</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">HubSpot's documented workaround is to build a segment or workflow with the complex logic, then score on enrollment or membership</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Push all messy logic into segments. This is also your fix for inconsistent job-title strings</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong><code>Contains any of</code> flips meaning</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">In <em>fit</em> criteria it is non-additive — points land once no matter how many values match. In <em>engagement</em> criteria it is additive — points land per match</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Check which side of the score you are on before using it. This one silently inflates engagement scores</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong><code>Score together</code> diverges too</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Fit plus "together" fires once. Engagement plus "together" fires per occurrence — two matching form submissions at 5 points each gives 10</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Use the per-event point cap (<code>Limit to</code> N points) whenever a repeatable action could be spammed</td>
+</tr>
+</table>
+
+<p>Event rules also support frequency operators (<code>Exactly</code>, <code>Between</code>, <code>At least</code>, <code>At most</code>) and time-frame operators (<code>In the last</code>, <code>Before</code>, <code>After</code>, <code>In between</code>). For company and deal scores, event criteria come from the <strong>associated contacts'</strong> activity, with an aggregation setting of Sum, Average, Min or Max. Use Sum on a company score and a 40-person enterprise account will out-score a perfect-fit 30-person account on volume alone — <strong>Average or Max is almost always the right choice</strong> for fit-driven company scoring.</p>
+
+<h2>Score Decay, and the Hole in It</h2>
+
+<p>Decay is native. On engagement and combined score <strong>event groups</strong> you set a percentage reduction and an interval of 1, 3, 6 or 12 months (each month counted as 30 days). It is per-event, linear, calculated off the original event value, and it <strong>applies retroactively</strong> — a rule with 100% decay over 3 months awards nothing for a click that happened 4 months ago.</p>
+
+<p>The hole: <strong>decay does not work on segment membership criteria</strong>, because membership is a binary condition rather than a timestamp. HubSpot's documented workaround is to build the date filter into the segment definition instead — a segment of "replied positively in the last 30 days" rather than "has ever replied positively."</p>
+
+<p>Remember that hole. It is about to matter, because segment membership is exactly where your outbound reply data ends up.</p>
+
+<h2>The Outbound Problem: Your Best Signals Aren't Scorable Yet</h2>
+
+<p>Every lead scoring guide is written for inbound. Score the form fill, the pricing-page visit, the email open. An outbound team's highest-value signals are different — a positive reply to a cold email, a LinkedIn connection accepted, a DM answered, a callback — and most of them are not sitting in a field HubSpot's scoring engine can read.</p>
+
+<h3>First, stop scoring email opens</h3>
+
+<p>The usual argument is Apple Mail Privacy Protection, and it is real: Litmus reports that <strong>over half of email opens happen on a device with MPP active</strong>, which inflates opens and destroys open timing and geolocation. But be precise about what that does and does not prove — Litmus's own position is that the open rate "is not dead yet" as an <em>aggregate</em> deliverability trend line. What it kills is the open as a <strong>per-contact behavioural fact</strong>, and per-contact is precisely what scoring needs. Our post on <a href="/blog/apple-mail-privacy-protection-cold-email-2026">Apple Mail Privacy Protection and cold email opens</a> works through the mechanics and why different sources cite different inflation ranges.</p>
+
+<p>The stronger evidence is HubSpot's own. In HubSpot's documented example score, a <strong>marketing email open is worth 2 points</strong> while a demo-page or pricing-ad click is worth <strong>15</strong> — an open is valued at roughly a seventh of a click. And HubSpot's Enterprise-only "Likelihood to close" predictive property is documented as being based on <em>tracked email clicks and meetings booked</em>. Opens are not named. HubSpot has already de-weighted opens in both its documentation and its own model.</p>
+
+<h3>What is natively scorable for an outbound team</h3>
+
+<ul>
+<li style="margin-bottom:8px;"><strong>Meetings booked</strong> — a documented native event type, with properties covering meeting booked and meeting outcome change. Your single highest-value outbound signal, and it needs zero custom work. Score it heavily.</li>
+<li style="margin-bottom:8px;"><strong>Inbound callbacks</strong> — call events support a direction filter, and HubSpot's own example adds 10 points for a call ended in the last 5 days where direction is Inbound. A cold prospect calling <em>you</em> back is a strong buying signal and it is directly scorable.</li>
+<li style="margin-bottom:8px;"><strong>Email link clicks</strong> — surviving, meaningful, and unaffected by MPP prefetching in the way opens are.</li>
+<li style="margin-bottom:8px;"><strong>Form submissions and page views</strong> — still the cleanest signals you have, and worth scoring even in an outbound-led motion. A prospect you cold-emailed who then visits pricing unprompted is a different lead than one who didn't.</li>
+</ul>
+
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:16px 20px;margin:20px 0;border-radius:5px;">
+<p style="margin:0;"><strong>The call-scoring trap:</strong> HubSpot states that call event scoring <strong>only includes calls initiated through HubSpot's calling</strong>. If your reps dial on Aircall, Orum, Nooks or a mobile, those conversations do not exist as far as your engagement score is concerned — and a rep who just had a great discovery call will show up as unengaged. Either dial in HubSpot for scored activity, or accept that calls are outside your score and weight the rest accordingly. Do not leave a call rule in place believing it is firing.</p>
+</div>
+
+<h3>Getting Smartlead, Instantly or HeyReach replies into a scorable field</h3>
+
+<p>Here is the failure that quietly wrecks outbound scoring. HubSpot's scoring engine reads <strong>event types, object properties and segment membership</strong>. It does not read timeline activities. And most outbound integrations write to the timeline by default — the reply is beautifully visible to a human reading the record, and completely invisible to your score.</p>
+
+<p>The Smartlead-to-HubSpot middleware most teams use, for example, documents writing sends, replies, opens, clicks, bounces and lead-status updates to HubSpot as <strong>activities and timeline events</strong>, with custom properties listed as <em>optional</em>. HeyReach's own integration page says every new LinkedIn connection or reply is added to HubSpot and conversation notes land on the contact record — but it does not name a single HubSpot property it writes. <em>(Third-party guides claim HeyReach sets fields like a LinkedIn-connected flag and connection date; that is directional — we could not confirm it on HeyReach's own page. Check what your instance actually writes rather than trusting any guide, this one included.)</em></p>
+
+<p>So the reliable route, with every step verifiable in HubSpot's docs:</p>
+
+<ol>
+<li style="margin-bottom:8px;"><strong>Write the signal to a custom contact property.</strong> Create something like <code>outbound_reply_sentiment</code> (positive / objection / not interested / referral) and <code>linkedin_connection_accepted</code>. Populate it from the tool's native integration, a webhook, or middleware — whatever your stack supports. This is the step people skip.</li>
+<li style="margin-bottom:8px;"><strong>Build a segment on that property</strong>, with the date window baked in: "reply sentiment is positive AND reply date is in the last 30 days." The segment is also where you get the OR logic and date-windowing the score builder doesn't give you.</li>
+<li style="margin-bottom:8px;"><strong>Score it</strong> via <code>+ Add segment membership criteria</code> in a property group, or directly with a property rule if the field is clean enough.</li>
+<li><strong>Accept the trade-off consciously.</strong> Segment-membership points get <em>no decay</em>, and they are <em>skipped by score resets</em>. That is why step 2 puts the date filter inside the segment — it is the documented workaround, and without it a reply from eighteen months ago scores exactly like one from this morning.</li>
+</ol>
+
+<div style="background:#f4f7fb;border-left:4px solid #1f3a5f;padding:16px 20px;margin:20px 0;border-radius:5px;">
+<p style="margin:0;"><strong>On the custom-events route:</strong> HubSpot supports custom events via API, spreadsheet upload and webhooks, and they would be the more elegant home for a reply event. Two cautions before you build on them. First, <strong>webhook-triggered custom events require a Data Hub Professional subscription</strong> — a separate paid Hub, and the hidden cost in "just webhook your replies into HubSpot." Second, custom events are <em>not</em> documented as a selectable event type anywhere in the lead scoring knowledge base; community discussion suggests they are supported <em>(directional — we could not verify it on a HubSpot-owned page)</em>. Confirm it in your own portal before you architect around it. The property-and-segment route above works today on Professional.</p>
+</div>
+
+<p>One more thing worth wiring: your reply <em>sentiment</em> is only as good as the triage behind it. If nobody has defined what counts as a positive reply, the property will be noise. Our <a href="/blog/how-to-handle-cold-email-replies-objection-handling-2026">cold email reply handling guide</a> covers the triage taxonomy to score against.</p>
+
+<h2>Setting Thresholds Without Guessing</h2>
+
+<p>The most common way a scoring project dies is thresholds picked in a meeting. Someone says 70 sounds like a good MQL bar, and three weeks later sales has stopped opening the notifications because everything is an A1.</p>
+
+<p>HubSpot ships three tools for this and almost nobody uses them:</p>
+
+<ul>
+<li style="margin-bottom:8px;"><strong>Test a contact / company / deal</strong> — run a named record through the score before activating and see what it gets. Pick five records you know are great fits and five you know are not.</li>
+<li style="margin-bottom:8px;"><strong>Preview distribution</strong> — see how your database spreads across the score range <em>before</em> you turn it on. If 60% of your database lands above your proposed A threshold, the threshold is wrong, not the database.</li>
+<li style="margin-bottom:8px;"><strong>Score history and performance</strong> — per record you get a score trend graph by month and a history chart showing which events moved the number. This is how you audit a score that has drifted.</li>
+</ul>
+
+<p>Scores you exit the builder without activating are saved as drafts, so there is no reason to activate before previewing. And set the score's overall limit deliberately: the maximum is a dropdown offering ranges from −100/100 up to −10,000/10,000, defaulting to a group maximum of 100. <em>(Some guides claim the ceiling is tier-gated at 100 for Professional and 500 for Enterprise. HubSpot's own documentation shows the dropdown with no tier restriction mentioned — treat the tier-gating claim as unverified.)</em></p>
+
+<p>Tie the thresholds to your lifecycle model rather than inventing a parallel one. If your MQL and SQL definitions are fuzzy, fix that first — see <a href="/blog/mql-vs-sql-lead-lifecycle-stages-2026">MQL vs SQL vs SAL</a> — because the AI scoring option asks you to name exactly that transition as its target.</p>
+
+<h2>Wiring the Score Into Routing</h2>
+
+<p>HubSpot's own documented routing recipe is worth copying precisely, because two of its three choices are ones teams get wrong:</p>
+
+<ol>
+<li style="margin-bottom:8px;"><strong>Enroll on the threshold property, not the raw number.</strong> Trigger the workflow when the score's <em>threshold</em> property is High (or A1). Raw numeric triggers break every time you retune point values; the label survives.</li>
+<li style="margin-bottom:8px;"><strong>Turn re-enrollment OFF</strong> so a contact is routed to sales once. Without this, a contact bouncing across the threshold generates a new alert each time — this is the mechanic behind "sales ignores the notifications."</li>
+<li><strong>Assign an owner via round-robin rotation, then notify that rep.</strong> Note that automatic lead rotation needs Professional or above, and rotation scope depends on teams — 10 teams at Professional, up to 300 at Enterprise.</li>
+</ol>
+
+<p>Speed matters more than the score's precision here. A perfectly tuned score that routes to a rep who responds in two days is worth less than a rough score wired to a fast SLA — our <a href="/blog/lead-routing-speed-to-lead-2026">lead routing and speed-to-lead guide</a> covers the routing layer, including the outbound-specific case where the routing event is a positive reply rather than a form fill.</p>
+
+<p>Beyond routing, scores are usable as saved-view columns, list filters, and report dimensions with the scored object as the data source. If you are reporting on this, wire it into your existing <a href="/blog/revops-dashboard-metrics-how-to-build-2026">RevOps dashboard</a> rather than building a scoring dashboard nobody opens.</p>
+
+<h2>Seven Ways This Breaks</h2>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;">
+<th style="padding:10px 12px;">Failure</th>
+<th style="padding:10px 12px;">Why it happens</th>
+<th style="padding:10px 12px;">Fix</th>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Calls silently unscored</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Only HubSpot-dialled calls count. Documented, and almost never mentioned</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Dial in HubSpot, or drop the call rule and reweight</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Stale values after turning a score off</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Each record keeps its last known value on the score property. It looks live and isn't</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Clear the property or delete it when retiring a score</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Editing a live score breaks downstream tools</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Workflows, lists and views reference the score property; criteria changes re-evaluate history retroactively</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Open the score property and check the <strong>Used In</strong> tab before every change</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Score reset doesn't reset what you expected</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Reset only works if the score is on, skips segment-membership points, and ignores every event before the reset timestamp</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Treat reset as a blunt instrument. Prefer decay and date-filtered segments</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Company scores inflated by association count</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Sum aggregation across many associated contacts rewards headcount, not fit</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Use Average or Max for fit-driven company scoring</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Everything is an A1</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Thresholds set by opinion rather than distribution</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Use Preview distribution before activating; re-check quarterly</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Legacy migration debt</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Nothing migrated automatically off the legacy property; dependent workflows and lists stopped working quietly <em>(directional)</em></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Audit every workflow and active list referencing <code>hubspotscore</code></td>
+</tr>
+</table>
+
+<h2>A Build Order That Works</h2>
+
+<ol>
+<li style="margin-bottom:8px;"><strong>Confirm your edition</strong> covers the object you need to score. Contacts means Marketing Hub. Do this before designing anything.</li>
+<li style="margin-bottom:8px;"><strong>Audit the legacy property.</strong> Find every workflow, list and report touching <code>hubspotscore</code> and decide what replaces it.</li>
+<li style="margin-bottom:8px;"><strong>Fix the fit data first.</strong> A score over empty or inconsistent firmographic fields produces confident nonsense. Enrich, then score.</li>
+<li style="margin-bottom:8px;"><strong>Get outbound signals into properties.</strong> Reply sentiment, connection accepted, meeting booked. Verify what your tools actually write — timeline-only is not enough.</li>
+<li style="margin-bottom:8px;"><strong>Build one combined score.</strong> Not five. Two groups for fit (firmographic, behavioural-fit), two for engagement (sales engagement capped higher, marketing engagement capped lower).</li>
+<li style="margin-bottom:8px;"><strong>Set decay on the event groups</strong> and date-filter the segments feeding property groups.</li>
+<li style="margin-bottom:8px;"><strong>Test records, then preview the distribution.</strong> Adjust thresholds against the distribution, not against intuition.</li>
+<li style="margin-bottom:8px;"><strong>Activate, then wire one workflow:</strong> threshold is A1, re-enrollment off, round-robin assign, notify.</li>
+<li><strong>Review in 30 days</strong> using score performance and the A1/C1 counts. C1 growth means fit criteria are loose; A1 growth with flat meetings means thresholds are.</li>
+</ol>
+
+<p>If lead scoring is the first RevOps system you are formalising, it is worth reading it in context — our <a href="/blog/revops-complete-guide-what-is-revenue-operations-2026">complete RevOps guide</a> covers where scoring sits relative to routing, lifecycle stages and forecasting.</p>
+
+<h2>Frequently Asked Questions</h2>
+
+<h3>Does HubSpot's old HubSpot Score property still work?</h3>
+<p>The <code>HubSpot score</code> property still appears on contact records and is still listed in HubSpot's current default-contact-properties documentation. However, the legacy scoring tool behind it was retired, and widely-reported timelines say legacy score properties stopped updating at the end of August 2025 with no automatic migration. Because HubSpot's own docs and those secondary reports don't fully agree, the safe rule is the same either way: don't build new workflows or lists on it, and create named score properties in the current lead scoring tool instead.</p>
+
+<h3>How many lead scores can I create in HubSpot?</h3>
+<p>Per HubSpot's published Product and Services Catalog, Marketing Hub Professional allows up to 5 scores and Marketing Hub Enterprise up to 50, while Sales Hub Professional allows up to 5 and Sales Hub Enterprise up to 10. Starter and Free have no lead scoring at all. Note that Sales Hub Enterprise gets considerably fewer scores than Marketing Hub Enterprise, and older blog posts citing a 25-score limit are quoting a retired legacy figure.</p>
+
+<h3>Do I need Marketing Hub to score contacts in HubSpot?</h3>
+<p>HubSpot documents contact scoring as Marketing Hub only. Sales Hub can score companies and deals but not contacts, and deal scores are Sales Hub only and always combined fit-plus-engagement scores. This catches a lot of outbound teams running Sales Hub Professional who reasonably expect to score individual prospects, so confirm it against your own subscription before planning around prospect-level scoring.</p>
+
+<h3>Can HubSpot lead scoring decay old activity?</h3>
+<p>Yes, natively. On engagement and combined score event groups you can enable score decay with a percentage reduction and an interval of 1, 3, 6 or 12 months, and it applies retroactively to historical events. The important exception is that decay does not work on segment membership criteria, because membership is a binary condition rather than a timestamp — HubSpot's documented workaround is to build the date filter into the segment definition instead.</p>
+
+<h3>Does HubSpot support a fit-versus-engagement 2x2 grid?</h3>
+<p>Yes, and you no longer need to build it yourself out of custom properties. A combined score stores separate fit, engagement and total score properties, and its threshold property uses the labels A1 through C3, where letters represent fit (A high, C low) and numbers represent engagement (1 high, 3 low). HubSpot's own example of the revealing cell is C1: a low-fit but highly engaged contact — typically a student, competitor or job seeker you should keep away from your reps.</p>
+
+<h3>How do I score cold email or LinkedIn replies from Smartlead, Instantly or HeyReach?</h3>
+<p>The reply has to exist as something HubSpot's scoring engine can read — a contact property, a segment, or an event — and not merely a timeline note, which is what most of these integrations log by default. The reliable path is to have the tool write a custom contact property such as a reply-sentiment or connection-accepted field, build a segment on it with a date window included, then score that with segment membership criteria. Two caveats: webhook-triggered HubSpot custom events require a Data Hub Professional subscription, and segment-membership points receive no decay and are skipped by score resets.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+
+<p><strong>Building this on top of a live outbound motion — cold email, LinkedIn, or both — and want the reply data landing in scorable fields rather than timeline notes? Start with our <a href="/blog/data-driven-lead-scoring-how-gtm-engineers-prioritize-prospects-for-outbound">lead scoring strategy guide</a>, or <a href="/">talk to our team</a>. We build and run cold email, LinkedIn outreach and HubSpot RevOps systems for B2B teams, and this integration layer is most of the work.</strong></p>
+
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. All product mechanics, limits and edition gates were read from HubSpot's own knowledge base and its published Product and Services Catalog at the time of writing; vendor integration behaviour from each vendor's own documentation. Claims we could not confirm on a first-party page are flagged directional in-text. HubSpot gating and packaging change — verify against your own portal before purchasing a tier for a specific feature. Apple Mail Privacy Protection open-share figure from Litmus. Last updated August 2026.</em></p>

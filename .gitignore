@@ -16,6 +16,7 @@ dist-ssr
 .env
 data
 server/uploads
+research/.gsc_token.json
 
 # Editor directories and files
 .vscode/*

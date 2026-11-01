@@ -1,0 +1,114 @@
+<!-- TITLE TAG: Close CRM vs Salesforce for Outbound Teams (2026) -->
+<!-- META: Close CRM vs Salesforce for B2B outbound in 2026: real per-seat pricing, native dialer vs add-ons, sequences, data model, setup effort and cold email fit. -->
+<!-- SLUG: blog/close-crm-vs-salesforce-outbound-sales-teams-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+<p style="margin:0 0 10px;color:#e8732b;font-weight:700;letter-spacing:.04em;font-size:13px;">TL;DR</p>
+<ul style="margin:0;padding-left:20px;">
+<li><strong>For a small or mid-size outbound team, Close is usually the faster, cheaper fit.</strong> Calling, email and SMS are native on every Close plan, and the outbound features (Workflows, power dialer) start at Growth, $99 per user per month billed annually or $109 monthly.</li>
+<li><strong>Salesforce looks cheaper on the sticker and costs more in the stack.</strong> Starter Suite is listed at $25 per user per month, but sequences (Sales Engagement) are a separate $50 per user per month unless your edition includes it, and Agentforce for Sales starts from $125 per user per month on top.</li>
+<li><strong>Salesforce wins on depth, not speed.</strong> Its Lead / Account / Contact / Opportunity model, customization and ecosystem suit complex, multi-team revenue orgs. Close&rsquo;s lead-centric model suits teams whose day is prospecting.</li>
+<li><strong>Neither is your cold email sender or your LinkedIn tool.</strong> At volume you still send with Smartlead or Instantly and message with HeyReach, and sync the results into the CRM.</li>
+<li><strong>Rule of thumb:</strong> under roughly 20 reps running phone, email and LinkedIn, start with Close. Choose Salesforce when you need its customization, reporting depth or ecosystem, and you have someone to administer it.</li>
+</ul>
+</div>
+
+<p>&ldquo;Close vs Salesforce&rdquo; is a mismatched fight on paper: one is a focused sales CRM, the other is the biggest CRM platform in the world. But teams do end up comparing them, usually when an outbound motion outgrows spreadsheets or a starter CRM and someone asks whether to &ldquo;just buy Salesforce&rdquo;.</p>
+
+<p>We build outbound stacks on top of both Close and HubSpot, so this comparison is written from the outbound seat: SDRs and AEs running cold email, LinkedIn and phone against a few thousand accounts. If you are weighing Close against other options, we have already covered <a href="/blog/close-crm-vs-hubspot-outbound-sales-teams-2026">Close vs HubSpot</a> and <a href="/blog/close-crm-vs-pipedrive-outbound-sales-teams-2026">Close vs Pipedrive</a>, and the wider field in our <a href="/blog/best-crm-b2b-outbound-hubspot-salesforce-pipedrive-attio-2026">best CRM for B2B outbound roundup</a>.</p>
+
+<p><em>Sourcing note: Close and Salesforce prices and feature gates were read on each vendor&rsquo;s pricing and help pages on 12 October 2026. Salesforce renames and reprices editions often and says prices are subject to change. Claims from third-party sources or our own experience are marked (directional). Always confirm on the live pricing pages before buying.</em></p>
+
+<h2>The Short Answer</h2>
+
+<p><strong>Choose Close</strong> if outbound is the core motion, you want calling and SMS built in, and you want a CRM your sales manager can configure without an admin. You get a lead-centric record, Workflows for email, SMS and call steps, and a power dialer from Growth.</p>
+
+<p><strong>Choose Salesforce</strong> if you need heavy customization, complex account hierarchies, multiple business units on one platform, or an ecosystem of apps and reporting that Close does not match. Budget for add-ons and administration, not just seats.</p>
+
+<p>If you send cold email at scale, neither CRM is the sender. See the cold email section below.</p>
+
+<h2>Pricing: Seats Are Only Part of the Bill</h2>
+
+<h3>Close pricing</h3>
+<p>Close sells four plans, per user per month: Solo ($19 monthly or $9 annual, one user), Essentials ($49 or $35), Growth ($109 or $99) and Scale ($149 or $139). Workflows, the power dialer and bulk email start at Growth. The predictive dialer, live call coaching and role-based access start at Scale. There is a 14-day trial with no card required. Full detail is in our <a href="/blog/close-crm-pricing-2026">Close CRM pricing breakdown</a>.</p>
+<p>Calling and SMS usage is passed through at cost: Close&rsquo;s page shows outbound calls at about $0.02 per minute, and numbers from about $1 per month. Third-party sites quote slightly different rates <em>(directional)</em>, so budget on Close&rsquo;s own figures.</p>
+
+<h3>Salesforce Sales Cloud pricing</h3>
+<p>Salesforce&rsquo;s pricing page currently lists Starter Suite ($25 per user per month, monthly or annual), Pro Suite ($100, annual billing), Core ($195, annual), Advanced ($395, annual) and Max ($550, annual). Many older articles still use the Enterprise and Unlimited names, and one secondary source says the newer names replaced them in September 2026 <em>(directional)</em>. If you see &ldquo;Enterprise&rdquo; quoted at $175 elsewhere, it is a legacy figure <em>(directional)</em>.</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;"><th style="padding:10px 12px;">What you need</th><th style="padding:10px 12px;">Close</th><th style="padding:10px 12px;">Salesforce</th></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Entry price (per user / month)</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">$19 or $9 (Solo, 1 user); $49 or $35 (Essentials)</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">$25 (Starter Suite)</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Outbound-ready tier</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Growth: $109 monthly / $99 annual</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Pro Suite at $100, or Core at $195 plus Sales Engagement at $50 where not included</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Sequences</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Workflows, Growth and up</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Sales Cadences via Sales Engagement: $50 per user per month add-on, included in the top editions per Salesforce</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">AI</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Credits on every plan (500 to 2,000 per user per month)</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Add-on for Core and up; Agentforce for Sales from $125 per user per month</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Billing</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Monthly or annual</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Starter monthly or annual; others annual</td></tr>
+</table>
+
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:14px 18px;margin:20px 0;border-radius:6px;"><strong>Worked example, 5 outbound reps:</strong> Close Growth is 5 &times; $99 = $495 per month billed annually, with calling, SMS, Workflows and a power dialer included (plus usage). A Salesforce setup with sequences is 5 &times; ($100 Pro Suite) = $500, or 5 &times; ($195 + $50) = $1,225 if you need Core with Sales Engagement. We could not confirm from public pages whether Pro Suite includes sequences or a dialer, so verify before comparing like for like.</div>
+
+<h2>Calling, Dialer and SMS</h2>
+
+<p>This is where the two diverge most for outbound. Close ships calling and SMS natively on every plan, a power dialer on Growth and a predictive dialer on Scale. See our <a href="/blog/close-crm-power-dialer-outbound-calling-2026">Close power dialer guide</a> for the setup.</p>
+<p>Salesforce&rsquo;s Sales Engagement page lists cadences, call insights, transcripts and coaching comments, but does not name a dialer. In practice, Salesforce teams commonly add a third-party dialer or telephony app <em>(directional)</em>. High Velocity Sales, Salesforce&rsquo;s prospecting workspace, may need an additional license depending on edition <em>(directional)</em>. We could not find an official price.</p>
+
+<h2>Sequences and Automation</h2>
+
+<p><strong>Close Workflows</strong> are available on Growth and Scale. Steps include email, SMS and a call step that creates a call task, plus actions to update a lead, create an opportunity or assign tasks. Delays run from one minute to 365 days, and a workflow goal can stop the run when a prospect replies or books a meeting. See <a href="/blog/close-crm-workflows-sequences-outbound-2026">Close Workflows for outbound</a>.</p>
+<p><strong>Salesforce</strong> splits this across Sales Cadences (Sales Engagement) for rep-driven touch sequences and Flow for general automation. Flow is powerful for routing, field updates and approvals, and generally takes admin skills to build and maintain <em>(directional)</em>.</p>
+
+<h2>Data Model: Lead-Centric vs Object-Centric</h2>
+
+<p>In Close, a Lead is typically a company, with Contacts and Opportunities nested beneath it, so one page shows everyone you contacted at an account and what happened. That fits prospecting, where you touch many accounts before any deal exists.</p>
+<p>Salesforce separates Leads, Accounts, Contacts and Opportunities, with lead conversion moving a person into account and contact records. This is flexible and handles complex hierarchies well, but it adds process: conversion rules, duplicate management and a clear definition of when a lead becomes an opportunity <em>(directional, based on our implementation experience)</em>. If you are still working out those definitions, read our <a href="/blog/mql-vs-sql-lead-lifecycle-stages-2026">MQL vs SQL lifecycle guide</a>.</p>
+
+<h2>Setup, Admin and Reporting</h2>
+
+<p>Close is designed so a sales leader can configure Smart Views, Workflows and custom fields without a dedicated admin <em>(directional)</em>. Two limits to know: role-based access and lead visibility rules are Scale-only, and custom fields are capped at 250 on every plan. See <a href="/blog/close-crm-smart-views-outbound-2026">Smart Views for outbound</a> and <a href="/blog/close-crm-reporting-outbound-2026">Close reporting</a>.</p>
+<p>Salesforce has far more configuration depth and reporting power, and in our experience most teams that go beyond Starter Suite need an admin, a consultant or a RevOps hire to run it <em>(directional)</em>. We could not find a sourced figure for implementation cost, so we do not quote one. If you are sizing that role, see our <a href="/blog/revops-manager-job-description-salary-2026">RevOps manager guide</a>.</p>
+
+<h2>Cold Email and LinkedIn Integration</h2>
+
+<p>Neither CRM should be the engine for high-volume cold email. Send from dedicated, warmed domains using Smartlead or Instantly, run LinkedIn through HeyReach, and sync replies, meetings and status back to the CRM.</p>
+<ul>
+<li><strong>Close:</strong> no native Smartlead, Instantly or HeyReach entry in Close&rsquo;s own integration directory, which lists Zapier and Make. Third-party connectors exist for Close with HeyReach and Instantly <em>(directional)</em>. We cover the setups in <a href="/blog/close-crm-cold-email-integration-2026">Close cold email integration</a> and <a href="/blog/heyreach-close-crm-integration-2026">HeyReach and Close</a>.</li>
+<li><strong>Salesforce:</strong> a large app ecosystem and a wide integration surface, but we did not verify specific Smartlead, Instantly or HeyReach connectors for this post, so confirm each before committing.</li>
+</ul>
+
+<div style="background:#f4f7fb;border-left:4px solid #1f3a5f;padding:14px 18px;margin:20px 0;border-radius:6px;"><strong>Our stance:</strong> the CRM is the system of record and the reporting layer, not the sending engine. Pick the CRM on data model, calling and admin load, then wire the senders into it. Our guide to <a href="/blog/sync-cold-email-linkedin-data-hubspot-2026">syncing cold email and LinkedIn data into your CRM</a> applies to any of these.</div>
+
+<h2>AI Features</h2>
+
+<p>Close includes AI credits on every plan (500 on Solo up to 2,000 on Scale per user per month), with the Chloe assistant usable in Workflows from Growth. Salesforce adds AI at Core and above, with Agentforce for Sales as a paid add-on from $125 per user per month and a fuller AI suite in Max. For outbound teams, the practical question is whether the AI saves rep time on research, call notes and follow-ups enough to justify a per-seat premium.</p>
+
+<h2>Who Should Choose Which</h2>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;"><th style="padding:10px 12px;">Your situation</th><th style="padding:10px 12px;">Better fit</th></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">5&ndash;20 reps, phone + email + LinkedIn, no admin</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Close</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Need built-in dialer and SMS without add-ons</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Close</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Complex account hierarchies, multiple business units</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Salesforce</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Dedicated Salesforce admin or RevOps team already in place</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Salesforce</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Already on Salesforce, want to simplify outbound</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Keep Salesforce for records; run outbound in dedicated tools and sync</td></tr>
+</table>
+
+<p>Considering a switch? Our <a href="/blog/salesforce-hubspot-migration-outbound-teams-2026">Salesforce to HubSpot migration guide</a> and <a href="/blog/hubspot-crm-migration-checklist-2026">CRM migration checklist</a> cover the mechanics that apply to any CRM move: field mapping, duplicates, activity history and sender re-pointing.</p>
+
+<h2>Frequently Asked Questions</h2>
+
+<h3>Is Close or Salesforce cheaper for a small outbound team?</h3>
+<p>Close is usually cheaper once you count what outbound needs. Close Growth is $99 per user per month billed annually ($109 monthly) with Workflows and a power dialer included. Salesforce Starter Suite lists at $25, but sequences via Sales Engagement are $50 per user per month unless your edition includes them, and dialers and AI are extra. Compare complete stacks, not entry prices.</p>
+<h3>Does Close include calling and SMS?</h3>
+<p>Yes. Calling, email and SMS are native on every Close plan. The power dialer starts at Growth and the predictive dialer at Scale. Usage is billed at pass-through rates, with Close listing outbound calls at about $0.02 per minute.</p>
+<h3>Which Close plan do I need for sequences?</h3>
+<p>Growth or higher. Workflows, the feature that automates email, SMS and call steps, are not available on Solo or Essentials.</p>
+<h3>Does Salesforce include sequences?</h3>
+<p>Through Sales Engagement and Sales Cadences. Salesforce lists Sales Engagement at $50 per user per month, billed annually, and says it is included in its top-tier editions. Check which edition you are quoted, because naming has changed recently.</p>
+<h3>Do Close or Salesforce connect natively to Smartlead, Instantly or HeyReach?</h3>
+<p>We found no native Smartlead, Instantly or HeyReach entry in Close&rsquo;s integration directory; teams connect them with Zapier, Make or custom webhooks, and third-party connectors exist <em>(directional)</em>. For Salesforce, confirm each connector in the AppExchange before you commit.</p>
+<h3>Do I need a Salesforce admin to run outbound?</h3>
+<p>Not for a bare-bones Starter Suite setup, but most teams that add sequences, custom objects, routing and reporting end up needing an admin or consultant <em>(directional)</em>. Close is built to be configured by a sales leader, with fewer moving parts.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+<p><strong>Want your CRM, cold email and LinkedIn outreach wired into one reporting loop? Start with our <a href="/blog/close-crm-vs-hubspot-outbound-sales-teams-2026">Close vs HubSpot comparison</a>, or <a href="/">talk to our team</a>.</strong></p>
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. Last updated October 2026.</em></p>

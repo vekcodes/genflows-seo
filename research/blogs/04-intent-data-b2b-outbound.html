@@ -1,0 +1,108 @@
+<!-- TITLE TAG: Intent Data for B2B Outbound: How to Turn Buying Signals Into Booked Meetings (2026) -->
+<!-- META: A GTM engineer's guide to intent data: the signal taxonomy, a scoring-and-decay model, and how to route buying signals into outbound sequences that book calls. -->
+<!-- SLUG: blog/intent-data-b2b-outbound-buying-signals-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+  <strong style="display:block;text-transform:uppercase;letter-spacing:.04em;font-size:13px;color:#e8732b;margin-bottom:8px;">TL;DR</strong>
+  <ul style="margin:0;padding-left:20px;">
+    <li><strong>Intent data</strong> tells you <em>who is likely in-market right now</em> — it is the data layer underneath signal-based prospecting, not a replacement for it.</li>
+    <li>There are three sources — <strong>first-party</strong> (your own site/product), <strong>second-party</strong> (review sites, communities), and <strong>third-party</strong> (topic-surge providers). Each has a different trust level.</li>
+    <li>Raw signals are noise until you <strong>score and decay them</strong>: weight by signal type, multiply by freshness, and only act above a threshold.</li>
+    <li>The money is not in <em>buying</em> intent data — it is in <strong>routing</strong> it into the right sequence within hours, before the signal goes stale.</li>
+    <li>Below: the full signal taxonomy, a working scoring model you can copy, and the exact routing build we use to turn a signal into a booked meeting.</li>
+  </ul>
+</div>
+
+<p>Every vendor in the category will sell you "intent data" as a magic list of companies about to buy. It is not that. Intent data is a <em>probability</em> layer — a way of ranking which accounts deserve your attention <strong>this week</strong> instead of next quarter. Used well, it is the difference between spraying a cold list and arriving in someone's inbox the moment they start shopping. Used badly, it is an expensive subscription that produces the same generic emails you were already sending.</p>
+
+<p>This guide is the practitioner's version. If you want the broader <em>methodology</em> of prospecting off triggers, read our <a href="/blog/signal-based-prospecting-complete-playbook-2026">signal-based prospecting playbook</a> first — this piece is the data layer that sits underneath it: where intent signals come from, how to score them so they are actually usable, and how to route them into <a href="/blog/outbound-sequencing-strategy-how-to-design-multi-touch-campaigns-that-convert">outbound sequences</a> that book calls.</p>
+
+<h2>What Is Intent Data, Really?</h2>
+<p>Intent data is any behavioral signal that suggests an account or person is moving toward a purchase. A prospect downloading a pricing PDF, a company spiking research on "cold email tools," a head of sales posting that they are hiring three SDRs — all are intent. The job is not collecting them (that part is easy now); the job is <strong>deciding which ones are worth interrupting your day for.</strong></p>
+<p>The critical distinction most content skips: intent data is <em>not</em> the same as the broader practice of signal-based prospecting. Signal-based prospecting is the strategy — building lists around triggers. Intent data is one of the fuels for that strategy: the specific in-market behavioral inputs you feed into your scoring. Confuse the two and you will either over-buy data or under-use it.</p>
+
+<h2>Where Does Intent Data Actually Come From?</h2>
+<p>There are three sources, in descending order of trust and ascending order of volume. You want all three, weighted differently.</p>
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <thead>
+    <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+      <th style="padding:10px 12px;">Source</th>
+      <th style="padding:10px 12px;">Examples</th>
+      <th style="padding:10px 12px;">Trust</th>
+      <th style="padding:10px 12px;">Volume</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;"><strong>First-party</strong></td><td style="padding:10px 12px;">Site visits, demo requests, email opens, pricing-page views, product usage</td><td style="padding:10px 12px;">Highest</td><td style="padding:10px 12px;">Low</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;"><strong>Second-party</strong></td><td style="padding:10px 12px;">Review-site activity (G2, Capterra), community posts, job changes, hiring posts, funding</td><td style="padding:10px 12px;">High</td><td style="padding:10px 12px;">Medium</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;"><strong>Third-party</strong></td><td style="padding:10px 12px;">Topic-surge data from providers (Bombora-style), ad-network signals, web-research spikes</td><td style="padding:10px 12px;">Lower (account-level, anonymized)</td><td style="padding:10px 12px;">High</td></tr>
+  </tbody>
+</table>
+<p>The trap is treating all three as equal. A demo request (first-party) is a near-certainty; a third-party "topic surge" is a soft hint at the <em>account</em> level that may not point to any single buyer. Your scoring model has to reflect that gap — which is the next section.</p>
+
+<h2>How Do You Score Intent Signals So They're Usable?</h2>
+<p>A signal you cannot rank is just noise. The model we use is deliberately simple — a <strong>weight × freshness</strong> score per signal, summed per account, with an action threshold. You do not need a data science team; you need a spreadsheet or a Clay table.</p>
+
+<h3>Step 1 — Assign a base weight by signal type</h3>
+<p>Score each signal type by how close it sits to a buying decision. A starting point we tune per client:</p>
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <thead>
+    <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+      <th style="padding:10px 12px;">Signal</th><th style="padding:10px 12px;">Base weight</th><th style="padding:10px 12px;">Why</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;">Pricing-page visit (first-party)</td><td style="padding:10px 12px;">40</td><td style="padding:10px 12px;">Closest to intent to buy</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;">Relevant new hire / "we're hiring" post</td><td style="padding:10px 12px;">30</td><td style="padding:10px 12px;">Budget + a problem to solve now</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;">Recent funding round</td><td style="padding:10px 12px;">25</td><td style="padding:10px 12px;">Cash to spend, mandate to grow</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;">Review-site / competitor-comparison activity</td><td style="padding:10px 12px;">25</td><td style="padding:10px 12px;">Actively evaluating a category</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;">Third-party topic surge</td><td style="padding:10px 12px;">10</td><td style="padding:10px 12px;">Account-level hint, not person-level</td></tr>
+  </tbody>
+</table>
+
+<h3>Step 2 — Multiply by a freshness factor</h3>
+<p>Intent <strong>decays</strong>. A pricing visit today is worth far more than one from six weeks ago. Apply a simple decay multiplier so old signals fade automatically:</p>
+<ul>
+  <li>0–3 days old → ×1.0</li>
+  <li>4–14 days → ×0.6</li>
+  <li>15–30 days → ×0.3</li>
+  <li>31+ days → ×0.1 (effectively expired)</li>
+</ul>
+<p>This single mechanic fixes the most common intent-data failure: chasing a "hot" account three weeks after the heat is gone.</p>
+
+<h3>Step 3 — Sum per account and set a threshold</h3>
+<p>Add the decayed scores for each account. Stacked signals are the real prize — a funding round <em>and</em> a relevant hire <em>and</em> a pricing visit is a far stronger buy than any one alone. Set an action threshold (say, 50+) below which a signal goes into nurture, not active outreach. Tune the number against your reply rates over the first few hundred accounts, exactly as you would with <a href="/blog/data-driven-lead-scoring-how-gtm-engineers-prioritize-prospects-for-outbound">data-driven lead scoring</a>.</p>
+
+<h2>How Do You Route a Signal Into Outbound — Fast?</h2>
+<p>Scoring is worthless if it takes you a week to act. The entire advantage of intent data is <strong>timing</strong>, and timing is an automation problem. Here is the routing pattern we build:</p>
+<ol>
+  <li><strong>Capture.</strong> First-party signals fire from your site/CRM; second- and third-party signals land in a <a href="/blog/clay-workflow-automation-gtm-engineering-playbook">Clay table</a> via provider integrations.</li>
+  <li><strong>Score.</strong> A Clay formula column applies the weight × freshness model above and sums per account in real time.</li>
+  <li><strong>Enrich.</strong> Accounts over the threshold get the verified buyer email via <a href="/blog/clay-waterfall-enrichment-setup-step-by-step-2026">waterfall enrichment</a> — you only spend credits on accounts worth contacting.</li>
+  <li><strong>Route.</strong> A <a href="/blog/clay-n8n-integration-automate-gtm-workflow-2026">Clay + n8n</a> webhook drops each scored contact into the matching sequence — funding-triggered copy, hiring-triggered copy, evaluation-triggered copy.</li>
+  <li><strong>Personalize on the signal.</strong> The opening line references the exact trigger ("saw you're hiring two AEs"), not a generic intro. The signal <em>is</em> the personalization.</li>
+</ol>
+<p>Done right, a signal becomes a sent, personalized email within hours — while the prospect is still in-market.</p>
+
+<h2>What Are the Most Common Intent-Data Mistakes?</h2>
+<ul>
+  <li><strong>Buying third-party data first.</strong> Your own first-party signals are higher-trust and free. Exhaust those before paying for topic-surge feeds.</li>
+  <li><strong>No decay.</strong> Treating a 30-day-old signal like a fresh one is the fastest way to look out of touch.</li>
+  <li><strong>Acting on single weak signals.</strong> One anonymized topic surge is not a reason to interrupt someone. Wait for the stack.</li>
+  <li><strong>Generic copy on a hot signal.</strong> If you do not reference the trigger in the first line, you have wasted the data — you are just emailing faster.</li>
+  <li><strong>No threshold.</strong> Without an action cutoff, everything looks "in-market" and your team chases noise. Score, then gate.</li>
+</ul>
+
+<h2>Frequently Asked Questions</h2>
+<h3>Is intent data the same as signal-based prospecting?</h3>
+<p>No. Signal-based prospecting is the strategy of building outreach around triggers; intent data is one of the data inputs that feeds it. See our <a href="/blog/signal-based-prospecting-complete-playbook-2026">signal-based prospecting playbook</a> for the methodology and use this guide for the data layer beneath it.</p>
+<h3>Do I need a third-party intent provider to start?</h3>
+<p>No. Start with first-party signals (site, CRM, product) and free second-party signals (hiring posts, funding, job changes). Add a paid third-party feed only once you are routing the free signals well.</p>
+<h3>How fresh does intent data need to be?</h3>
+<p>Treat anything over two weeks as cooling and anything over a month as expired. Buying windows are short; the decay model above bakes this in automatically.</p>
+<h3>How do I avoid creepy, over-personalized outreach?</h3>
+<p>Reference the public, professional signal (a hire, a funding round, a launch) — not private browsing behavior. The rule: if you could not say it out loud at a conference, do not put it in the email.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+<p><strong>Want signals routed into outbound for you?</strong> GenFlows builds the capture → score → enrich → sequence pipeline as a managed system, so in-market accounts get a personalized email while they're still shopping. <a href="/blog/how-to-build-an-outbound-lead-generation-machine-using-automation-and-ai">See the automation-first approach</a> or <a href="/">talk to our team</a>.</p>
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. Last updated June 2026.</em></p>

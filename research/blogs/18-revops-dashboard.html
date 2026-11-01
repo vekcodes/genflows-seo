@@ -1,0 +1,90 @@
+<!-- TITLE TAG: How to Build a RevOps Dashboard: The 12 Metrics That Matter (2026) -->
+<!-- META: A practical guide to building a RevOps dashboard in 2026: the three-layer structure, the 12 KPIs worth tracking, formulas, benchmarks, and the data-quality prerequisite. -->
+<!-- SLUG: blog/revops-dashboard-metrics-how-to-build-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+  <strong style="display:block;text-transform:uppercase;letter-spacing:.04em;font-size:13px;color:#e8732b;margin-bottom:8px;">TL;DR</strong>
+  <ul style="margin:0;padding-left:20px;">
+    <li>A working RevOps dashboard has <strong>three layers</strong>: an executive view (4 numbers the CRO checks Monday morning), an operational view (the full 12 KPIs, reviewed weekly), and a drill-down view (segmented by rep, source, and segment).</li>
+    <li>The 12 metrics worth tracking: <strong>pipeline coverage, pipeline velocity, win rate, sales cycle length, forecast accuracy, lead→opportunity conversion, quota attainment, CAC, LTV, LTV:CAC, net revenue retention, and data quality</strong>.</li>
+    <li><strong>Data quality is a KPI, not a footnote</strong> — if CRM records are 40% incomplete, every other number on the dashboard is fiction.</li>
+    <li>Build it in your CRM first. A BI tool on top of a messy CRM just renders the mess in nicer colors.</li>
+    <li>Below: each layer, every metric with its formula and 2026 benchmark, and the build order that avoids the classic dashboard graveyard.</li>
+  </ul>
+</div>
+
+<p>Most revenue dashboards die one of two deaths: they track forty metrics nobody reads, or they track vanity numbers that never change a decision. A RevOps dashboard exists for exactly one purpose — to answer, every week, <em>"will we hit the number, and if not, where is it breaking?"</em> This guide gives you the three-layer structure, the twelve metrics that earn their place, and the build order. (For what the RevOps function owns beyond reporting, see the <a href="/blog/revops-complete-guide-what-is-revenue-operations-2026">RevOps complete guide</a>.)</p>
+
+<h2>The Three-Layer Structure</h2>
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <thead>
+    <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+      <th style="padding:10px 12px;">Layer</th><th style="padding:10px 12px;">Audience &amp; cadence</th><th style="padding:10px 12px;">Contents</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;"><strong>1. Executive</strong></td><td style="padding:10px 12px;">CRO / founders, weekly glance</td><td style="padding:10px 12px;">Pipeline coverage, win rate, forecast accuracy, NRR</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;"><strong>2. Operational</strong></td><td style="padding:10px 12px;">RevOps + team leads, weekly review</td><td style="padding:10px 12px;">All 12 KPIs with trendlines vs last quarter</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;"><strong>3. Drill-down</strong></td><td style="padding:10px 12px;">RevOps, when a number moves</td><td style="padding:10px 12px;">Every metric segmented by rep, source, segment, period</td></tr>
+  </tbody>
+</table>
+<p>The layering is what keeps the dashboard alive. Executives get four numbers they can hold in their head; operators get enough to spot a trend; and when something moves, layer 3 answers <em>why</em> without anyone exporting to a spreadsheet. One metric, one owner, one definition — written down. Half of all dashboard arguments are actually definition arguments ("does pipeline include stage 1?"), and RevOps settles those once, in writing.</p>
+
+<h2>The 12 Metrics (Formulas + Benchmarks)</h2>
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <thead>
+    <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+      <th style="padding:10px 12px;">Metric</th><th style="padding:10px 12px;">Formula</th><th style="padding:10px 12px;">Healthy range (2026)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;"><strong>Pipeline coverage</strong></td><td style="padding:10px 12px;">Open pipeline ÷ quota</td><td style="padding:10px 12px;">3–4× (higher for long cycles)</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;"><strong>Pipeline velocity</strong></td><td style="padding:10px 12px;">(# opps × avg deal × win rate) ÷ cycle days</td><td style="padding:10px 12px;">Trend up quarter over quarter</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;"><strong>Win rate</strong></td><td style="padding:10px 12px;">Closed-won ÷ qualified opps</td><td style="padding:10px 12px;">~25–30% of qualified opps</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;"><strong>Sales cycle length</strong></td><td style="padding:10px 12px;">Avg days from opp created → closed</td><td style="padding:10px 12px;">Segment-dependent; watch the trend</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;"><strong>Forecast accuracy</strong></td><td style="padding:10px 12px;">1 − |forecast − actual| ÷ actual</td><td style="padding:10px 12px;">≥90% by week 2 of the quarter's end month</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;"><strong>Lead → opp conversion</strong></td><td style="padding:10px 12px;">Opps created ÷ qualified leads</td><td style="padding:10px 12px;">Track by source — blended hides everything</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;"><strong>Quota attainment</strong></td><td style="padding:10px 12px;">% of reps at ≥100%</td><td style="padding:10px 12px;">Majority of reps hitting; low = quota/hiring problem</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;"><strong>CAC</strong></td><td style="padding:10px 12px;">Full S&amp;M cost ÷ new customers</td><td style="padding:10px 12px;">Payback &lt; 12–18 months</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;"><strong>LTV</strong></td><td style="padding:10px 12px;">Avg revenue per account × gross margin × avg lifetime</td><td style="padding:10px 12px;">—</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;"><strong>LTV:CAC</strong></td><td style="padding:10px 12px;">LTV ÷ CAC</td><td style="padding:10px 12px;">≥3:1</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;"><strong>Net revenue retention</strong></td><td style="padding:10px 12px;">(Start ARR + expansion − churn) ÷ start ARR</td><td style="padding:10px 12px;">&gt;100%; best-in-class 110%+</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;"><strong>Data quality score</strong></td><td style="padding:10px 12px;">% of records with required fields complete &amp; fresh</td><td style="padding:10px 12px;">≥90% on scored fields</td></tr>
+  </tbody>
+</table>
+<p>Why data quality makes the list: it's the denominator of everything else. A win rate computed on opportunities where half the close dates are guesses isn't a win rate — it's a mood. Score completeness and freshness on the fields your other eleven metrics depend on, show the score on the dashboard, and watch hygiene improve the moment it becomes visible.</p>
+
+<h2>Build Order: CRM First, BI Later</h2>
+<ul>
+  <li><strong>Step 1 — Define.</strong> Write one-line definitions for lead, qualified lead, opportunity, and pipeline stage entry/exit criteria. Get sales and marketing to sign the same document.</li>
+  <li><strong>Step 2 — Instrument.</strong> Make the CRM capture what the formulas need: required fields at stage changes, source on every record, timestamps on handoffs. This is where most dashboards actually fail.</li>
+  <li><strong>Step 3 — Build layer 2 in the CRM.</strong> Native HubSpot/Salesforce reporting covers all twelve metrics. Resist the BI tool until the CRM version has survived a full quarter of weekly reviews.</li>
+  <li><strong>Step 4 — Add layers 1 and 3.</strong> Distill the executive view; wire the drill-downs. Only now, if you need cross-object joins the CRM can't do, consider BI.</li>
+  <li><strong>Step 5 — Review on a cadence.</strong> A dashboard nobody discusses weekly is a screensaver. The weekly question is always the same: which metric moved, why, and what are we changing?</li>
+</ul>
+<p>If your pipeline is outbound-driven, layer the funnel metrics upstream of the CRM too — deliverability, reply rate, and meeting rate feed lead→opp conversion. We covered that instrumentation in <a href="/blog/how-to-measure-and-optimize-outbound-roi-gtm-engineering-metrics-that-matter">outbound ROI metrics</a> and published reference numbers in the <a href="/blog/b2b-outbound-benchmarks-2026-reply-rates">2026 outbound benchmarks</a>.</p>
+
+<h2>Common Dashboard Mistakes</h2>
+<ul>
+  <li><strong>Tracking activity instead of outcomes.</strong> Calls made and emails sent are rep-coaching inputs, not revenue metrics. They belong in layer 3, not layer 1.</li>
+  <li><strong>Blended numbers.</strong> A single company-wide win rate hides that outbound converts at half the rate of referrals. Segment by source and size or learn nothing.</li>
+  <li><strong>No baseline before the redesign.</strong> Snapshot every metric before you change process or tooling — otherwise you can never prove the change worked.</li>
+  <li><strong>Forecasting theater.</strong> If forecast accuracy isn't on the dashboard, forecast reviews devolve into negotiation. Publish the miss every quarter and accuracy improves on its own.</li>
+  <li><strong>Building for stakeholders who never asked.</strong> Every widget should trace to a decision someone makes. If no decision depends on it, delete it.</li>
+</ul>
+
+<h2>Frequently Asked Questions</h2>
+<h3>What should a RevOps dashboard include?</h3>
+<p>Three layers: an executive view (pipeline coverage, win rate, forecast accuracy, NRR), an operational view with the full 12 KPIs including pipeline velocity, conversion rates, CAC/LTV, and data quality, and drill-downs segmented by rep, source, and segment.</p>
+<h3>What is a good pipeline coverage ratio?</h3>
+<p>3–4× quota is the standard target — enough that normal win rates still land the number, without stuffing the pipeline with junk. Teams with long sales cycles or low win rates need the higher end.</p>
+<h3>What's a good B2B win rate in 2026?</h3>
+<p>Roughly 25–30% of qualified opportunities; around 21% across all deals. If yours is far below that, the problem is usually qualification (junk entering the pipeline) before it's closing skill.</p>
+<h3>Do I need a BI tool for a RevOps dashboard?</h3>
+<p>Not to start. HubSpot and Salesforce native reporting handle all twelve core metrics. Add BI only when you need cross-object analysis the CRM can't express — and only after the CRM dashboard has survived a quarter of weekly use.</p>
+<h3>How often should the dashboard be reviewed?</h3>
+<p>Executives glance weekly; RevOps runs a weekly operational review; drill-downs happen on demand when a metric moves. Monthly reviews are too slow — by the time a monthly review catches a conversion drop, you've lost six weeks of pipeline.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+<p><strong>Want dashboard numbers worth trusting?</strong> GenFlows builds the data layer underneath — clean CRM records, enriched accounts, and outbound instrumented end-to-end. <a href="/blog/revops-tech-stack-essential-tools-2026">See the stack that feeds it</a> or <a href="/">talk to our team</a>.</p>
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. Last updated July 2026.</em></p>

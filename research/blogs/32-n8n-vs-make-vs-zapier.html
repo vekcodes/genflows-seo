@@ -1,0 +1,107 @@
+<!-- TITLE TAG: n8n vs Make vs Zapier (2026): The GTM Automation Buyer's Guide -->
+<!-- META: Which automation platform for GTM and RevOps in 2026 — n8n, Make, or Zapier? The billing-model difference that decides cost, AI-agent capabilities, self-hosting for lead PII, and which one fits a Clay + Smartlead outbound stack. -->
+<!-- SLUG: blog/n8n-vs-make-vs-zapier-gtm-automation-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+  <strong style="display:block;text-transform:uppercase;letter-spacing:.04em;font-size:13px;color:#e8732b;margin-bottom:8px;">TL;DR</strong>
+  <ul style="margin:0;padding-left:20px;">
+    <li>The single decision that drives cost isn't the feature list — it's the <strong>billing unit</strong>. Zapier charges per <em>task</em> (each step), Make per <em>credit</em> (each module action), and n8n per <em>execution</em> (one full workflow run, regardless of how many steps). For the step-heavy workflows GTM/RevOps actually runs, that difference compounds fast.</li>
+    <li><strong>Zapier</strong> — easiest, biggest catalog (9,000+ apps), most expensive at volume. Best for non-technical ops who want it working today.</li>
+    <li><strong>Make</strong> — visual scenario builder, cheap credits (entry ~$9/mo annual), strong price-to-power in the middle. Best for teams wanting visual control without code.</li>
+    <li><strong>n8n</strong> — developer-oriented, source-available, <strong>self-hostable (free Community Edition)</strong>, per-execution pricing, and the strongest AI-agent tooling. Best for technical GTM engineers, high-volume/complex flows, and teams that need lead PII to stay in-house.</li>
+  </ul>
+</div>
+
+<p>Every outbound and RevOps team eventually hits the same wall: the manual glue between tools. A lead gets enriched in Clay, but someone has to push it to the CRM, dedupe it, score it, drop it into a sending sequence, and ping Slack when it replies. Automation platforms exist to remove that human step — but the three most common choices (Zapier, Make, n8n) are priced and built so differently that picking wrong can mean paying 4x for the same workflow. This is the practitioner's comparison for GTM and RevOps specifically: not "which has the prettiest UI," but which one fits a <a href="/blog/clay-workflow-automation-gtm-engineering-playbook">Clay-driven workflow</a> and won't bankrupt you at volume. If you're wiring Clay to n8n specifically, our <a href="/blog/clay-n8n-integration-automate-gtm-workflow-2026">Clay + n8n integration guide</a> covers the how; this post is the which.</p>
+
+<h2>The Billing Model Is the Whole Game</h2>
+<p>Start here, because it's the thing that decides your bill and almost nobody leads with it. All three platforms let you build roughly the same automation. What differs is how they meter it:</p>
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <thead>
+    <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+      <th style="padding:10px 12px;">Platform</th><th style="padding:10px 12px;">Billing unit</th><th style="padding:10px 12px;">An 8-step workflow, run once, costs…</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;"><strong>Zapier</strong></td><td style="padding:10px 12px;">Task (each successful action)</td><td style="padding:10px 12px;">~8 tasks</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;"><strong>Make</strong></td><td style="padding:10px 12px;">Credit / operation (each module action)</td><td style="padding:10px 12px;">~8 credits (more if AI modules)</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;"><strong>n8n</strong></td><td style="padding:10px 12px;">Execution (one full workflow run)</td><td style="padding:10px 12px;"><strong>1 execution</strong></td></tr>
+  </tbody>
+</table>
+<p>GTM workflows are step-heavy by nature: enrich → dedupe → score → route → CRM upsert → sequence → Slack alert is seven or eight steps before you've done anything clever. Zapier and Make multiply your cost by that step count. n8n charges the same whether the workflow has 3 steps or 30. At low volume it doesn't matter; at thousands of runs a month it's the difference between a rounding error and a real line item.</p>
+<p style="font-size:14px;color:#64748b;"><em>As an illustrative shape only (not a hard quote — figures are single-source and vary widely): a roughly 8-step workflow at ~10,000 runs/month tends to land somewhere near ~$50/mo on n8n, ~$150–200/mo on Make, and ~$250–400/mo on Zapier. Model your own workflow's step count and run volume before trusting any comparison chart, including this one.</em></p>
+
+<h2>Head-to-Head</h2>
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <thead>
+    <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+      <th style="padding:10px 12px;">&nbsp;</th><th style="padding:10px 12px;">n8n</th><th style="padding:10px 12px;">Make</th><th style="padding:10px 12px;">Zapier</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;"><strong>Best known for</strong></td><td style="padding:10px 12px;">Developer control, self-host, AI agents</td><td style="padding:10px 12px;">Visual scenario builder</td><td style="padding:10px 12px;">Easiest + biggest app catalog</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;"><strong>Entry paid price</strong></td><td style="padding:10px 12px;">~€20/mo (~$20), annual</td><td style="padding:10px 12px;">~$9/mo, annual (Core)</td><td style="padding:10px 12px;">~$19.99/mo, annual (Professional)</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;"><strong>Billing unit</strong></td><td style="padding:10px 12px;">Execution (full workflow)</td><td style="padding:10px 12px;">Credit / operation (per module)</td><td style="padding:10px 12px;">Task (per action)</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;"><strong>Free tier</strong></td><td style="padding:10px 12px;"><strong>Self-host: free, unlimited executions</strong></td><td style="padding:10px 12px;">1,000 credits/mo, 2 scenarios</td><td style="padding:10px 12px;">Limited (single-step Zaps)</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;"><strong>Cost at volume</strong></td><td style="padding:10px 12px;">Cheapest (esp. multi-step)</td><td style="padding:10px 12px;">Mid</td><td style="padding:10px 12px;">Most expensive</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;"><strong>Integrations</strong></td><td style="padding:10px 12px;">400+ native nodes + HTTP/code (any API)</td><td style="padding:10px 12px;">3,000+ apps</td><td style="padding:10px 12px;">9,000+ apps</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;"><strong>AI / agents</strong></td><td style="padding:10px 12px;">LangChain nodes + persistent memory + RAG</td><td style="padding:10px 12px;">"Maia" assistant + AI Agents (beta)</td><td style="padding:10px 12px;">Copilot + Zapier Agents</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;"><strong>Self-host / EU data residency</strong></td><td style="padding:10px 12px;"><strong>Yes, full</strong></td><td style="padding:10px 12px;">No</td><td style="padding:10px 12px;">No</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;"><strong>Learning curve</strong></td><td style="padding:10px 12px;">Steep</td><td style="padding:10px 12px;">Moderate</td><td style="padding:10px 12px;">Easiest</td></tr>
+  </tbody>
+</table>
+<p style="font-size:14px;color:#64748b;"><em>Pricing and integration counts gathered from vendor pricing pages, July 2026, and shift often (Make renamed "operations" to "credits" in August 2025; n8n's page displays EUR). Re-verify current numbers before budgeting. Integration counts are approximate — n8n's total varies by counting method; the defensible figure is 400–500+ native nodes plus universal HTTP/code.</em></p>
+
+<h2>Pricing, in a Little More Detail</h2>
+<h3>Zapier</h3>
+<p>Free tier for basic single-step Zaps; the entry paid <strong>Professional</strong> plan runs about $19.99/mo billed annually and unlocks multi-step Zaps and premium apps. Team plans start around $69/mo for 25 users. Task tiers scale from a few hundred up to millions of tasks a month, with per-task cost falling as you buy bigger buckets. The catch for GTM teams: because every step is a task, real-world multi-step usage frequently drifts into the $50–200/mo range once overages hit.</p>
+<h3>Make</h3>
+<p>Genuinely generous free tier (1,000 credits/mo, 2 active scenarios). <strong>Core</strong> is roughly $9/mo annual for 10,000 credits and unlimited scenarios; <strong>Pro</strong> (~$16/mo) adds priority execution and better logging; <strong>Teams</strong> (~$29/mo) adds roles and shared templates. One credit is one module action — but note AI and code modules can cost more than one credit each, so AI-heavy scenarios burn faster than the headline number suggests.</p>
+<h3>n8n</h3>
+<p>Two very different paths. <strong>Cloud</strong> starts around €20/mo (~$20) for 2,500 executions (Starter), €50/mo for 10,000 (Pro), and jumps to €667/mo for Business — with a 50% Business discount for companies under 20 employees. The <strong>Community Edition is free and self-hosted with unlimited executions</strong> — you pay only for the server it runs on (roughly a few dollars a month on a small VPS). That self-host option is n8n's real cost advantage <em>and</em> its real catch: someone has to run and secure the instance.</p>
+
+<h2>AI and Agents: n8n Pulls Ahead for Builders</h2>
+<p>All three are racing to add AI, but they're aimed at different users. <strong>n8n</strong> is the strongest for actually <em>building</em> AI-powered GTM automations: LangChain-based AI Agent nodes, model nodes for OpenAI/Anthropic, persistent memory nodes (so an agent remembers context across a nurture sequence), and vector-store nodes for retrieval. If you want an agent that researches an account, drafts a personalized angle, and routes it — n8n gives you the primitives. <strong>Zapier</strong> (Copilot, Agents, Chatbots) and <strong>Make</strong> (the "Maia" assistant, AI Agents in beta, a large AI-app toolkit) are easier and faster to a first working agent, but their agent tooling is reportedly weaker on persistent, long-running memory — better for simple, stateless AI steps than for stateful multi-touch workflows. <em>(The specific memory limitations here are from comparison sources rather than vendor docs — directional; confirm against current release notes if it's a deciding factor.)</em></p>
+
+<h2>The Self-Hosting and Data-Privacy Angle</h2>
+<p>This is where n8n has something the other two structurally can't offer. Its source-available "fair-code" license lets you self-host the entire system — so your workflows, the database, execution logs, and every piece of lead data flowing through them can physically reside on infrastructure you control, including EU-region hosting for data residency. For GTM teams handling lead PII (emails, enrichment data, LinkedIn-sourced records), that's a real advantage over Zapier's and Make's cloud-only models.</p>
+<p>One honest caveat: self-hosting is <em>not</em> automatic GDPR compliance. GDPR governs how you process data, not which product you use — you still own your obligations (lawful basis, deletion, data-subject requests). What self-hosting buys you is <em>residency and control</em>, not a compliance checkbox. For the legal layer of outbound specifically, see our <a href="/blog/cold-email-compliance-guide-gdpr-can-spam-2026">cold email compliance guide</a>.</p>
+
+<h2>Which One for a GTM / RevOps Stack?</h2>
+<p>The good news: the modern outbound stack is webhook- and API-native, so integration <em>availability</em> rarely decides it. Clay connects to all three; <a href="/blog/best-cold-email-software-smartlead-instantly-lemlist-apollo-2026">Smartlead</a> integrates natively with Clay and exposes instant webhooks (reply/bounce/unsubscribe) plus a REST API that any of the three can call. So the decision comes down to cost model and technical depth, not "does it connect."</p>
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <thead>
+    <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+      <th style="padding:10px 12px;">Your situation</th><th style="padding:10px 12px;">Pick</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;">Non-technical ops, want it working today</td><td style="padding:10px 12px;"><strong>Zapier</strong> (or Make)</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;">Want visual control at low-to-mid cost</td><td style="padding:10px 12px;"><strong>Make</strong></td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;">Complex, high-volume, multi-step GTM workflows + a technical builder</td><td style="padding:10px 12px;"><strong>n8n Cloud</strong></td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;">Lead PII must stay in-house / EU / regulated</td><td style="padding:10px 12px;"><strong>n8n self-hosted</strong></td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;">Building AI agents with memory (research, nurture, RAG)</td><td style="padding:10px 12px;"><strong>n8n</strong> (Zapier Agents for simple cases)</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;">Cost is the #1 constraint at scale</td><td style="padding:10px 12px;"><strong>n8n</strong> (self-hosted if you have ops capacity)</td></tr>
+  </tbody>
+</table>
+<p>The typical high-performance pattern we see: <strong>Clay</strong> builds and enriches the list, <strong>n8n</strong> receives the webhook and does the normalization, dedupe, scoring, and routing logic (with a quarantine branch for bad records), <strong>Smartlead/Instantly</strong> runs the campaign via API, and replies/bounces poll back to the CRM. n8n's code and regex handling is what makes the messy middle — normalizing inconsistent enrichment data, branching on failures — tractable. For where these tools sit in the broader picture, see our <a href="/blog/gtm-engineering-tools-the-complete-tech-stack-for-outbound-sales-teams">GTM tech stack</a> and <a href="/blog/revops-tech-stack-essential-tools-2026">RevOps stack</a> guides.</p>
+
+<h2>Frequently Asked Questions</h2>
+<h3>Why is n8n so much cheaper for multi-step workflows?</h3>
+<p>Because it bills per full workflow <em>execution</em>, not per step. A 10-step workflow counts as one execution in n8n but roughly ten tasks in Zapier or ten credits in Make. As step count and run volume rise, the cost gap widens sharply — which is why step-heavy GTM/RevOps workflows favor n8n economically. (Exact savings multiples vary; model your own workflow.)</p>
+<h3>What's the difference between a task, a credit/operation, and an execution?</h3>
+<p>A task (Zapier) is one successful action. A credit or operation (Make) is one module run. An execution (n8n) is one entire workflow run, regardless of how many steps it contains. Same automation, three very different meters.</p>
+<h3>Is n8n really free?</h3>
+<p>The self-hosted Community Edition is free with unlimited executions — you pay only for the server it runs on (often just a few dollars a month on a small VPS). n8n Cloud, the managed option with no server to maintain, starts around €20/mo. The trade-off is operational: self-hosting means you run, secure, and update the instance yourself.</p>
+<h3>Which is best for building AI agents in GTM?</h3>
+<p>n8n, for anything stateful — it has LangChain-based agent nodes, persistent memory, RAG via vector stores, and model flexibility. Zapier and Make offer easier, faster agent tools for non-technical users, but with more limited persistent memory, so they suit simpler stateless AI steps better than long-running nurture agents. <em>(Memory-limitation details are directional — verify if decisive.)</em></p>
+<h3>How many apps does each connect to?</h3>
+<p>Approximately: Zapier 9,000+, Make 3,000+, and n8n 400+ native nodes plus HTTP and code nodes that can reach any API. So Zapier and Make win on out-of-the-box breadth, while n8n can technically connect to anything with an endpoint — at the cost of more building.</p>
+<h3>Can I keep lead data in the EU and stay GDPR-compliant?</h3>
+<p>Self-hosted n8n on EU infrastructure gives you data residency — the instance, database, and logs all sit where you host them. But residency isn't the same as compliance: GDPR governs how you process data, so you still own lawful basis, deletion, and data-subject obligations regardless of platform. n8n Cloud offers a DPA with standard contractual clauses as an alternative.</p>
+<h3>Which should a Clay + Smartlead outbound team use?</h3>
+<p>All three connect, and Smartlead is native with Clay and webhook-friendly, so availability isn't the deciding factor. Non-technical teams get to value fastest with Zapier or Make; technical, high-volume teams get better cost and control from n8n, especially for the normalization and routing logic in the middle of the pipeline.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+<p><strong>Not sure which platform your GTM stack should run on?</strong> GenFlows designs and builds the automation layer — Clay, n8n or Make, sending tools, and CRM — so leads move from enriched to booked without manual glue. <a href="/blog/clay-n8n-integration-automate-gtm-workflow-2026">See how we wire Clay + n8n</a> or <a href="/">talk to our team</a>.</p>
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. Pricing, integration counts, and AI-feature details gathered from vendor pricing pages and industry sources, July 2026; cost-at-scale figures and AI-memory limitations are flagged as directional where single-sourced. Verify current pricing before purchase — automation pricing shifts often. Last updated July 2026.</em></p>

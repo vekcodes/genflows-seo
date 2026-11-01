@@ -1,0 +1,342 @@
+<!-- TITLE TAG: Cold Email Domain Blacklisted? Recovery Playbook 2026 -->
+<!-- META: Which blocklists you can actually delist from, why Gmail has no appeal path at all, and how to decide between repairing a burned sending domain or retiring it. -->
+<!-- SLUG: blog/cold-email-domain-blacklisted-recovery-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+<p style="margin:0 0 8px;color:#e8732b;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;font-size:13px;">TL;DR</p>
+<ul style="margin:0;padding-left:20px;">
+<li style="margin-bottom:6px;"><strong>"We got blacklisted" is usually the wrong diagnosis.</strong> There are two different failures with opposite fixes: a <strong>listing</strong> (a discrete event, with a documented removal form and a published timeline) and <strong>reputation decay at Gmail</strong> (no list, no form, nothing to remove). Teams burn days hunting delisting forms for a problem no form can solve.</li>
+<li style="margin-bottom:6px;"><strong>Google publishes no delisting path whatsoever.</strong> No portal, no appeal, no reconsideration request for domain or IP reputation — only a self-diagnostic troubleshooter and a community forum. For Gmail, reputation is not delisted. It is rebuilt.</li>
+<li style="margin-bottom:6px;"><strong>Most delisting portals are keyed to an IP you don't own.</strong> Spamhaus SBL removal is restricted to the network owner, and Microsoft's delist portal takes an IP, not a domain. If you send through Google Workspace or Microsoft 365, the listed asset usually isn't yours to file on.</li>
+<li style="margin-bottom:6px;"><strong>Spamhaus is free and says so bluntly:</strong> <em>"There is never any charge or fee associated with removing any Spamhaus listing"</em> — anyone charging for it is fraudulent. UCEPROTECT, by contrast, confirms on its own site that some listings are only removable "on a payment basis."</li>
+<li style="margin-bottom:6px;"><strong>SORBS is dead.</strong> Decommissioned in June 2024. A SORBS listing in a 2026 audit tool is stale data, not a task.</li>
+<li style="margin-bottom:6px;"><strong>Every documented removal policy requires you to fix the cause first.</strong> SpamCop states it outright: don't write in to say you've fixed it and ask for early delisting. Filing before remediation just resets the clock.</li>
+<li><strong>The two numbers Google actually publishes</strong> are a spam-complaint rate under <strong>0.10%</strong> (never reaching <strong>0.30%</strong>) and a <strong>7-day</strong> recheck window. Every "30 to 90 day recovery" figure you'll read is a vendor heuristic, not Google policy.</li>
+</ul>
+</div>
+
+<p>The pattern is always the same. Reply rates halve in a week. Then a prospect forwards a screenshot of your email in their spam folder. Someone runs a blacklist checker, finds a red row, and the whole team starts filling in delisting forms. Two weeks later nothing has improved, because the red row was never the problem.</p>
+
+<p>This post is the remediation playbook: how to tell which of the two failures you have, which lists you can genuinely act on, what to fix before you file anything, and the decision almost nobody documents — whether to repair the domain or retire it and rebuild elsewhere.</p>
+
+<p>Our <a href="/blog/cold-email-deliverability-monitoring-2026">cold email deliverability monitoring guide</a> covers the detection side: which dashboards to watch and which metrics still mean something. This post picks up at the moment detection has already failed you and the damage is done. If your infrastructure was never set up properly to begin with, start instead with <a href="/blog/cold-email-spf-dkim-dmarc-setup-2026">SPF, DKIM and DMARC setup</a> and <a href="/blog/cold-email-infrastructure-deliverability">cold email infrastructure</a> — recovery on a broken foundation is wasted work.</p>
+
+<p><em>Every removal process, timeline and threshold below was read from the blocklist operator's or mailbox provider's own documentation, and quoted as they state it. Recovery timelines are the weakest-sourced part of this entire subject: almost every number in circulation comes from vendors selling warmup tools. Those are flagged directional throughout. Where sources contradict each other we name the conflict instead of picking the tidier answer.</em></p>
+
+<h2>The Short Answer</h2>
+
+<p>Check whether you are <strong>listed</strong> or merely <strong>disliked</strong>, because the response is completely different. Run your domain and sending IPs through <code>check.spamhaus.org</code> and open Google Postmaster Tools. If a specific list names you, there is a form, a published timeline and usually a free self-service path — file it <em>after</em> fixing the cause. If no list names you but Gmail reputation reads Low or Bad, there is nothing to file: cut volume, fix the underlying spam-complaint driver, and wait out a rolling multi-day average.</p>
+
+<p>Then make the decision the industry avoids putting in writing. A domain at <strong>Low</strong> with real sending history and months of age is usually worth repairing. A domain rated <strong>Bad</strong>, or one under two months old that is already listed, is usually worth retiring — the sunk reputation isn't valuable enough to justify weeks of reduced sending while you nurse it back.</p>
+
+<h2>Two Failures That Look Identical From the Outside</h2>
+
+<p>Both present as "our emails stopped landing." They share almost nothing else.</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;">
+<th style="padding:10px 12px;">&nbsp;</th>
+<th style="padding:10px 12px;">A listing</th>
+<th style="padding:10px 12px;">Reputation decay</th>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Who decided</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">A third-party blocklist operator (Spamhaus, Barracuda, SpamCop)</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">The mailbox provider itself (Gmail, Outlook, Yahoo)</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Is it visible</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes — a named list, a lookup tool, often a bounce message citing it</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Only as a category in a dashboard, or as silence</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Is there a form</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Usually yes, usually free, often self-service</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">At Google, none exists at all</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Time to resolve</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Hours to a few days, once the cause is fixed</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Weeks, on a rolling average you cannot accelerate</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>What the asset is</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Often an <strong>IP</strong> — frequently one you share and don't control</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Usually your <strong>domain</strong> — which follows you everywhere</td>
+</tr>
+</table>
+
+<p>That last row decides how much agency you have. A listing on a shared IP is often somebody else's problem and resolves without you; a damaged domain reputation is entirely yours and cannot be transferred, appealed, or bought off.</p>
+
+<h2>What You Can Actually Delist From</h2>
+
+<p>Verified from each operator's own documentation. Note how many rows are IP-based — that column matters more than the timeline column if you send from Google Workspace or Microsoft 365.</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;">
+<th style="padding:10px 12px;">List / provider</th>
+<th style="padding:10px 12px;">Lists</th>
+<th style="padding:10px 12px;">Can you self-serve</th>
+<th style="padding:10px 12px;">Documented timeline</th>
+<th style="padding:10px 12px;">Cost</th>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Spamhaus DBL</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Domains only</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Minutes once approved; auto-expires when activity ceases; up to 24h downstream lag</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Free</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Spamhaus CSS</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">IPs</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Auto-expires "three (3) days after the last detection"</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Free</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Spamhaus SBL</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">IPs</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>No — network owner only</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Only after abuse is terminated and the ISP requests removal</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Free</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Spamhaus PBL</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">IP ranges that shouldn't send direct-to-MX</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes, for a single static IP</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">~15 min; end-user exclusions expire after 1 year</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Free</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Microsoft 365 / Outlook</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">IPs</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes for one code family, no for another (below)</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">"Up to 24 hours or longer"; 48h response on the manual path</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Free</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Barracuda BRBL</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">IPs</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Processed "within 12 hours of submission" with a valid explanation</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Free</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>SpamCop SCBL</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">IPs</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>No manual process at all</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Auto-delists 24h after the last report, plus up to ~4h propagation</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Free</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Google / Gmail</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Domain and IP reputation</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>No path exists</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Recheck the compliance dashboard after 7 days</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">N/A</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Yahoo Sender Hub</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Domain (feedback loop is DKIM-domain based)</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">A "sender support request" exists by name</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><em>No published process, criteria or SLA</em></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Free</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>UCEPROTECT</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">IP, /24 netblock, whole ASN</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">A free path exists, conditional on network-level steps</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Not published for the free path</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Paid express removal, confirmed on their own site</strong></td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>SORBS</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">—</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Defunct since June 2024</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">N/A — nobody is home to process a request</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">N/A</td>
+</tr>
+</table>
+
+<p>Three other lists get cited constantly in blacklist-checker output — SURBL, Invaluement and Spam Eating Monkey. We deliberately publish no removal timelines for them: their own sites did not yield a verifiable self-service process or timeline when we checked, and Invaluement's widely-cited removals URL now returns a 404. If a checker flags you on one of these, go to the operator's current site rather than trusting a third-party summary, including this one.</p>
+
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:16px 20px;margin:20px 0;border-radius:5px;">
+<p style="margin:0;"><strong>The structural trap:</strong> the only row in that table you fully control is <strong>Spamhaus DBL</strong>, because it lists domains. Nearly everything else lists IPs. If you send cold email through Google Workspace or Microsoft 365, you do not own the sending IP, cannot see who else is on it, and cannot meaningfully remediate it. Spamhaus restricts SBL removal to the network owner for exactly this reason. Before you spend an afternoon on delisting forms, confirm the listed asset is actually yours — see <a href="/blog/google-workspace-vs-microsoft-365-cold-email-2026">Google Workspace vs Microsoft 365 for cold email</a> for how each provider handles sending infrastructure.</p>
+</div>
+
+<h3>Microsoft: one bounce code decides your path</h3>
+
+<p>Microsoft documents two different remediation routes, and picking the wrong one wastes days. A <code>550 5.7.606-649</code> bounce — a banned sending IP — is handled through the self-service delist portal at <code>sender.office.com</code>, where Microsoft's own caveat is that results "can vary widely" and removal "might take up to 24 hours or longer." A <code>550 5.7.511</code> bounce is a banned <em>sender</em> and is explicitly <strong>not</strong> eligible for that portal; it requires emailing <code>delist@microsoft.com</code> with the full bounce code and IP, after which Microsoft states it will respond within 48 hours.</p>
+
+<p>Other Microsoft error codes circulate widely in community write-ups with confident remediation instructions attached. We could not confirm those specific codes against Microsoft's own documentation, so we're not repeating the advice — read the actual bounce string you received and match it to Microsoft's published pages rather than to a forum post.</p>
+
+<h3>Free by policy, and one notable exception</h3>
+
+<p>Spamhaus states on its own FAQ pages that <em>"There is never any charge or fee associated with removing any Spamhaus listing,"</em> adding that any service charging for Spamhaus removal is fraudulent. That is a useful sentence to keep handy, because "we'll get you delisted" is a common upsell.</p>
+
+<p>UCEPROTECT is the exception worth understanding. Its own site confirms that where a network has not implemented its required remediation steps, removal is offered "on a payment basis." Charging to remove a listing whose entire purpose is to signal abuse is a conflict of interest the deliverability community treats with open skepticism, and major senders' support documentation says as much <em>(directional — that characterisation is community and vendor opinion, though the paid mechanism itself is confirmed by UCEPROTECT)</em>. Practical guidance: check whether major mailbox providers actually query the list that flagged you before paying anyone anything.</p>
+
+<h2>Gmail Has No Appeal. That Changes the Whole Plan.</h2>
+
+<p>This is the most consequential finding in this post, and it is a finding about absence. Google's bulk sender guidance and its own deliverability troubleshooter offer no delisting portal, no appeal form, and no reconsideration request for domain or IP reputation. What they offer is a self-diagnostic flowchart, the Gmail Help Community forum, and Postmaster Tools. That's it.</p>
+
+<p>So for the mailbox provider that most likely holds your prospects, remediation is not a transaction. Google's Postmaster Tools defines four reputation tiers, and the wording matters: <strong>Bad</strong> means a "history of sending a high volume of spam regularly" and mail is "almost always marked as spam or rejected by the receiving server." That is Google describing rejection, not spam-foldering. <strong>Low</strong> means a significant volume of spam sent regularly. <strong>Medium</strong> means you "occasionally send spam" — which is why treating Medium as a clean bill of health and returning to full volume is a mistake.</p>
+
+<p>Two numbers are genuinely Google's own: keep spam complaint rates below <strong>0.10%</strong>, and never let them reach <strong>0.30%</strong>. Google also tells senders to recheck the compliance dashboard <strong>after 7 days</strong> following a fix, because the status runs on a rolling multi-day average that "might not update immediately."</p>
+
+<div style="background:#f4f7fb;border-left:4px solid #1f3a5f;padding:16px 20px;margin:20px 0;border-radius:5px;">
+<p style="margin:0;"><strong>Where the widely-quoted numbers come from.</strong> You will read that IP reputation recovers in 2 to 4 weeks and domain reputation in 6 to 12 weeks, or that a burned domain comes back in 30 to 90 days at low volume. Those figures come from email vendors' blogs, not from Google, and they measure different starting conditions — recovering from a single filtering event is not the same problem as recovering from a sustained Bad rating. Treat them as directional, and note the one thing every source agrees on: IP reputation recovers faster than domain reputation, because the domain is the part that follows you.</p>
+</div>
+
+<p>The rolling average also cuts both ways, which produces the single most common self-inflicted wound in recovery. Because the dashboard lags reality, an operator who ramps volume back up as soon as numbers look better gets punished for behaviour that already stopped — and reads the resulting drop as proof that recovery failed.</p>
+
+<h2>Fix the Cause First — Every Policy Requires It</h2>
+
+<p>Across every removal policy we read, not one offers delisting on request alone. SpamCop is the bluntest: <em>"Please do not write us to tell us that you have fixed the problem and ask for early delisting."</em> Its listings expire on their own 24 hours after the last report, so the only thing that matters is stopping the reports.</p>
+
+<p>Which means diagnosis comes before paperwork. It helps to know which causes are measurable and which are folklore:</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;">
+<th style="padding:10px 12px;">Suspected cause</th>
+<th style="padding:10px 12px;">Is there a published threshold?</th>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Spam complaint rate</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Yes</strong> — Google: under 0.10%, never reaching 0.30%</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Authentication failures (SPF, DKIM, DMARC)</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Partly — pass/fail is binary and checkable, but no provider quantifies the reputation cost</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Bounce and invalid-address rate</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>No documented Google ceiling</strong> — every "keep bounces under X%" figure is industry convention</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Spam-trap hits</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No — universally blamed, never quantified by a provider</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Volume spikes</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No published limit; provider sending caps are system limits, not safe-sending advice</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Shared or previously-burned tracking domain</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No — flagged by vendors who sell the fix <em>(directional)</em></td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Content and copy triggers</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No — the least measurable and most over-diagnosed cause of all</td>
+</tr>
+</table>
+
+<p>The practical order: authentication first because it's binary and free to verify, then list quality because it's the dominant driver of both complaints and bounces, then volume. Content copy is where teams instinctively start and where the least verifiable gain is. If bounces are your problem, <a href="/blog/best-email-verification-tools-2026">email verification tooling</a> and <a href="/blog/how-to-build-b2b-cold-email-list-2026">how you build the list</a> matter far more than rewriting subject lines. If complaints are your problem, targeting relevance and <a href="/blog/cold-email-compliance-guide-gdpr-can-spam-2026">compliance basics</a> are the levers.</p>
+
+<h2>Repair or Retire: The Decision Nobody Documents</h2>
+
+<p>Here is the real gap in the published literature. Google, Microsoft and the major email platforms all document reputation <em>definitions</em> and <em>thresholds</em>. None of them publish a framework for deciding whether a given domain is worth saving. Every decision table you'll find, including this one, is practitioner synthesis rather than vendor policy — so treat it as a starting bias, not a rule.</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;">
+<th style="padding:10px 12px;">Where you are</th>
+<th style="padding:10px 12px;">Call</th>
+<th style="padding:10px 12px;">What to do</th>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Gmail reputation <strong>Medium</strong>, complaints between 0.10% and 0.30%</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Repair</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Cut the weakest segments, fix list hygiene, reduce volume. Don't treat Medium as recovered.</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Gmail reputation <strong>Low</strong>, domain 6+ months old, some replies still landing</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Repair, on probation</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Stop sending, fix authentication and lists, re-warm from very low volume. Give it a fixed assessment window and a defined give-up point.</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Listed on a domain-based list, cause identified and fixed</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Repair</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">File the removal, expect hours-to-days. Listings are the cheap failure to recover from.</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Gmail reputation <strong>Bad</strong>, or zero inbox placement after weeks of clean sending</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Retire</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">There is no appeal to file and no timeline to plan against. Harden the DNS, stand up replacements.</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Domain under ~60 days old and already burned</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Retire immediately</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">There is no sunk reputation worth rescuing. The only asset lost is the registration fee.</td>
+</tr>
+</table>
+
+<p>The economic logic behind the bias toward retiring: a domain is cheap and weeks of suppressed sending are not. If your model is roughly known — and our <a href="/blog/cold-email-cost-per-meeting-budget-2026">cost per meeting breakdown</a> gives a way to price it — you can compare the cost of a replacement domain and a fresh warmup against the pipeline value of six weeks at reduced volume. That comparison usually settles the argument faster than any deliverability debate.</p>
+
+<h2>If You Repair: Re-Warming Honestly</h2>
+
+<p>There is no authoritative warmup ramp. We compared vendor and community guidance and the spread is genuinely wide: starting volumes anywhere from 5 to 30 emails per mailbox per day, daily increments from +2 to +10, and steady-state cold-sending ceilings from 20 to 50 per mailbox. The closest thing to a consensus is a minimum warmup period of about two to three weeks before real campaign volume. Every one of those numbers is directional, and most come from companies that sell warmup products.</p>
+
+<p>Two things are firmer. First, provider sending caps — such as Google Workspace's published daily message limits — are <strong>system limits, not recommendations</strong>; sending anywhere near them on cold outbound is a different activity from what those limits were designed for. Second, recovery re-warming should be slower than new-domain warming, because you are working against an existing negative history rather than no history at all <em>(directional — no provider documents this distinction)</em>.</p>
+
+<p>For tooling, see our <a href="/blog/best-email-warmup-deliverability-tools-2026">warmup and deliverability tools comparison</a>. We've deliberately left warmup pricing out of this post: the numbers we found couldn't be confirmed on the vendors' own current pricing pages, and stale prices are worse than none.</p>
+
+<h2>If You Retire: How to Kill a Domain Properly</h2>
+
+<p>Most teams "retire" a domain by simply stopping. That leaves a domain with live sending records, a real reputation history and no owner watching it — an attractive target for spoofing, which can make the reputation worse after you've left.</p>
+
+<p>The hardening pattern for a domain that will never send again is well established. Publish a hard-fail SPF record at the apex and as a wildcard: <code>v=spf1 -all</code>. Publish a rejecting DMARC policy at <code>_dmarc</code>: <code>v=DMARC1; p=reject;</code> — and remove any existing subdomain-policy tag, so reject actually applies to subdomains. Revoke DKIM with a wildcard record carrying an empty key: <code>v=DKIM1; p=;</code>. And if the domain should no longer receive mail either, publish an RFC 7505 null MX — <code>MX 0 .</code> — as its only MX record.</p>
+
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:16px 20px;margin:20px 0;border-radius:5px;">
+<p style="margin:0;"><strong>Do not do all of that on day one.</strong> That hardening recipe is written for domains that never sent mail. A retired <em>cold email</em> domain is different: prospects are still sitting on emails you already sent, and some will reply for weeks. Publish a null MX and you bounce those replies — deleting pipeline you already paid for. The sequence that protects both: stop sending immediately, keep MX and inbound working through a reply window while forwarding or monitoring those mailboxes, and only then harden the domain fully. This ordering is our operational recommendation, not vendor guidance — nobody publishes advice on this transition at all.</p>
+</div>
+
+<p>On replacements, one widely-repeated claim deserves a clear label. You will be told that a new domain added inside the same Google Workspace or Microsoft 365 tenant inherits the burned domain's reputation. We could not find any statement from Google or Microsoft confirming that reputation is linked across domains in one tenant or one billing identity, and the claim traces largely to vendors who sell separate-tenant sending infrastructure. So: <strong>unverified folklore</strong>. That said, the downside is asymmetric — if it's true and you ignore it you lose a second domain, and if it's false you've spent a little more on separation. Erring toward a clean tenant is a cheap hedge on an unproven risk, which is a different argument from the one usually made for it.</p>
+
+<p>What is not folklore: reusing the burned tracking or link domain on a fresh sending domain reintroduces the flagged asset into every email. Replace the tracking domain along with the sending domain. Then decide how many mailboxes and domains you actually need — our guide on <a href="/blog/how-many-domains-mailboxes-cold-email-2026">how many domains and mailboxes to run</a> covers the arithmetic.</p>
+
+<h2>The Migration Nobody Documents</h2>
+
+<p>Swapping domains mid-flight raises three practical questions, and we want to be straight about the answers: nobody publishes them.</p>
+
+<p>Neither Smartlead's nor Instantly's public documentation describes what happens to an in-flight sequence when you swap sending accounts — whether prospects reset, whether reply threading survives, or how mid-sequence sends behave. The one adjacent fact we could confirm is that follow-ups without a new subject line thread to the previous email, which implies threading is subject-line dependent, but that isn't the same question. Our <a href="/blog/smartlead-vs-instantly-2026">Smartlead vs Instantly comparison</a> covers how the two platforms differ in general; this specific behaviour is undocumented on both sides.</p>
+
+<p>Third, and this is the one that costs RevOps teams real reporting accuracy: HubSpot's documentation explains how email activity is attributed, but does not address what happens to logged activity or attribution when the sending domain changes. If your outbound reporting is built on data flowing in from your sending tools — see <a href="/blog/sync-cold-email-linkedin-data-hubspot-2026">syncing cold email and LinkedIn data into HubSpot</a> — a domain migration is exactly the kind of event that quietly splits a contact's history across two identities without erroring.</p>
+
+<p>The only defensible approach: run the swap on a small sandbox campaign, watch what actually happens to threads and to your CRM records, then do it at scale.</p>
+
+<h2>Prevention: The Architecture That Survives a Burn</h2>
+
+<p>Recovery is expensive enough that the real win is making the next burn survivable rather than existential.</p>
+
+<p>Never cold-send from your root brand domain. The domain your customers, invoices and support mail depend on should be structurally incapable of being burned by an outbound campaign, which means separate lookalike sending domains carrying all outbound risk. On whether a <em>subdomain</em> gives you that protection: deliverability vendors describe subdomain reputation as mostly independent but explicitly not guaranteed to be isolated, and no mailbox provider publishes a rule either way. Plan as though a burned subdomain can touch the parent, because nobody will tell you it can't.</p>
+
+<p>Give every sending domain its own tracking domain, so one flagged link domain cannot contaminate the rest of your infrastructure. And consider dropping open tracking altogether — an unusually broad set of competing vendors independently converge on tracking replies and clicks while skipping the open pixel, partly on deliverability grounds and partly because open data became unreliable anyway once <a href="/blog/apple-mail-privacy-protection-cold-email-2026">Apple Mail Privacy Protection</a> started inflating it. Losing a metric you couldn't trust is a small price.</p>
+
+<p>Finally, keep monitoring in place so the next incident is caught in days rather than discovered in a prospect's screenshot. That's the subject of our <a href="/blog/cold-email-deliverability-monitoring-2026">deliverability monitoring guide</a>, and it is the cheapest insurance in this entire discipline.</p>
+
+<h2>Frequently Asked Questions</h2>
+
+<h3>Can I get Gmail to delist my domain after a reputation hit?</h3>
+<p>No, and this is worth knowing before you spend time looking. Google's bulk sender guidance and its own deliverability troubleshooter describe no delisting portal, no appeal form and no reconsideration request for domain or IP reputation. The only routes Google offers are a self-diagnostic troubleshooter, the Gmail Help Community forum, and monitoring in Postmaster Tools. The levers that exist are fixing the underlying spam-complaint and authentication problems and then waiting: Google says the compliance status runs on a rolling multi-day average and should be rechecked after 7 days following a fix. With Gmail, reputation is not delisted, it is rebuilt.</p>
+
+<h3>Does Spamhaus charge money to remove a listing?</h3>
+<p>Never. Spamhaus states on its own FAQ pages that there is never any charge or fee associated with removing any Spamhaus listing, and that any service charging for Spamhaus removal is fraudulent. The notable contrast is UCEPROTECT, whose own site confirms that where the required network-level remediation steps have not been implemented, removal is offered on a payment basis. Before paying anyone to remove any listing, check whether the mailbox providers your prospects actually use even query the list in question.</p>
+
+<h3>How long does it take to get removed from a blocklist?</h3>
+<p>Faster than most people expect, once the cause is fixed. Published timelines include: Spamhaus DBL removals processed within minutes of approval, with listings that expire automatically once activity ceases; Spamhaus CSS listings expiring roughly three days after the last detection; Barracuda processing removal requests within 12 hours of submission; and SpamCop auto-delisting 24 hours after the last spam report with up to about four hours of mirror propagation. Microsoft's self-service delist portal says results may take up to 24 hours or longer, and its manual path promises a response within 48 hours. The slow part of recovery is almost never the delisting itself.</p>
+
+<h3>Should I repair a burned sending domain or buy a new one?</h3>
+<p>Severity and age decide it. A domain with real history that Postmaster Tools rates Low, or one carrying a fixable domain-list listing, is usually worth repairing. A domain rated Bad, or one that still gets zero inbox placement after weeks of clean low-volume sending, is usually worth retiring — with Gmail there is no appeal to file and no published timeline to plan against. A domain under about two months old that is already burned should be retired without debate, because there is no accumulated reputation to rescue. No mailbox provider publishes a framework for this decision, so weigh the cost of a replacement domain and a fresh warmup against the pipeline value of several weeks at suppressed volume.</p>
+
+<h3>If I burn a cold email subdomain, does it damage my main company domain?</h3>
+<p>Possibly, and nobody will give you a definitive answer. Deliverability vendors describe subdomain reputation as mostly independent from the parent domain, but every source hedges that separation is not guaranteed — shared authentication, shared infrastructure and obvious brand association can all let signals cross over. No mailbox provider publishes a rule confirming or ruling this out. The safe planning assumption is that a cold-outbound subdomain sits close enough to your brand to matter, which is why dedicated lookalike sending domains are the more common architecture for outbound at volume.</p>
+
+<h3>Does swapping sending domains mid-campaign break reply threads or CRM attribution?</h3>
+<p>Unknown, genuinely. Neither Smartlead nor Instantly publish what happens to in-flight sequences when sending accounts are swapped, including whether reply threading survives or how partially-sequenced prospects behave. HubSpot documents how email activity gets attributed but does not address what happens to logged activity or attribution when a sending domain changes. Because a domain migration can split one contact's engagement history across two identities without throwing any error, test the swap on a small sandbox campaign and inspect both the threads and the CRM records before migrating a live book of business.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+
+<p><strong>Burned a sending domain and trying to work out whether it's worth saving? Start with our <a href="/blog/cold-email-deliverability-monitoring-2026">deliverability monitoring guide</a> so the next incident gets caught early, or <a href="/">talk to our team</a>. We build and run cold email, LinkedIn outreach and HubSpot RevOps systems for B2B teams — including the unglamorous infrastructure work that decides whether any of it lands.</strong></p>
+
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. Removal processes, timelines and costs were read from each blocklist operator's or mailbox provider's own documentation and are quoted as they state them. Recovery and warmup timelines are the weakest-sourced area of this subject and are flagged directional throughout — most originate from vendors selling deliverability products. Where sources contradict each other, the conflict is named rather than resolved. Blocklist policies, bounce codes and pricing change; verify against the operator's current site before acting. Last updated September 2026.</em></p>

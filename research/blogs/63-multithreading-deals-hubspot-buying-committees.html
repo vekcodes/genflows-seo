@@ -1,0 +1,170 @@
+<!-- TITLE TAG: Multithreading Deals in HubSpot: 2026 Guide -->
+<!-- META: How to multithread B2B deals in HubSpot: buying committee roles, association labels, Buying Groups tier gating, and tactics for outbound-sourced pipeline. -->
+<!-- SLUG: blog/multithreading-deals-hubspot-buying-committees-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+<p style="margin:0 0 10px;color:#e8732b;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;font-size:13px;">TL;DR</p>
+<ul style="margin:0;padding-left:20px;">
+<li style="margin-bottom:8px;"><strong>Single-threaded deals — one contact, no other stakeholders in the loop — are the most common reason cold-outbound pipeline stalls</strong> after the first booked call.</li>
+<li style="margin-bottom:8px;"><strong>Gong's analysis of 1.8M closed deals found win rates rise roughly 130% on deals over $50K</strong> when multiple buyer contacts are engaged, and won deals have roughly double the buyer contacts of lost deals.</li>
+<li style="margin-bottom:8px;"><strong>HubSpot gives you two levels of support:</strong> a free "Buying Role" contact property and multi-contact deal associations on every tier, plus a purpose-built visual "Buying Groups" org-chart tool that requires Sales Hub or Service Hub Enterprise.</li>
+<li style="margin-bottom:8px;"><strong>There's no native alert for a single-threaded deal</strong> — you have to build one, either as a workflow or a custom report that counts associated contacts per deal.</li>
+<li><strong>For outbound-sourced deals specifically</strong>, the fastest way to add threads is asking your first reply directly who else should be looped in, then enriching the account in Clay or LinkedIn to find the rest.</li>
+</ul>
+</div>
+
+<p>A cold email reply feels like progress. A booked call feels like more progress. Then, three weeks later, the person who replied stops answering — and the deal is dead, because they were the only person you ever talked to.</p>
+
+<p><em>Some figures below carry a source note. Where a number is a vendor's own disclosed dataset, it's marked VERIFIED; where it's a commonly repeated industry figure without a traceable primary source, it's marked (directional) — treat those as informed estimates, not settled fact.</em></p>
+
+<h2>The Short Answer</h2>
+<p>Multithreading means building relationships with more than one stakeholder on a deal before you need them — not scrambling to find a new contact after your one champion goes quiet. In HubSpot, that means associating multiple contacts to a deal, tagging each with a role (economic buyer, champion, technical evaluator, and so on), and actively tracking whether engagement is spread across those contacts or stacked on just one. HubSpot has real tooling for this, but the most useful piece — a visual map of who's connected to whom, with an engagement heatmap — sits behind Sales Hub or Service Hub Enterprise. Everything below Enterprise is still workable; it just takes more manual discipline.</p>
+
+<h2>Why single-threaded deals die</h2>
+<p>Outbound pipeline is especially prone to single-threading because of how it starts: one person replies to one email or accepts one LinkedIn connection, and every subsequent touch goes through that one relationship. That's fine until any of three things happen — the contact changes jobs, loses an internal debate to a skeptical peer you've never spoken to, or simply stops being the deal's priority. None of those are things you can fix after the fact if you have no other relationship on the account.</p>
+
+<p>Gong's analysis of the buyer contacts on 1.8 million new-business deals closed in 2024 found that deal teams on won deals were about 67% larger than on lost deals, and that engaging multiple buyer contacts lifted win rates by an average of roughly 130% on deals over $50K. A related Gong study of more than a million executive sales cycles put it more concretely: deals in the $50K–$250K range typically involve at least 10 stakeholders by the time they close. Both are Gong's own disclosed research (not an independent academic study, and Gong sells a platform built around this behavior), but the dataset size and methodology are named, which is more than most of the "committee size" statistics floating around this topic.</p>
+
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:16px 20px;margin:20px 0;border-radius:6px;">
+<p style="margin:0;"><strong>A word of caution on committee-size stats:</strong> you'll see "Gartner says buying committees average 6–10 people" repeated everywhere — and also "7," "11," "8–13," and "20," all attributed to Gartner by different blogs, usually citing each other rather than a live Gartner report. None of those specific numbers could be traced to a current Gartner source. Treat any single "the committee has N people" figure as directional, and lean on deal-specific signals (below) instead of a universal number.</p>
+</div>
+
+<h2>What a buying committee actually looks like</h2>
+<p>Not every stakeholder plays the same role, and outbound teams can usually spot each one from behavior alone — you don't need a title on a business card to know who's evaluating security versus who's protecting budget.</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;">
+<th style="padding:10px 12px;">Role</th>
+<th style="padding:10px 12px;">What they care about</th>
+<th style="padding:10px 12px;">How to spot them from outbound</th>
+<th style="padding:10px 12px;">Suggested HubSpot label</th>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Economic Buyer</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Budget, ROI, risk to their P&amp;L</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Senior title, joins late, asks about pricing and contract terms</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Economic Buyer</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Champion</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Looks good internally for solving the problem</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Replied to the original outreach, drives scheduling, forwards your deck internally</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Champion</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">User / Influencer</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Day-to-day usability and adoption pain</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Attends demos, asks workflow-specific questions</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Influencer / End User</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Technical / Security Evaluator</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Integration, data security, compliance</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Shows up in later calls, requests security docs</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Technical Evaluator</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Procurement / Legal</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Contract terms, vendor risk, pricing structure</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Enters near close, sends redlines or an MSA</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Procurement / Legal</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Blocker / Skeptic</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Status quo, risk of change</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Pushes back on group calls, raises "why now" objections</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Blocker</td>
+</tr>
+</table>
+
+<h2>How to multithread inside HubSpot, feature by feature</h2>
+<p>HubSpot supports multithreading at two different levels, and mixing them up is the easiest mistake to make when planning this in your CRM.</p>
+
+<h3>Free on every tier: multi-contact associations and the Buying Role property</h3>
+<p>Every HubSpot tier — including Free — lets you associate more than one contact with a deal. HubSpot also ships a default contact property called <strong>Buying Role</strong>, a multi-select checkbox field ("the role the contact plays during the sales process") that a contact can carry more than one value on at once. You can rename or add options but not delete the defaults. Used consistently, that alone gets you a filterable record of who's an economic buyer, champion, or evaluator on every deal — no Enterprise license required.</p>
+
+<h3>Professional and up: custom association labels</h3>
+<p>HubSpot also supports <strong>association labels</strong> — a tag on the relationship between a contact and a deal, not just on the contact itself (so the same person could be labeled differently on two different deals). The catch: <em>custom</em> labels require Sales Hub, Marketing Hub, Service Hub, Content Hub, or Data Hub Professional or Enterprise — not available on Free or Starter — and you get up to 50 labels per object pair.</p>
+
+<h3>Enterprise only: Buying Groups</h3>
+<p>The tool actually built to solve this problem is <strong>Buying Groups</strong>, which renders a visual org chart on the company record — stakeholders, their relationships, buying roles, and an engagement heatmap explicitly designed to surface "missing connections and weak relationships," i.e., single-threading, at a glance. It requires <strong>Sales Hub Enterprise or Service Hub Enterprise</strong> plus an assigned seat to edit. If your team is on Professional or below, Buying Groups isn't available, and the Buying Role property plus disciplined association labels are your practical substitute.</p>
+
+<div style="background:#f4f7fb;border-left:4px solid #1f3a5f;padding:16px 20px;margin:20px 0;border-radius:6px;">
+<p style="margin:0;"><strong>No native single-threaded-deal alert exists on any tier.</strong> There's no out-of-the-box "flag this deal, it only has one contact" trigger. The workaround is a workflow or a custom report — outlined below — built on top of the associations and properties you're already filling in.</p>
+</div>
+
+<h2>Signals a deal is single-threaded — and how to check them in HubSpot</h2>
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;">
+<th style="padding:10px 12px;">Signal</th>
+<th style="padding:10px 12px;">Single-threaded (at risk)</th>
+<th style="padding:10px 12px;">Multithreaded (healthy)</th>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Contacts associated to the deal</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">1</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">3+, spanning distinct roles</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Contacts with logged engagement (opens, replies, meetings)</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">1</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Multiple, spread across roles</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Buying Role property filled in</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">0–1 roles</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Champion + Economic Buyer + one evaluator, at minimum</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Contact count vs. deal stage</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Late stage, still 1 contact</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Contact count grows as the deal advances</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Meeting attendees over time</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Same one person on every call</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">New names join as the deal progresses</td>
+</tr>
+</table>
+
+<p>You can operationalize the "1 contact at a late stage" signal without Enterprise: build a <strong>custom report</strong> (Professional+ reporting) using deals as the primary object, joined to associated contacts, filtered by deal stage and association label — this surfaces exactly which open, advanced-stage deals still have only one labeled contact. It's manual to set up and won't auto-visualize relationships the way Buying Groups does, but it answers the same underlying question: which deals are one resignation away from going dark.</p>
+
+<h2>Multithreading tactics for outbound-sourced deals specifically</h2>
+<p>Deals that start from a cold email or a LinkedIn connection request have a structural single-threading problem baked in: the first (and often only) relationship is whoever chose to reply. A few tactics that work for outbound teams specifically:</p>
+
+<ul>
+<li><strong>Ask directly, early.</strong> Once a call is booked, ask the responding contact who else should be looped in before you invest in a full pitch to one person.</li>
+<li><strong>Enrich the account, not just the contact.</strong> Run the company through Clay to pull adjacent titles — VP, director, or procurement contacts at the same account — rather than waiting for an internal introduction that may never come. See our <a href="/blog/clay-hubspot-integration-sync-crm-2026">Clay-to-HubSpot sync guide</a> for the mechanics of getting enriched contacts into your CRM with the right associations attached.</li>
+<li><strong>Map reporting lines on LinkedIn.</strong> Sales Navigator's org-chart-style search can surface a champion's manager or a peer in a different function before you ever get an introduction.</li>
+<li><strong>Split channels deliberately.</strong> A CC or forwarded thread works fine on email; on LinkedIn, sending a separate, individually-framed connection request to a second stakeholder tends to land better than asking your one connection to make an intro. Our <a href="/blog/cold-email-vs-linkedin-outreach-b2b-2026">cold email vs. LinkedIn comparison</a> covers how the two channels behave differently for exactly this kind of parallel outreach.</li>
+<li><strong>Enroll new contacts into their own sequence.</strong> HubSpot allows only one active sequence per contact at a time, but that's a per-contact rule — it does not stop you from running a second sequence to a newly identified stakeholder on the same deal, including bulk-enrolling up to 50 contacts at once with the right permission.</li>
+</ul>
+
+<h2>Tie it back to deal stage and forecast accuracy</h2>
+<p>Single-threading isn't just a win-rate problem — it's a pipeline-integrity problem. A deal sitting at a late stage in your pipeline with one contact and no Economic Buyer role filled in is a weaker forecast input than the stage alone suggests, and it's exactly the kind of deal that quietly stalls and drags down <a href="/blog/b2b-sales-velocity-formula-2026">sales velocity</a> without an obvious cause. If your <a href="/blog/hubspot-deal-stages-outbound-teams-2026">HubSpot deal stages</a> don't have an exit criterion tied to stakeholder coverage, consider adding one at the stage where deals typically start needing multiple approvers — and treat contact-count and Buying Role completeness as inputs worth checking before trusting a stage-based forecast, a theme covered in more depth in our <a href="/blog/sales-forecasting-methods-b2b-2026">sales forecasting methods guide</a>. None of this works, though, if reps don't actually fill in the associations and role properties — which is really a <a href="/blog/crm-data-hygiene-outbound-teams-2026">CRM data hygiene</a> problem wearing a sales-strategy costume.</p>
+
+<h2>Frequently Asked Questions</h2>
+
+<h3>What does "multithreading" mean in B2B sales, and why does it matter for cold outbound deals?</h3>
+<p>Multithreading means building relationships with multiple stakeholders on a buying committee — not just one champion — so the deal survives if any single contact leaves, loses an internal argument, or goes quiet. It matters especially for cold email or LinkedIn-sourced deals because the first reply is almost always from one person, and that person is rarely the only, or final, decision-maker.</p>
+
+<h3>Does HubSpot have a native way to track a buying committee on a deal?</h3>
+<p>Partially. Every tier lets you associate multiple contacts with a deal and use the default Buying Role property to tag each one's role. Custom association labels (e.g., "Economic Buyer," "Technical Evaluator") require Sales, Marketing, Service, Content, or Data Hub Professional or Enterprise. HubSpot's purpose-built visual tool for mapping a committee — Buying Groups, with an org chart and engagement heatmap — requires Sales Hub Enterprise or Service Hub Enterprise.</p>
+
+<h3>What's the difference between HubSpot's "Buying Role" property and the "Buying Groups" tool?</h3>
+<p>Buying Role is a simple multi-select contact property available on every tier — a contact can be tagged Champion and Technical Evaluator at once, with no Enterprise requirement. Buying Groups is the Enterprise-tier tool that visually maps relationships between contacts at a company and shows an engagement heatmap. You can approximate a lot of what Buying Groups does — without Enterprise — by combining the Buying Role property with consistent association labels and a custom report.</p>
+
+<h3>Do I need Sales Hub Enterprise to multithread deals in HubSpot?</h3>
+<p>No. Associating multiple contacts with a deal and using the Buying Role property work on any tier, including Free. You need Professional or above to create custom association labels. Enterprise adds the automatic org-chart visualization and engagement heatmap — useful, but not required to multithread in practice.</p>
+
+<h3>How do outbound teams find the other stakeholders on a deal that started from one cold email reply?</h3>
+<p>Common tactics: ask the responding contact directly who else should be involved once a meeting is booked; enrich the account in a tool like Clay to surface adjacent titles (VP, director, procurement) at the same company; use LinkedIn Sales Navigator to map reporting lines; and enroll newly identified stakeholders into their own outreach sequence rather than waiting for an internal introduction.</p>
+
+<h3>How can a RevOps or sales team spot a single-threaded deal before it stalls, using HubSpot data?</h3>
+<p>There's no built-in alert for this on any HubSpot tier — it has to be built. The typical approach is a workflow or a custom report that flags open deals past a certain stage with only one associated contact, or where the Buying Role property has no Economic Buyer or Champion filled in, so reps get a nudge to add a second thread before the deal advances further.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+
+<p><strong>Single-threaded pipeline is one of the quietest ways outbound deals stall — if you want a second pair of hands mapping stakeholders and building the multithreading discipline into your <a href="/blog/hubspot-deal-stages-outbound-teams-2026">HubSpot deal stages</a>, <a href="/">talk to our team</a>.</strong></p>
+
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. Sourced from HubSpot's own knowledge base and Gong's disclosed 2024 deal-analysis research; committee-size figures without a traceable primary source are flagged directional rather than stated as fact. Last updated August 2026.</em></p>

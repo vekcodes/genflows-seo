@@ -1,0 +1,93 @@
+<!-- TITLE TAG: Waalaxy & Expandi HubSpot Integration Compared (2026) -->
+<!-- META: Waalaxy vs Expandi HubSpot integration: native sync, triggers, webhooks, Zapier, plan gating and the gaps to test before you push LinkedIn leads into HubSpot. -->
+<!-- SLUG: blog/waalaxy-expandi-hubspot-integration-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+<p style="margin:0 0 10px;color:#e8732b;font-weight:700;text-transform:uppercase;letter-spacing:.04em;font-size:13px;">TL;DR</p>
+<ul style="margin:0;padding-left:20px;">
+<li><strong>Both tools have a native HubSpot integration.</strong> Waalaxy labels its sync &ldquo;2-way&rdquo;; Expandi syncs LinkedIn leads and interaction history automatically or manually.</li>
+<li><strong>Waalaxy needs a paid plan</strong> (Pro, Advanced or Business) and works with a free or paid HubSpot account. Only static HubSpot lists work, not dynamic ones.</li>
+<li><strong>Expandi adds webhooks and Zapier</strong> for custom triggers. Its Business plan is $99/month ($79 billed annually) and lists Integrations.</li>
+<li><strong>Neither vendor documents</strong> duplicate matching, the HubSpot property for the LinkedIn URL, or how activity is logged <em>(directional)</em>. Test with 20 contacts before a full sync.</li>
+<li><strong>The real risk is bad data, not the connector.</strong> Fix email enrichment and dedupe rules first.</li>
+</ul>
+</div>
+
+<p>If your LinkedIn outreach runs in Waalaxy or Expandi but your pipeline lives in HubSpot, the integration decides whether reps see replies in the CRM or copy them by hand. This guide compares what each tool actually syncs, how to trigger it, and where the gaps are.</p>
+
+<p><em>Sourcing note: details come from each vendor&rsquo;s integrations page, help center and Expandi&rsquo;s pricing page. Anything we could not confirm on a vendor page is marked <strong>directional</strong> or listed as untested. We did not read HubSpot&rsquo;s own docs for this post.</em></p>
+
+<h2>The Short Answer</h2>
+<p>Pick Waalaxy if you want a point-and-click sync with trigger choices (on accept, on reply, on &ldquo;interested&rdquo; reply) inside a simple UI. Pick Expandi if you also need webhooks or Zapier to write to HubSpot exactly the way your RevOps setup expects. Both need testing for duplicates, because neither documents what it matches on. For a LinkedIn-first alternative with deeper CRM options, see our <a href="/blog/heyreach-hubspot-integration-2026">HeyReach HubSpot integration guide</a>.</p>
+
+<h2>Side-by-Side Comparison</h2>
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;"><th style="padding:10px 12px;">Feature</th><th style="padding:10px 12px;">Waalaxy</th><th style="padding:10px 12px;">Expandi</th></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Native HubSpot</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes, labelled 2-way</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes, automatic or manual</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Webhooks</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Not verified</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes (invite, accept, reply events <em>directional</em>)</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Zapier</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Not verified on a vendor page</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Plan gating</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Paid plans (Pro, Advanced, Business)</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Business, $99/mo or $79/mo annual, lists Integrations</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Reverse direction (HubSpot to tool)</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Contacts with a LinkedIn URL; a Make template exists</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">&ldquo;Reversed Webhooks&rdquo; article exists (not reviewed)</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Key gap</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Static lists only; property mapping undocumented</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Payload fields and duplicate matching undocumented</td></tr>
+</table>
+
+<h2>Waalaxy&rsquo;s HubSpot Sync</h2>
+<p>Setup is short: Settings, CRM Integrations, Connect App, authorize HubSpot, then optionally assign prospects to a HubSpot list. Per Waalaxy&rsquo;s help article, the fields that can sync include first and last name, company name, phone, LinkedIn headline, location, LinkedIn profile URL, job title, prospect list, prospect stage, company website, company LinkedIn URL and tags.</p>
+<p><strong>You choose when a prospect syncs:</strong> when added to a campaign; only after they accept the invite; when they reply to a LinkedIn message (all replies, or only &ldquo;interested&rdquo; ones via Response Analysis); when they reply to an email; when Email Finder enriches them; or manually.</p>
+<ul>
+<li><strong>Static lists only.</strong> Dynamic HubSpot lists are not retrieved.</li>
+<li><strong>LinkedIn URL required</strong> for contacts to sync from the HubSpot side.</li>
+<li><strong>Email may be required.</strong> A help-center snippet says first name, last name and email are mandatory to prevent duplicates <em>(directional; not stated in the article we read)</em>.</li>
+<li><strong>Action history</strong> is visible on the contact inside the synced list in HubSpot.</li>
+</ul>
+
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:14px 18px;margin:18px 0;border-radius:6px;">
+<p style="margin:0;"><strong>Not documented:</strong> how Waalaxy&rsquo;s &ldquo;prospect stage&rdquo; maps to HubSpot lifecycle stage, and whether the LinkedIn URL lands in a standard or custom property. Create the property first and check where the data goes on your test batch.</p>
+</div>
+
+<h2>Expandi&rsquo;s HubSpot Sync</h2>
+<p>Expandi&rsquo;s integrations page lists HubSpot, Salesforce and Pipedrive as native, syncing LinkedIn leads and their interaction history automatically or manually. Beyond that it offers real-time webhooks for replies, connections and messages, and Zapier for thousands of other apps. A blog post (about two years old) lists the events as invitation sent, connection accepted and lead replied <em>(directional)</em>.</p>
+<p>The webhook route matters for RevOps teams. It lets you set lifecycle stage, create a HubSpot task or fire a workflow instead of accepting a fixed field map. Our <a href="/blog/hubspot-workflow-automation-reply-handling-2026">HubSpot reply-handling workflow guide</a> shows what to do once the event lands.</p>
+<ul>
+<li><strong>Pricing:</strong> Business is $99/month, or $79/month billed annually, with Integrations listed. Agency is priced by seats through sales. The pricing page does not say whether webhooks, Zapier or HubSpot are gated separately. Our <a href="/blog/expandi-pricing-2026">Expandi pricing breakdown</a> has the full plan detail.</li>
+<li><strong>Make:</strong> not listed on the integrations page. Generic webhooks should work with it <em>(inference)</em>.</li>
+<li><strong>Not verified:</strong> exact payload fields, duplicate matching and whether &ldquo;full interaction history&rdquo; becomes HubSpot notes, engagements or properties.</li>
+</ul>
+
+<h2>Gaps to Test Before You Sync Everything</h2>
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;"><th style="padding:10px 12px;">Risk</th><th style="padding:10px 12px;">Why it matters</th><th style="padding:10px 12px;">How to test</th></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Duplicate contacts</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">HubSpot dedupes on email; LinkedIn-only prospects have none <em>(background knowledge, not verified for these tools)</em></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Sync 20 contacts you already have in HubSpot</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">LinkedIn URL property</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Neither vendor says where it lands</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Create a custom property and check the result</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Activity logging</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Reps need replies on the timeline</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Reply from a test account; look on the contact</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Lifecycle stage</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Wrong stage pollutes reports</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Set stage with a HubSpot workflow, not the tool</td></tr>
+</table>
+<p>Messy inputs make every one of these worse. Run a pass from our <a href="/blog/crm-data-hygiene-outbound-teams-2026">CRM data hygiene guide</a> first, and if email and LinkedIn data both feed HubSpot, follow the pattern in <a href="/blog/sync-cold-email-linkedin-data-hubspot-2026">syncing cold email and LinkedIn data into HubSpot</a>.</p>
+
+<div style="background:#f4f7fb;border-left:4px solid #1f3a5f;padding:14px 18px;margin:18px 0;border-radius:6px;">
+<p style="margin:0;"><strong>Still choosing a tool?</strong> See <a href="/blog/heyreach-vs-waalaxy-linkedin-automation-2026">HeyReach vs Waalaxy</a>, <a href="/blog/heyreach-vs-expandi-linkedin-automation-2026">HeyReach vs Expandi</a> and <a href="/blog/waalaxy-pricing-2026">Waalaxy pricing</a>. If your CRM is Close, read the <a href="/blog/heyreach-close-crm-integration-2026">HeyReach to Close guide</a>.</p>
+</div>
+
+<h2>Frequently Asked Questions</h2>
+
+<h3>Do Waalaxy and Expandi integrate natively with HubSpot?</h3>
+<p>Yes, both list a native HubSpot integration. Expandi also supports webhooks and Zapier, so you can go beyond the native sync when you need custom logic.</p>
+
+<h3>Which Waalaxy plan do I need for HubSpot?</h3>
+<p>A paid plan: Pro, Advanced or Business. A free or paid HubSpot account works. Check Waalaxy&rsquo;s pricing page for current plan terms before buying.</p>
+
+<h3>When does a LinkedIn prospect reach HubSpot?</h3>
+<p>In Waalaxy you choose the trigger: on campaign add, on invite accepted, on any or only &ldquo;interested&rdquo; replies, or on manual export. Expandi syncs automatically on triggers or manually.</p>
+
+<h3>Will I get duplicate contacts in HubSpot?</h3>
+<p>It is possible. Neither vendor documents what it matches on, and LinkedIn-only prospects have no email for HubSpot to dedupe against <em>(directional)</em>. Enrich emails first and sync a small test batch.</p>
+
+<h3>Does the sync log LinkedIn activity on the HubSpot timeline?</h3>
+<p>Expandi advertises &ldquo;full interaction history&rdquo; and Waalaxy shows action history on the contact. Neither documents whether this becomes HubSpot notes or engagements, so confirm in a test.</p>
+
+<h3>When should I use Zapier or webhooks instead of the native sync?</h3>
+<p>Use them when you need custom triggers or mapping the native sync lacks, such as setting lifecycle stage or creating a task for the rep on reply. Expandi supports both; for Waalaxy, confirm availability on a vendor page first.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+<p><strong>Want LinkedIn replies landing cleanly in HubSpot?</strong> GenFlows builds LinkedIn and email outreach systems wired into HubSpot and Close. Read <a href="/blog/cold-email-vs-linkedin-outreach-b2b-2026">cold email vs LinkedIn outreach</a> for channel strategy, or <a href="/">talk to our team</a>.</p>
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. Details from vendor integration pages and help centers; items marked directional were not verified. Last updated October 2026.</em></p>

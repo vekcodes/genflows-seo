@@ -1,0 +1,160 @@
+<!-- TITLE TAG: HeyReach Close CRM Integration: Options & Setup -->
+<!-- META: HeyReach has no native Close integration we could find. Compare OutboundSync, Zapier and webhooks, and how to log LinkedIn activity in Close without duplicates. -->
+<!-- SLUG: blog/heyreach-close-crm-integration-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+  <p style="color:#e8732b;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 10px;font-size:13px;">TL;DR</p>
+  <ul style="margin:0;padding-left:20px;">
+    <li style="margin-bottom:8px;"><strong>We found no native HeyReach–Close integration.</strong> The practical routes are OutboundSync, Zapier, or HeyReach webhooks into a flow you build.</li>
+    <li style="margin-bottom:8px;"><strong>OutboundSync is the managed route,</strong> but it is one-way (HeyReach to Close) and labelled beta on its own page.</li>
+    <li style="margin-bottom:8px;"><strong>Close is built around leads and contacts.</strong> A lead is a company and contacts sit under it, so decide how a LinkedIn prospect maps before you sync anything.</li>
+    <li style="margin-bottom:8px;"><strong>Dedupe in your own flow.</strong> Search Close first, match on a normalised LinkedIn URL and email, then create. Do not assume Close will catch duplicates for you.</li>
+    <li style="margin-bottom:0;"><strong>Log activity as notes or activities,</strong> and keep one custom field for the latest LinkedIn status so reps can filter in Smart Views.</li>
+  </ul>
+</div>
+
+<p>If your team sells from Close, LinkedIn outreach has a familiar problem. Connection requests and replies live inside the automation tool, reps work in Close, and the CRM never shows that a deal started with a LinkedIn conversation.</p>
+
+<p>HubSpot users get a native HeyReach integration. Close users do not appear to. This guide covers the options, what each one does and does not do, and a safe way to build the sync yourself. For the HubSpot equivalent, see our <a href="/blog/heyreach-hubspot-integration-2026">HeyReach HubSpot integration guide</a>, and for the email side of Close, our <a href="/blog/close-crm-cold-email-integration-2026">Close CRM cold email integration guide</a>.</p>
+
+<p><em>Sourcing note: OutboundSync details come from its HeyReach–Close page, and Close object details from Close's developer docs, both read on 6 October 2026. HeyReach event names come from OutboundSync's HeyReach webhook guide. We could not open HeyReach's own webhook documentation, so we do not list payload fields. Anything we could not confirm is marked <strong>(directional)</strong>, and the build pattern is our own recommendation.</em></p>
+
+<h2>The Short Answer</h2>
+<p>Use <strong>OutboundSync</strong> if you want LinkedIn activity in Close with the least build effort and can live with a one-way beta sync. Use <strong>HeyReach webhooks plus Zapier, Make or n8n</strong> if you want control over matching, field mapping and deal creation. Whichever you pick, the hard part is not the connection. It is deciding how a LinkedIn prospect maps onto Close's lead and contact model, and matching before you create.</p>
+
+<h2>Your Options at a Glance</h2>
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+    <th style="padding:10px 12px;">Route</th>
+    <th style="padding:10px 12px;">Direction</th>
+    <th style="padding:10px 12px;">What it does</th>
+    <th style="padding:10px 12px;">Effort</th>
+    <th style="padding:10px 12px;">Watch out for</th>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Native HeyReach integration</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">n/a</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">None found for Close</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">n/a</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Verify in your HeyReach account before building</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>OutboundSync</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">One-way, HeyReach to Close</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Matches or creates Close leads and logs activity (connection requests sent and accepted, messages, replies, follows, post likes, profile views, tag updates)</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Low, guided onboarding</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Beta; billed on its own model; no Close block lists</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>HeyReach webhooks + Zapier/Make/n8n</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Your choice</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Whatever you map: notes, custom fields, leads, opportunities</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Medium</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">You own matching, retries and duplicate events</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Zapier, Close to HeyReach</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Close to HeyReach <strong>(directional)</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Add leads to a HeyReach campaign when something changes in Close</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Low</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Listing seen via search snippet only; test it</td>
+  </tr>
+</table>
+
+<h2>OutboundSync: What It Does</h2>
+<p>OutboundSync's page describes a near-real-time log of HeyReach activity as Close lead activity. It lists eight activity types: connection requests sent and accepted, messages and replies, follows, post likes, profile views and tag updates, including auto-tags.</p>
+<ul>
+<li><strong>Setup:</strong> a Close admin authorises the integration through the Close App Marketplace, you add your HeyReach API key, confirm contact matching, test with one event, then go live.</li>
+<li><strong>Direction:</strong> one-way, HeyReach to Close. The page labels the pairing beta.</li>
+<li><strong>Objects:</strong> it "matches or creates" Close leads. There are no prebuilt Smart Views, but you can build your own from the synced tag data.</li>
+<li><strong>Plans:</strong> the page says webhooks and the API are included on all HeyReach plans.</li>
+<li><strong>Limit:</strong> Close records cannot be used as a block list. That option is available only for HubSpot lists or Salesforce reports.</li>
+</ul>
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:14px 18px;margin:20px 0;border-radius:6px;"><strong>Check the billing model.</strong> OutboundSync bills on its own basis (sent messages per month, per its page), on top of HeyReach and Close. Price it before you commit. See our <a href="/blog/heyreach-pricing-2026">HeyReach pricing guide</a> and <a href="/blog/close-crm-pricing-2026">Close CRM pricing guide</a> for the other two line items.</div>
+
+<h2>The DIY Route: HeyReach Webhooks</h2>
+<p>HeyReach lets you subscribe to events and receive an HTTP POST at an endpoint you choose. According to OutboundSync's HeyReach webhook guide, the useful events are: Connection Request Sent, Connection Request Accepted, Message Sent, Inmail Sent, Every Message Reply Received, Follow Sent, Liked Post, Viewed Profile, and the tag events (Lead Tag Updated and the auto-tag variants). The same guide suggests skipping campaign lifecycle events.</p>
+<p>For most teams, three events are enough: <strong>Connection Request Accepted</strong> (a warm signal), <strong>Every Message Reply Received</strong> (the one reps must act on), and <strong>Lead Tag Updated</strong> (sentiment or status). Logging every profile view and like in the CRM adds noise without helping a rep decide what to do next.</p>
+<p>We could not read HeyReach's own payload documentation, so check the exact field names in your account's test event before mapping. Pick your middleware using our <a href="/blog/n8n-vs-make-vs-zapier-gtm-automation-2026">n8n vs Make vs Zapier comparison</a>.</p>
+
+<h2>Mapping LinkedIn Prospects to Close's Data Model</h2>
+<p>Close's developer docs describe a lead as a company or organisation that can hold contacts, tasks, opportunities and activities. A contact is an individual person and must be a child of a lead. Custom fields can be stored on leads, contacts, opportunities and custom activities. When you create a lead through the API, you can nest contacts and custom fields in the same request.</p>
+<p>That model is built for company-first selling, and LinkedIn data is person-first. Pick one pattern and apply it everywhere:</p>
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+    <th style="padding:10px 12px;">Pattern</th>
+    <th style="padding:10px 12px;">How it works</th>
+    <th style="padding:10px 12px;">Good for</th>
+    <th style="padding:10px 12px;">Risk</th>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Company lead + nested contact</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Create or find the company lead, add the person as a contact</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Multi-threading, account-based selling</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Needs a company name or domain from the LinkedIn data</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Person-named lead</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Lead named after the person, one contact</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Solo founders, SMB, very small accounts</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Splits one company into many leads</td>
+  </tr>
+</table>
+
+<h2>Matching Before You Create</h2>
+<p>This is where most syncs go wrong. A LinkedIn tool will happily send a "reply received" event for someone Close already knows from cold email, and a naive flow creates a second lead.</p>
+<ol>
+<li><strong>Store a normalised LinkedIn URL</strong> in a custom field on the contact. Strip tracking parameters and trailing slashes, and lowercase it, so the same profile always produces the same string.</li>
+<li><strong>Search Close first.</strong> Close documents an advanced filtering API for finding leads or contacts by criteria. Search by LinkedIn URL, then by email.</li>
+<li><strong>Create only on a miss,</strong> and write the URL on creation so the next event matches.</li>
+<li><strong>Guard against repeat events.</strong> Webhooks can arrive more than once <strong>(directional)</strong>, so store an event or message identifier and skip ones you have already logged.</li>
+<li><strong>Clean up with merge.</strong> Close has a merge-leads endpoint for the duplicates that slip through.</li>
+</ol>
+<div style="background:#f4f7fb;border-left:4px solid #1f3a5f;padding:14px 18px;margin:20px 0;border-radius:6px;"><strong>We did not find Close documentation on automatic duplicate handling</strong> when creating leads through the API, so we treat matching as your job. If you have confirmed behaviour in your own account, build on that, but test it with a duplicate first.</div>
+
+<h2>What to Write Into Close</h2>
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+    <th style="padding:10px 12px;">Event</th>
+    <th style="padding:10px 12px;">Write to Close</th>
+    <th style="padding:10px 12px;">Why</th>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Connection request accepted</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Note or custom activity, plus set &quot;LinkedIn status&quot; = Connected</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Warm signal for the rep</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Reply received</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Note with date and message text, set status = Replied, create a task</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">The action item; speed matters</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Tag updated (positive)</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Set status, optionally create an opportunity</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Starts the deal in the right stage</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Message sent, views, likes</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Usually skip, or let OutboundSync log them</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Noise in the activity feed</td>
+  </tr>
+</table>
+
+<p>Keep a single custom field such as "LinkedIn status" so reps can build a Smart View of replied prospects. Rate limits matter if you sync in bulk: Close applies limits per endpoint group, returns a RateLimit header, and expects you to wait for the reset value after a 429 response. We do not quote numbers because Close's page did not give any.</p>
+<p>Before you scale any LinkedIn campaign, check your sending volumes against our <a href="/blog/linkedin-outreach-limits-account-safety-2026">LinkedIn outreach limits guide</a>, and keep the CRM tidy with our <a href="/blog/crm-data-hygiene-outbound-teams-2026">CRM data hygiene guide</a>.</p>
+
+<h2>Close or HubSpot for LinkedIn-Heavy Outbound?</h2>
+<p>If LinkedIn is a core channel and you want a native integration, the HubSpot route is simpler today, though it has its own gaps (we cover them in the <a href="/blog/heyreach-hubspot-integration-2026">HeyReach HubSpot guide</a>). Close tends to win on calling and speed for small outbound teams <strong>(directional)</strong>. Our <a href="/blog/close-crm-vs-hubspot-outbound-sales-teams-2026">Close vs HubSpot comparison</a> covers that trade-off in full. If you enrich leads in Clay first, our <a href="/blog/clay-heyreach-integration-push-leads-linkedin-2026">Clay to HeyReach guide</a> covers the upstream half, and the <a href="/blog/best-linkedin-automation-tools-heyreach-expandi-comparison-2026">LinkedIn automation tools comparison</a> covers the alternatives.</p>
+
+<h2>Frequently Asked Questions</h2>
+<h3>Does HeyReach integrate natively with Close CRM?</h3><p>We found no native HeyReach-built Close integration. We could not open HeyReach's CRM integrations article, so treat this as "none found" rather than a vendor-confirmed "none exists". The routes we found are OutboundSync (a third-party beta), Zapier, and HeyReach webhooks into a flow you build.</p>
+<h3>Can I sync LinkedIn replies into Close?</h3><p>Yes. OutboundSync lists messages and replies among the events it logs as Close lead activity. With webhooks, HeyReach's "Every Message Reply Received" event can trigger a flow that writes a note on the matching Close lead.</p>
+<h3>How do I avoid duplicate leads in Close from LinkedIn campaigns?</h3><p>Search before you create. Match on a normalised LinkedIn profile URL stored in a custom field, with email as a second key, and only create a lead when nothing matches. We did not find Close documentation describing automatic duplicate handling on lead creation <strong>(directional)</strong>, so do not rely on it. Close has a merge-leads endpoint for cleanup.</p>
+<h3>Should a LinkedIn prospect be a Close lead or a contact?</h3><p>In Close, a lead represents a company and contacts sit under it. Decide once: create a company lead with the prospect as a nested contact, or attach the contact to an existing company lead. Mixing both is the usual source of messy data.</p>
+<h3>Do I need a paid HeyReach plan for the Close sync?</h3><p>OutboundSync states that webhooks and the API are included on all HeyReach plans, so the sync works on any of them. Plan terms change, so confirm in your own account before you buy.</p>
+<h3>Is the sync two-way?</h3><p>OutboundSync is one-way, HeyReach to Close, and labels the pairing beta. Sending Close changes back to HeyReach, such as adding a lead to a campaign when a Close status changes, needs a separate Zapier or webhook flow.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+<p><strong>Want LinkedIn and cold email activity flowing into Close or HubSpot without the duplicate mess?</strong> Start with our <a href="/blog/close-crm-cold-email-integration-2026">Close cold email integration guide</a>, or <a href="/">talk to our team</a> and we will build the sync for you.</p>
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. Vendor features and pricing change often, so confirm in your own accounts. Last updated October 2026.</em></p>

@@ -1,0 +1,228 @@
+<!-- TITLE TAG: Sync Cold Email & LinkedIn Data Into HubSpot (2026) -->
+<!-- META: How to get Smartlead, Instantly and HeyReach reply data into HubSpot so it drives workflows and reports — and why timeline activities alone silently fail. -->
+<!-- SLUG: blog/sync-cold-email-linkedin-data-hubspot-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+<p style="margin:0 0 8px;color:#e8732b;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;font-size:13px;">TL;DR</p>
+<ul style="margin:0;padding-left:20px;">
+<li style="margin-bottom:6px;"><strong>One HubSpot rule decides your entire architecture:</strong> HubSpot documents that <em>"activities and activity properties cannot be used for re-enrollment."</em> Outbound repeats by nature. So if a reply only exists as a timeline activity, the <strong>first</strong> reply can fire a workflow and every reply after it cannot.</li>
+<li style="margin-bottom:6px;"><strong>The fix is not either/or.</strong> Log the activity <em>and</em> stamp a custom property. The activity is for the human reading the record; the property is for the machine that has to trigger, score, segment and report.</li>
+<li style="margin-bottom:6px;"><strong>Smartlead splits your data in a way almost nobody mentions.</strong> Per its own docs, sends and replies are tracked as <strong>Email</strong> activities — but opens, clicks, bounces and unsubscribes are tracked as <strong>Notes</strong>. Notes are far weaker for lists, workflows and reports.</li>
+<li style="margin-bottom:6px;"><strong>HeyReach is the best-documented integration in this category</strong> — it auto-creates a property group and publishes every field identifier. It also states it <strong>only updates existing contacts</strong> and does not sync LinkedIn profile data in the current version.</li>
+<li style="margin-bottom:6px;"><strong>Instantly publishes no native timeline logger at all.</strong> Its own help center routes you to a third-party tool for CRM activity logging, and its webhooks require the Hyper Growth plan or above.</li>
+<li style="margin-bottom:6px;"><strong>The trap that costs teams months:</strong> HubSpot's <code>Recent Sales Email Replied Date</code> only fires on mail reaching a <em>connected</em> inbox. Cold replies land on your sending domains, so that field stays permanently empty — and any report built on it reads zero.</li>
+<li><strong>Custom behavioral events are Professional, not Enterprise.</strong> The Enterprise-only claim is a retired figure still repeated across most guides on this topic.</li>
+</ul>
+</div>
+
+<p>Every outbound team eventually hits the same wall. The cold email tool says 40 replies this month. The LinkedIn tool says 60 conversations. HubSpot shows a pipeline that appears to have materialised from nowhere, reports that credit none of it, and a lead scoring model that cannot see a single positive reply. The data is technically "synced." It is just not in a shape HubSpot can do anything with.</p>
+
+<p>This post is the plumbing guide. What each tool actually writes into HubSpot, the one HubSpot mechanic that determines whether any of it is usable, the four ways to build the pipe with real costs, and the specific failures that follow from getting it wrong.</p>
+
+<p>Two adjacent posts cover the neighbouring problems, so this one does not repeat them: our <a href="/blog/clay-hubspot-integration-sync-crm-2026">Clay + HubSpot integration guide</a> covers pushing <em>enrichment</em> data into the CRM, and our <a href="/blog/hubspot-lead-scoring-setup-2026">HubSpot lead scoring setup guide</a> covers what to do with the signals once they land. This post is strictly about the return path: getting engagement and reply data <em>out</em> of your sending tools and into fields HubSpot can act on.</p>
+
+<p><em>Every integration behaviour below was read from the vendor's own help center or HubSpot's own documentation, with source behaviour stated as each vendor states it. Where vendors contradict themselves or each other, we say so rather than picking the tidier answer. Claims we could not confirm on a first-party page are flagged directional. Product gating and pricing change — verify before you buy a tier for a feature.</em></p>
+
+<h2>The Short Answer</h2>
+
+<p>Write outbound engagement into HubSpot as <strong>two things at once</strong>: a logged activity for timeline visibility, and a set of custom contact properties for automation. Trigger your workflows on the <strong>properties</strong>, never on the activity. Then route on a datetime property such as a last-reply timestamp, which is re-enrollment-eligible, rather than on the engagement record, which is not.</p>
+
+<p>If you use HeyReach, its native integration already does most of this correctly and publishes its field map. If you use Smartlead, the native integration gets you deals and activities but leaves properties for you to build. If you use Instantly, there is no native activity logger to rely on — you are building the pipe yourself or buying one.</p>
+
+<h2>The Rule That Decides Your Whole Architecture</h2>
+
+<p>HubSpot supports activities as a <strong>filter enrollment trigger</strong>. You can start a workflow from a logged note, a one-to-one email, a call or a meeting. That much works, and it is why the naive setup appears to work in testing.</p>
+
+<p>Then HubSpot's re-enrollment documentation states the constraint flatly: <em>"Activities and activity properties cannot be used for re-enrollment."</em> For workflows on objects other than contacts, the wording is <em>"activities and lists cannot be used for re-enrollment."</em> HubSpot also documents that a record will not re-enroll while it is still enrolled — re-enrollment happens only when a record moves from not matching to matching a trigger.</p>
+
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:16px 20px;margin:20px 0;border-radius:5px;">
+<p style="margin:0;"><strong>Why this is fatal specifically for outbound.</strong> Inbound is mostly a one-shot event — a form fills once, and a workflow fires. Outbound is a repeating relationship with the same person: they reply to sequence one in March, ignore sequence two, reply again in September. Every one of those replies matters and needs to reach a rep. With an activity-only setup, only the March reply ever triggers anything. September is silent, and nothing errors — which is precisely why teams do not catch it for months.</p>
+</div>
+
+<p>A custom contact property does not have this limitation. Property values are the primary re-enrollment mechanism in HubSpot, with only calculation properties carved out. So the architecture writes itself: the reply becomes a <code>datetime</code> property that gets overwritten on every reply, and the workflow re-enrolls on that property changing.</p>
+
+<h3>What you get for free by logging the activity anyway</h3>
+
+<p>Logging the engagement properly is still worth doing, because HubSpot maintains a set of read-only rollup properties off the back of it. Per HubSpot's default contact properties documentation, <code>Last Activity Date</code> tracks the most recent logged note, call, tracked sales email, meeting, LinkedIn/SMS/WhatsApp message or chat. <code>Last Contacted</code>, <code>Number of Times Contacted</code> and <code>Number of Sales Activities</code> move similarly. Those are useful for hygiene, dormancy filters and rep dashboards — and you get them at no extra cost once activities are logged as real engagements rather than notes.</p>
+
+<h2>What Each Tool Actually Writes Into HubSpot</h2>
+
+<p>This is where the vendors differ far more than their marketing pages suggest.</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;">
+<th style="padding:10px 12px;">Tool</th>
+<th style="padding:10px 12px;">Writes contact properties?</th>
+<th style="padding:10px 12px;">How activities land</th>
+<th style="padding:10px 12px;">Direction</th>
+<th style="padding:10px 12px;">Documentation quality</th>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>HeyReach</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes — auto-creates a dedicated property group, all identifiers published</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">12 toggleable timeline activities + a structured conversation Note</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">One-way to HubSpot</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Best in category</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Smartlead</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Only ones you build yourself first</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Split: sends/replies as Email activities, opens/clicks/bounces/unsubscribes as Notes</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Two-way (pulls from a List or View)</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Setup documented, no field map</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Lemlist</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Field mapping exists; direction configurable <em>(directional)</em></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Sends/replies as Email objects; LinkedIn messages as LinkedIn Message objects; everything else as Notes</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Two-way options</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Good activity map, internal contradiction</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Instantly</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Only via per-action Automations you configure</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No documented native activity logger</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Pulls in; pushes via Automations/webhooks</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No field map published</td>
+</tr>
+</table>
+
+<h3>Smartlead: the note-versus-email split</h3>
+
+<p>Smartlead's native integration enriches HubSpot with leads, deals, updates and activities, and can pull leads into campaigns from a HubSpot List or View with field mapping. The detail that matters is in its own setup article, and it is asymmetric: <strong>sent emails and replied emails are tracked as Email activities, while opens, link clicks, unsubscribes and bounces are tracked as Notes.</strong></p>
+
+<p>That distinction is not cosmetic. An Email engagement is a first-class CRM object with direction and status fields; a Note is a body of text. If your reporting or list logic assumes clicks are queryable engagement data, it will quietly return nothing.</p>
+
+<p>Two more Smartlead specifics worth knowing before you build. Its deal automation <strong>creates</strong> deals at a chosen stage for a chosen lead category, and its documentation is explicit that it does not move deals between stages — stage progression stays yours to automate, which is where our <a href="/blog/hubspot-deal-stages-outbound-teams-2026">HubSpot deal stages guide for outbound teams</a> picks up. And for leads uploaded to Smartlead by CSV rather than pulled from HubSpot, Smartlead warns that you must also push those leads into HubSpot or no activity tracking will attach to them at all. Half-populated CRMs after a CSV campaign usually trace back to exactly this.</p>
+
+<p>Custom fields are not auto-provisioned. Smartlead instructs you to create the properties in HubSpot first, grouped under a property group, before its data has anywhere to go. If you are already running Clay upstream of Smartlead, our <a href="/blog/clay-smartlead-integration-push-leads-2026">Clay to Smartlead handoff guide</a> covers the enrichment side of that same field-mapping problem.</p>
+
+<h3>HeyReach: the one that does it properly</h3>
+
+<p>HeyReach's HubSpot integration is the most transparent in this category, and it is the model to copy. It auto-creates a dedicated property group on the Contact object spanning attribution, exposure, engagement and intent, and it publishes every field identifier — including <code>heyreach_reply_received</code>, <code>heyreach_reply_count</code>, <code>heyreach_first_reply_date</code>, <code>heyreach_last_reply_date</code>, <code>heyreach_time_to_first_reply</code>, <code>heyreach_intent</code>, <code>heyreach_positive_intent_count</code> and <code>heyreach_last_activity_date</code>. Fields are documented with their update behaviour: set once, overwrites, or increments.</p>
+
+<p>Those are exactly the property shapes the previous section argued for — a datetime you can re-enroll on and a counter you can score on, rather than a note you can only read.</p>
+
+<p>On the activity side it writes 12 toggleable timeline activities, split into recommended (on by default, described as essential for accurate reporting) and optional. Message Sent, Message Received, InMail Sent and InMail Received all share a single event identifier and are distinguished in the HubSpot UI by a message-type property — worth knowing before you build a report expecting four separate event types. Connection request cards also flag whether a personalised message was included. Separately, it writes a LinkedIn conversation transcript as a HubSpot Note titled after the contact, appended rather than duplicated across campaigns, and associated to the Contact only — HeyReach states these notes are never associated with companies or deals.</p>
+
+<p>Three constraints to plan around. It matches contacts by email and states it updates existing contacts only. LinkedIn profile data — name, company, job title, profile URL — is explicitly not synced in the current version, which is a real gap given that LinkedIn is where that data is richest. And each HeyReach workspace needs its own independent HubSpot connection, which matters if you run client workspaces. For choosing the tool itself, see our <a href="/blog/best-linkedin-automation-tools-heyreach-expandi-comparison-2026">LinkedIn automation tools comparison</a>.</p>
+
+<div style="background:#f4f7fb;border-left:4px solid #1f3a5f;padding:16px 20px;margin:20px 0;border-radius:5px;">
+<p style="margin:0;"><strong>An unresolved contradiction inside HeyReach's own docs.</strong> Its property article and its setup FAQ both say the integration updates existing contacts and does not create new ones. Its activities article refers to what happens <em>"when HeyReach creates a new contact."</em> We are not going to resolve that for you by guessing — test it in a sandbox before you assume either behaviour, particularly if contact-creation volume affects your billing or your data hygiene rules. Its published property count (20) is also one short of the identifiers actually listed on the page (21), so treat the count as approximate and the identifier list as authoritative.</p>
+</div>
+
+<h3>Instantly: the gap its own help center admits</h3>
+
+<p>Instantly presents two separate HubSpot connectors in its integrations tab, and its writeback path is not a background sync — it runs through <strong>Automations</strong>, where you assemble discrete HubSpot actions (create or update contact, create note, create task, create record, find contact) against Instantly triggers such as lead interest status changed, reply received, or a positive custom label. That is workable, but it means every field that lands in HubSpot is one you explicitly configured, and there is no documented native engagement logger behind it.</p>
+
+<p>The most quotable fact here is that Instantly's own help center documents a <strong>third-party tool</strong> as the route for logging Instantly data as CRM activity. When a vendor's documentation points outside itself for the core integration job, that is the clearest possible signal about the native connector's scope. Note also that Instantly's webhooks — the foundation of any custom build — are documented as available on the <strong>Hyper Growth plan or above</strong>. Budget for that tier before you design around webhooks. If you are still choosing between platforms, our <a href="/blog/smartlead-vs-instantly-2026">Smartlead vs Instantly comparison</a> covers the sending side.</p>
+
+<h2>The Four Routes, With Real Costs</h2>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;">
+<th style="padding:10px 12px;">Route</th>
+<th style="padding:10px 12px;">Published cost</th>
+<th style="padding:10px 12px;">Best when</th>
+<th style="padding:10px 12px;">Main limitation</th>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Native integration</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Included (tier gating varies and is often unpublished)</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">HeyReach, or Smartlead where deals + basic activities are enough</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">You get the vendor's data model, not yours</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Dedicated sync layer</strong> (e.g. OutboundSync)</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">$99/mo (2,000 sent messages), $249/mo (10,000), $499/mo (25,000); billed on <em>sent</em> events only</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Multiple sending tools into one CRM model</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No public field map — you cannot design against it before buying</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>n8n</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Cloud from &euro;20/mo (2,500 executions) annually; self-hosted Community Edition free for internal business use</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">You want exact control of the field map and per-execution pricing</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">You own it forever; one active HubSpot trigger webhook at a time</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Zapier / Make</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Zapier Professional from $19.99/mo annual; Make Core from $9/mo</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Low volume, or you need breadth of prebuilt connectors</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Per-task and per-credit billing scales badly with send volume</td>
+</tr>
+</table>
+
+<p>Three notes on that table that will change what you pick.</p>
+
+<p><strong>The billing unit matters more than the sticker price.</strong> n8n charges per workflow <em>execution</em> regardless of step count; Make charges a credit per module action; Zapier charges per task. A twelve-step enrich-and-sync workflow is one n8n execution and roughly twelve Make credits. At outbound volumes that gap compounds fast. Our <a href="/blog/n8n-vs-make-vs-zapier-gtm-automation-2026">n8n vs Make vs Zapier comparison</a> works through the economics properly.</p>
+
+<p><strong>Connector availability is uneven, and this is a real constraint.</strong> Instantly has genuine apps on both Zapier and Make — and Make's Instantly app documents the same Hypergrowth plan gate for API access. Smartlead has an app on Make, but we could not confirm a first-party Smartlead app on Zapier; the plausible URLs return 404 and Zapier's own community threads point users at generic webhooks instead. Plan for Smartlead-on-Zapier meaning raw webhooks <em>(directional — verify against Zapier's current app directory)</em>.</p>
+
+<p><strong>OutboundSync bills on sent events only</strong> — its pricing page is explicit that replies, opens, clicks and warmup activity do not count against the quota, which for a high-send/low-reply motion is the favourable direction. It writes contacts and companies and stores events as activities and timeline events, and states that leads and deals are untouched unless you build a HubSpot workflow. What it does not publish anywhere is a field map or property list, which is the one thing a technical buyer most needs. Its integration pages also describe custom properties as <em>optional</em> — so if you buy it expecting re-enrollment-eligible fields by default, confirm that during trial.</p>
+
+<h2>The Reference Architecture</h2>
+
+<p>This is the build we would ship, in order. It assumes HubSpot Professional; the tier gates are called out where they bite.</p>
+
+<ol>
+<li style="margin-bottom:10px;"><strong>Create the properties first.</strong> At minimum: a <code>datetime</code> for last outbound reply, a <code>number</code> for reply count, a single-select for reply sentiment or intent, a <code>datetime</code> for last outbound touch, and a text field for last campaign name. Custom property limits are generous on paid tiers — HubSpot's catalog publishes 1,000 custom properties per object on Starter, Professional and Enterprise, against just 10 total on Free. Free portals cannot do this properly.</li>
+<li style="margin-bottom:10px;"><strong>Log the activity as a real engagement, not a note.</strong> Via API that is <code>POST /crm/v3/objects/emails</code> with a required <code>hs_timestamp</code>, using <code>hs_email_direction</code> of <code>EMAIL</code> for your sends and <code>INCOMING_EMAIL</code> for replies, and <code>hs_email_status</code> from the documented set including <code>SENT</code> and <code>BOUNCED</code>. This is what moves the rollup properties and what a rep actually reads.</li>
+<li style="margin-bottom:10px;"><strong>Stamp the properties in the same operation.</strong> Same webhook, same execution. If the property write is a separate workflow downstream of the activity, you have reintroduced the dependency you were trying to remove.</li>
+<li style="margin-bottom:10px;"><strong>Build the routing workflow on the property.</strong> Enroll on the reply datetime being known or changing, with re-enrollment on. Then <strong>Rotate record to owner</strong> for round-robin assignment — note this action requires Sales Hub or Service Hub Professional or Enterprise and paid seats — followed by <strong>Create task</strong> and an in-app or internal email notification, neither of which is tier-gated. Speed matters here more than elegance; our <a href="/blog/lead-routing-speed-to-lead-2026">lead routing and speed-to-lead guide</a> covers the SLA side.</li>
+<li style="margin-bottom:10px;"><strong>Add custom behavioral events only if you need event-level reporting.</strong> They are the one shape that is both an event enrollment trigger and a first-class report dimension. Send with <code>POST /events/v3/send</code>, which accepts up to 1,250 requests per second and batches of 500, with 50 properties per occurrence. But they do not give you a re-enrollment-eligible field, so they supplement properties rather than replacing them.</li>
+<li><strong>Then wire scoring.</strong> Once replies live in properties and segments, the scoring model has something to read. That is a whole build of its own — see our <a href="/blog/hubspot-lead-scoring-setup-2026">HubSpot lead scoring setup guide</a>.</li>
+</ol>
+
+<p>On throughput: you will almost certainly not hit HubSpot's API ceiling. A private app gets 190 requests per 10 seconds with a documented daily cap of 625,000 on Professional and 1,000,000 on Enterprise, against 250,000 on Free and Starter. <em>(Directional note: HubSpot's live usage-guidelines page states 625,000 for Professional, while a large volume of third-party writing repeats 650,000. We are citing what the page says today rather than the figure in circulation.)</em></p>
+
+<h2>Five Traps Worth Checking Today</h2>
+
+<p><strong>1. <code>Recent Sales Email Replied Date</code> will never populate from cold outbound.</strong> HubSpot defines it as the last time a contact sent an email to <em>your connected personal or team email</em>. Cold replies arrive at your sending domains, which are not connected inboxes. Any dashboard, list or score built on that property reads zero forever and looks like a data problem rather than a definitional one. Use your own datetime property.</p>
+
+<p><strong>2. "Custom behavioral events are Enterprise-only" is a retired claim.</strong> HubSpot's current knowledge base lists custom events at <strong>Professional and Enterprise</strong> across six hubs, and the event definitions API states Professional tier or higher. Most guides on this topic still say Enterprise. Note the reverse gate that <em>is</em> real: webhook-triggered workflow enrollment requires <strong>Data Hub Professional or Enterprise</strong>, which is the one that quietly blocks "just webhook it into HubSpot" builds.</p>
+
+<p><strong>3. n8n's HubSpot Trigger node allows one active webhook at a time.</strong> Its documentation is explicit that activating a second trigger stops the previous one. Any n8n build needing several HubSpot-side triggers should not lean on that node — drive it from a HubSpot workflow webhook action or a plain n8n webhook node and route internally.</p>
+
+<p><strong>4. Calls dialled outside HubSpot do not satisfy HubSpot's call scoring event.</strong> HubSpot documents that its <code>Call ended</code> event only includes calls initiated through HubSpot calling. Externally logged call engagements will not trigger it.</p>
+
+<p><strong>5. Your CSV-sourced leads may be tracking nothing.</strong> Smartlead's documentation is direct about this: leads uploaded by CSV need to be pushed into HubSpot as well, or activity tracking will not attribute to them. This is the most common source of the "half our campaign is missing from the CRM" complaint, and it is a hygiene issue as much as an integration one — see our <a href="/blog/crm-data-hygiene-outbound-teams-2026">CRM data hygiene guide for outbound teams</a>.</p>
+
+<h2>What Breaks Downstream If You Skip This</h2>
+
+<p><strong>Attribution.</strong> If outbound touches are notes, no attribution model can see them, and outbound gets credited as direct or organic — which is how working outbound programmes get defunded in budget reviews. Our <a href="/blog/revenue-attribution-models-b2b-2026">B2B revenue attribution guide</a> covers that misallocation.</p>
+
+<p><strong>Reporting.</strong> HubSpot's custom report builder is Professional and Enterprise and refreshes roughly every two hours. It can surface event fields under the Events section of certain data sources — but it cannot report on something that exists only as note text.</p>
+
+<p><strong>Reply handling SLA.</strong> A positive reply that triggers no routing workflow sits until someone opens the sending tool. That is the most expensive failure in the list — the handling side is covered in our <a href="/blog/how-to-handle-cold-email-replies-objection-handling-2026">guide to handling cold email replies</a>.</p>
+
+<p>One caveat on measurement: do not rebuild your model on opens regardless of how cleanly they sync. Apple Mail Privacy Protection has made per-contact open data unreliable, as our <a href="/blog/apple-mail-privacy-protection-cold-email-2026">Apple Mail Privacy Protection explainer</a> unpacks. Sync replies, meetings and clicks; treat opens as decoration.</p>
+
+<h2>What Nobody Publishes</h2>
+
+<p>Worth stating plainly, because it explains why this stays unsolved in so many portals. HubSpot publishes <strong>no first-party guidance whatsoever</strong> on ingesting third-party cold email or LinkedIn outreach data — no reference architecture, no object model, no worked example. It also does not enumerate which logged activities are selectable as lead scoring criteria, or catalogue the report builder's data sources; both are discoverable only in your own portal. Meanwhile Smartlead offloads its webhook catalogue to an off-domain document, Instantly publishes no field map, and the dedicated sync vendors publish no property identifiers. HeyReach is the exception. If this feels like it should be a solved, documented problem — it should be, and it is not.</p>
+
+<h2>Frequently Asked Questions</h2>
+
+<h3>Can a HubSpot workflow trigger every time a prospect replies to a cold email?</h3>
+<p>Not from the logged activity alone. Activities and engagements can be used as filter enrollment triggers, but HubSpot documents that activities and activity properties cannot be used for re-enrollment, and a record will not re-enroll while it is still enrolled. That means the first reply can fire a workflow and subsequent replies cannot. The fix is to have your integration stamp a custom datetime property such as a last-outbound-reply field alongside the logged activity, and build re-enrollment on the property instead.</p>
+
+<h3>Should cold email replies be logged as timeline activities or contact properties?</h3>
+<p>Both, because they serve different consumers. The logged email engagement is what a rep reads on the record, and it automatically updates HubSpot's read-only rollups including Last Activity Date, Last Contacted, Number of Times Contacted and Number of Sales Activities. The custom property is what your automation reads, because it is the only one of the two that supports workflow re-enrollment. Treating them as alternatives rather than as a pair is the most common design mistake in this integration.</p>
+
+<h3>What does the Smartlead HubSpot integration actually sync?</h3>
+<p>Per Smartlead's own setup documentation, sent emails and replied emails are tracked as Email activities, while opens, link clicks, unsubscribes and bounces are tracked as Notes. It can also create deals at a chosen stage for a chosen lead category, though it explicitly does not move deals between stages. Custom fields are not auto-created — you build the properties in HubSpot first. And leads uploaded to Smartlead by CSV must also be pushed into HubSpot or no activity tracking will attribute to them.</p>
+
+<h3>Does HeyReach write contact properties into HubSpot or just activities?</h3>
+<p>Both, and it is the best-documented integration in this category. HeyReach auto-creates a dedicated property group on the Contact object covering attribution, exposure, engagement and intent, and publishes every field identifier along with whether each one is set once, overwritten or incremented. It also writes 12 toggleable timeline activities and a structured LinkedIn conversation note associated to the contact only. Two limits to plan around: it matches by email and states it updates existing contacts only, and LinkedIn profile data such as name, company and job title is not synced in the current version.</p>
+
+<h3>What HubSpot tier do I need for custom behavioral events?</h3>
+<p>Professional or above, not Enterprise — the Enterprise-only claim is a retired figure still repeated widely. HubSpot's knowledge base lists custom events at Professional and Enterprise across six hubs, and the event definitions API documents Professional tier or higher. Published limits include 500 event definitions, 50 custom properties per event and 50 properties per occurrence. The separate gate that catches people is webhook-triggered workflow enrollment, which requires Data Hub Professional or Enterprise.</p>
+
+<h3>Why is HubSpot's Recent Sales Email Replied Date empty despite getting replies?</h3>
+<p>Because HubSpot defines that property as the date a contact last sent an email to your connected personal or team inbox. Cold outbound replies arrive at your dedicated sending domains, which are not connected inboxes, so the property never populates no matter how many replies a campaign generates. Anything built on it — a list, a report, a score — will read zero indefinitely. Create your own reply-timestamp property and write it from your integration or middleware instead.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+
+<p><strong>Running cold email or LinkedIn outreach into HubSpot and not sure whether your reply data is actually reaching your workflows? Start with our <a href="/blog/hubspot-lead-scoring-setup-2026">HubSpot lead scoring setup guide</a> for what to do with the signals once they land, or <a href="/">talk to our team</a>. We build and run cold email, LinkedIn outreach and HubSpot RevOps systems for B2B teams — and this integration layer is where most of the value gets won or lost.</strong></p>
+
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. HubSpot mechanics, limits and tier gates were read from HubSpot's own knowledge base, developer documentation and published Product and Services Catalog at the time of writing. Integration behaviour is stated as each vendor documents it on their own help center. Where vendors contradict themselves or third-party sources, the conflict is named rather than resolved. Claims we could not confirm on a first-party page are flagged directional in-text. Gating and pricing change — verify against your own portal and current vendor pricing before purchasing. Last updated August 2026.</em></p>

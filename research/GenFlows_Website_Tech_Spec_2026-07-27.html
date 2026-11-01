@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>GenFlows — Website Technical Change Spec (Developer)</title>
+<style>
+  @page { size: A4; margin: 15mm 14mm 16mm; }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: -apple-system, "Helvetica Neue", Arial, sans-serif; color: #1f2937; font-size: 10.3px; line-height: 1.5; margin: 0; }
+  h1 { font-size: 23px; color: #1f3a5f; margin: 0 0 4px; letter-spacing: -.3px; }
+  h2 { font-size: 14.5px; color: #1f3a5f; margin: 22px 0 8px; padding-bottom: 5px; border-bottom: 2px solid #e8732b; }
+  h3 { font-size: 11.8px; color: #1f3a5f; margin: 14px 0 4px; }
+  p { margin: 0 0 7px; }
+  a { color: #1f3a5f; text-decoration: none; }
+  ul, ol { margin: 4px 0 9px; padding-left: 17px; }
+  li { margin: 2.5px 0; }
+  code { background: #f1f5f9; padding: 1px 4px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 9px; }
+  pre { background: #0f172a; color: #e2e8f0; padding: 9px 11px; border-radius: 6px; font-family: "SF Mono", Menlo, monospace; font-size: 8.4px; line-height:1.45; overflow-x:auto; white-space: pre-wrap; margin: 5px 0 8px; }
+  pre.bad { background:#3b0d0d; }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0 14px; font-size: 9.2px; }
+  th { background: #1f3a5f; color: #fff; text-align: left; padding: 6px 8px; font-weight: 600; }
+  td { padding: 5px 8px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+  tr:nth-child(even) td { background: #f8fafc; }
+  .cover { border-bottom: 3px solid #e8732b; padding-bottom: 13px; margin-bottom: 6px; }
+  .sub { color: #64748b; font-size: 9.8px; }
+  .tldr { background: #f4f7fb; border-left: 4px solid #e8732b; padding: 11px 15px; border-radius: 5px; margin: 11px 0 16px; }
+  .tag { display: inline-block; font-size: 8px; font-weight: 700; padding: 1px 6px; border-radius: 3px; color: #fff; vertical-align: middle; white-space:nowrap; }
+  .p0 { background: #dc2626; } .p1 { background: #ea580c; } .p2 { background: #16a34a; }
+  .done { background:#0e7490; } .verify { background:#7c3aed; }
+  .muted { color:#64748b; }
+  .pagebreak { page-break-before: always; }
+  .foot { margin-top: 20px; padding-top: 9px; border-top: 1px solid #e2e8f0; color: #94a3b8; font-size: 8.4px; }
+  .item { border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 13px; margin: 0 0 12px; page-break-inside: avoid; }
+  .item h3 { margin-top: 0; }
+  .lbl { display:inline-block; min-width:62px; font-weight:700; color:#1f3a5f; font-size:9.2px; }
+  .row { margin: 3px 0; font-size: 9.6px; }
+  .ev { background:#fff7ed; border-left:3px solid #e8732b; padding:6px 9px; border-radius:4px; font-size:9.2px; margin:5px 0 6px; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <h1>GenFlows — Website Technical Change Spec</h1>
+  <p class="sub"><strong>For the website developer only.</strong> Every item below is a change to the HubSpot theme, a template, a page setting, or a portal setting on www.genflows.com. Nothing here needs Search Console, ad accounts, or content writing — that work is in the companion document <em>GenFlows_Marketing_Actions_2026-07-27</em>.</p>
+  <p class="sub"><strong>Date:</strong> 27 July 2026 &nbsp;·&nbsp; <strong>Property:</strong> www.genflows.com (HubSpot CMS, portal 49399880, theme <code>genflows-theme</code>, blog ID 215071510044) &nbsp;·&nbsp; <strong>Supersedes:</strong> GenFlows_Website_Dev_Actions_2026-07-22</p>
+</div>
+
+<div class="tldr">
+  <strong>How this document was produced.</strong> Every finding was measured on 27 July 2026 against the live site (rendered HTML of the homepage, the blog listing and a representative post, plus <code>robots.txt</code>, <code>sitemap.xml</code>, response headers) and against the live HubSpot CMS API. Counts and quotes are what the site actually served — not assumptions. Where something needs confirming inside HubSpot (which I have no theme access to), the item is tagged <span class="tag verify">VERIFY</span>.
+  <p style="margin:7px 0 0;"><strong>The one change that matters most:</strong> every page on genflows.com loads <code>https://cdn.tailwindcss.com</code> — a 407 KB render-blocking JavaScript compiler that generates the CSS in the browser at runtime. That single line is almost certainly the biggest Core Web Vitals problem on the site, and replacing it with a compiled stylesheet is item <strong>D1</strong>.</p>
+</div>
+
+<h2>Already correct — do not redo</h2>
+<p class="muted">Verified live on 27 July so nothing gets rebuilt twice:</p>
+<ul>
+  <li><span class="tag done">OK</span> <strong>FAQPage JSON-LD is live</strong> in <code>&lt;head&gt;</code> on 54 posts, injected per post via the API (post-level Head HTML). A native theme FAQ module is optional now, not needed.</li>
+  <li><span class="tag done">OK</span> <strong>Breadcrumbs and a 3-card related-posts module already render</strong> in the post template body. The old doc's items 9 (breadcrumb/related module) is done.</li>
+  <li><span class="tag done">OK</span> <strong>Title tags and meta descriptions are clean:</strong> 0 of 71 posts exceed 60 characters, 0 are under 70 characters.</li>
+  <li><span class="tag done">OK</span> <strong>Posts self-canonicalise</strong>, default to <code>index,follow</code>, emit one <code>&lt;h1&gt;</code>, a clean H2 tree, <code>og:type=article</code>, and image <code>alt</code> text is present.</li>
+  <li><span class="tag done">OK</span> <strong>Delivery is healthy:</strong> HTML and CSS served Brotli-compressed over HTTPS, blog CSS cached <code>s-maxage=2592000</code>, HTML edge-cached and pre-rendered. No hosting-level work needed.</li>
+  <li><span class="tag done">OK</span> <code>/confirmation</code> correctly carries <code>noindex,nofollow</code> (but see D6 — it is still listed in the sitemap).</li>
+</ul>
+
+<h2>Change list at a glance</h2>
+<table>
+  <tr><th style="width:34px;">#</th><th>Change</th><th style="width:180px;">Surface to edit</th><th style="width:48px;">Prio</th></tr>
+  <tr><td>D1</td><td>Replace the Tailwind Play CDN with a compiled stylesheet</td><td>Theme base layout + build step</td><td><span class="tag p0">P0</span></td></tr>
+  <tr><td>D2</td><td>Fix <code>robots.txt</code> — add <code>Sitemap:</code> and allow AI crawlers</td><td>Portal: Content settings</td><td><span class="tag p0">P0</span></td></tr>
+  <tr><td>D3</td><td>Stop the sitemap going stale — 9 published posts are missing</td><td>Portal: SEO &amp; crawlers + publish check</td><td><span class="tag p0">P0</span></td></tr>
+  <tr><td>D4</td><td>Strip HTML out of JSON-LD, share links and social meta (<code>hs_cos_wrapper</code> leak)</td><td>Blog post template head + share module</td><td><span class="tag p0">P0</span></td></tr>
+  <tr><td>D5</td><td>Never emit empty <code>og:image</code> — add a branded fallback</td><td>Blog post + site page head</td><td><span class="tag p0">P0</span></td></tr>
+  <tr><td>D6</td><td>De-index and de-sitemap <code>/v3</code>, <code>/v5</code>, <code>/confirmation</code></td><td>Page settings (3 pages)</td><td><span class="tag p0">P0</span></td></tr>
+  <tr><td>D7</td><td>Remove the duplicated head tags (canonical ×2, og ×2, viewport ×2, …)</td><td>Blog post template head</td><td><span class="tag p1">P1</span></td></tr>
+  <tr><td>D8</td><td>Consolidate to one BlogPosting graph with author + Organization E-E-A-T</td><td>Blog post template head</td><td><span class="tag p1">P1</span></td></tr>
+  <tr><td>D9</td><td>Remove the duplicate GA4 tag (page views double-counted)</td><td>Theme head / portal integration</td><td><span class="tag p1">P1</span></td></tr>
+  <tr><td>D10</td><td>Image performance: dimensions, lazy-loading, <code>fetchpriority</code>, modern formats</td><td>All templates &amp; modules</td><td><span class="tag p1">P1</span></td></tr>
+  <tr><td>D11</td><td>Fix broken footer links (<code>href="#"</code> and page-less anchors)</td><td>Global footer partial</td><td><span class="tag p1">P1</span></td></tr>
+  <tr><td>D12</td><td>Turn off Google AMP for the blog (it drops our schema)</td><td>Portal: blog settings</td><td><span class="tag p1">P1</span></td></tr>
+  <tr><td>D13</td><td>Add Organization + WebSite schema to the homepage and site pages</td><td>Site page template head</td><td><span class="tag p1">P1</span></td></tr>
+  <tr><td>D14</td><td>Publish <code>/llms.txt</code></td><td>New page + bare template</td><td><span class="tag p2">P2</span></td></tr>
+  <tr><td>D15</td><td>Cluster landing pages + pillar hub template</td><td>New templates &amp; pages</td><td><span class="tag p2">P2</span></td></tr>
+  <tr><td>D16</td><td>Listing-page hygiene: self-canonical pagination, tag-page titles</td><td>Blog listing template</td><td><span class="tag p2">P2</span></td></tr>
+</table>
+
+<div class="pagebreak"></div>
+<h2>P0 — do first</h2>
+
+<div class="item">
+<h3>D1 · Replace the Tailwind Play CDN with a compiled stylesheet <span class="tag p0">P0</span></h3>
+<div class="ev"><strong>Measured:</strong> <code>&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</code> is present on <code>/</code>, <code>/blog</code> and every blog post. The file is <strong>407,279 bytes</strong> of JavaScript. It is followed by an inline <code>tailwind.config = {…}</code> block. This is Tailwind's "Play CDN", which Tailwind's own docs state is for prototyping and <em>not</em> for production: the browser downloads the compiler, parses the DOM, generates CSS and injects it — after first paint. That produces exactly the LCP/CLS/INP damage the audit flagged, and no amount of image or font tuning will compensate for it.</div>
+<div class="row"><span class="lbl">Where</span> Theme base layout <code>&lt;head&gt;</code> (the partial included by every template in <code>genflows-theme</code>) + a new build step in the theme source.</div>
+<div class="row"><span class="lbl">Change</span> Compile Tailwind once at build time, ship one small CSS file, delete the CDN script and the inline config.</div>
+<pre># 1. Pull the theme locally (HubSpot CLI)
+hs fetch genflows-theme ./genflows-theme
+
+# 2. Add the toolchain
+npm init -y &amp;&amp; npm i -D tailwindcss@3 postcss autoprefixer cssnano
+
+# 3. tailwind.config.js — paste the theme.extend block that is currently inline
+#    in the base layout head (colors ink/flame/paper/cloud/smoke/steel/space/
+#    graphite, fontFamily Manrope, letterSpacing, boxShadow ink/ink-lg,
+#    transitionTimingFunction spring) VERBATIM, then set:
+module.exports = {
+  content: ['./genflows-theme/**/*.html', './genflows-theme/**/*.hubl.html',
+            './genflows-theme/**/*.js', './genflows-theme/modules/**/*'],
+  safelist: [ /* any class assembled in HubL, e.g. 'bg-' ~ colour — see note */ ],
+  theme: { extend: { /* …existing config… */ } },
+}
+
+# 4. Build
+npx tailwindcss -i ./src/tailwind.css -o ./genflows-theme/css/main.css --minify
+
+# 5. Upload
+hs upload ./genflows-theme genflows-theme</pre>
+<p style="margin:4px 0 3px;font-size:9.6px;">Then in the base layout <code>&lt;head&gt;</code>:</p>
+<pre class="bad">- &lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;
+- &lt;script&gt;tailwind.config = { theme: { extend: { … } } }&lt;/script&gt;</pre>
+<pre>+ {{ require_css(get_asset_url('../css/main.css')) }}</pre>
+<div class="row"><span class="lbl">Watch out</span> Tailwind's scanner only sees class names that appear literally in the source. Any class built by HubL string concatenation (e.g. <code>class="bg-{{ module.colour }}"</code>) must go in <code>safelist</code>, or those styles vanish after the switch. Grep the theme for <code>class="[^"]*{{</code> before shipping and safelist what you find.</div>
+<div class="row"><span class="lbl">While here</span> Two further render-blocking requests in the same head: the Google Fonts stylesheet (Manrope, 6 weights) and the third-party scripts <code>static.claydar.com/init.v1.js</code> and the GA4 loaders. Reduce the font to the weights actually used, add <code>&lt;link rel="preload" as="font" crossorigin&gt;</code> for the primary weight (or self-host the woff2 in the theme), and load Claydar with <code>defer</code>. There is currently <strong>no <code>rel=preload</code> anywhere on the site</strong>.</div>
+<div class="row"><span class="lbl">Verify</span> View source on a post: no <code>cdn.tailwindcss.com</code>, one <code>main.css</code> link. Run PageSpeed Insights (mobile) on <code>/</code> and on one post before and after and keep both reports — the delta is the proof. Visually diff homepage, blog listing, a post and <code>/consultancy/wouter</code> at 375px, 768px and 1440px.</div>
+</div>
+
+<div class="item">
+<h3>D2 · Fix <code>robots.txt</code> <span class="tag p0">P0</span></h3>
+<div class="ev"><strong>Measured 27 July:</strong> the live file still contains only five <code>Disallow</code> lines. There is <strong>no <code>Sitemap:</code> directive</strong> and no AI-crawler guidance. Unchanged since the 22 July document.</div>
+<div class="row"><span class="lbl">Where</span> HubSpot: <em>Settings → Content → Pages → SEO &amp; Crawlers → robots.txt</em> (per-domain; make sure you edit the entry for <code>www.genflows.com</code>).</div>
+<div class="row"><span class="lbl">Change</span> Replace the whole file with the block in <strong>Appendix A</strong>. It keeps the existing Disallow rules, adds the sitemap reference, and explicitly allows the answer-engine crawlers.</div>
+<div class="row"><span class="lbl">Verify</span> <code>curl https://www.genflows.com/robots.txt</code> returns the new content and the final line is the sitemap URL.</div>
+</div>
+
+<div class="item">
+<h3>D3 · The sitemap is going stale again — 9 published posts are missing <span class="tag p0">P0</span> <span class="tag verify">VERIFY</span></h3>
+<div class="ev"><strong>Measured:</strong> <code>/sitemap.xml</code> lists 69 URLs, 62 of them blog posts. The HubSpot API reports <strong>71 published posts</strong>. Response headers show <code>last-modified: Wed, 22 Jul 2026 17:22:39 GMT</code> and <code>x-hs-prerendered: Wed, 22 Jul 2026 17:22:39 GMT</code>, with <code>resolver: PreRenderedContentResolver</code>. Requesting <code>/sitemap.xml?cb=987654</code> to bypass the edge cache returns the identical 69 URLs — so this is a <em>stale pre-render at origin</em>, not a CDN cache issue. The sitemap was rebuilt when the 22 July fix was applied and has not rebuilt since, despite 9 posts published on 22–24 July:
+<div style="font-size:8.8px;margin-top:4px;">linkedin-outreach-limits-account-safety-2026 · smartlead-vs-instantly-2026 · revenue-attribution-models-b2b-2026 · google-workspace-vs-microsoft-365-cold-email-2026 · clay-hubspot-integration-sync-crm-2026 · sales-forecasting-methods-b2b-2026 · how-many-domains-mailboxes-cold-email-2026 · mql-vs-sql-lead-lifecycle-stages-2026 · generative-engine-optimization-b2b-ai-search-2026</div></div>
+<div class="row"><span class="lbl">Where</span> HubSpot: <em>Settings → Content → Pages → SEO &amp; Crawlers → Sitemap</em>.</div>
+<div class="row"><span class="lbl">Change</span> Three steps, in order:
+<ol style="margin-top:3px;">
+  <li>Confirm the blog (ID 215071510044) is ticked for sitemap inclusion, then re-save to force a rebuild. Confirm all 71 post URLs appear.</li>
+  <li>Work out <em>why</em> publishing a post no longer triggers a rebuild — the fact that the pre-render timestamp is frozen at the moment of the last manual save is the diagnostic. Check whether any page/post carries an "exclude from sitemap" flag, and whether the blog's sitemap setting was saved rather than merely toggled. If the behaviour persists after a clean re-save, this is a HubSpot platform issue: open a support ticket quoting the <code>x-hs-prerendered</code> header and the 9 missing slugs.</li>
+  <li>Until it self-heals, treat it as a release step: after every publishing batch, re-save the sitemap setting and confirm the new slugs resolve in <code>/sitemap.xml</code>. Worth automating as a check in the publishing script (fetch the sitemap, diff against the API's published slugs, alert on a gap).</li>
+</ol></div>
+<div class="row"><span class="lbl">Verify</span> <code>curl -s https://www.genflows.com/sitemap.xml | grep -c "&lt;loc&gt;"</code> ≥ 78, and <code>last-modified</code> is today. Then publish a test post and confirm it appears within 24 hours without a manual save.</div>
+<div class="row"><span class="lbl">Hand-off</span> Once the sitemap is current, the resubmission and Request Indexing work is <strong>marketing's</strong> — see the companion document, item M2.</div>
+</div>
+
+<div class="item">
+<h3>D4 · HubSpot's editor markup is leaking into schema, share links and titles <span class="tag p0">P0</span></h3>
+<div class="ev"><strong>Measured</strong> on <code>/blog/n8n-vs-make-vs-zapier-gtm-automation-2026</code>. The template outputs <code>{{ content.name }}</code> raw, so the inline-editing wrapper HubSpot wraps around it ends up inside JSON-LD and inside a share URL:
+<pre style="margin:5px 0 3px;">"headline": "&lt;span id=\"hs_cos_wrapper_name\" class=\"hs_cos_wrapper …\"&gt;n8n vs Make vs Zapier (2026): The GTM Automation Buyer's Guide&lt;/span&gt;"</pre>
+The same string appears in <code>BreadcrumbList</code> position 3, and the X/Twitter share link's <code>text=</code> parameter is a URL-encoded <code>&lt;span …&gt;</code> tag. Consequence: the <code>headline</code> and breadcrumb values Google reads are invalid, and anyone sharing a post to X posts raw HTML. Also in the same JSON-LD block: <code>"image": [""]</code>, <code>publisher.logo.url: ""</code>, and a hard-coded <code>"wordCount": 2000</code> on a ~3,000-word post.</div>
+<div class="row"><span class="lbl">Where</span> Blog post template <code>&lt;head&gt;</code> (the custom JSON-LD block) and the social-share module in the post footer.</div>
+<div class="row"><span class="lbl">Change</span> Set one clean variable at the top of the template and use it everywhere except the visible <code>&lt;h1&gt;</code> (which should keep <code>{{ content.name }}</code> so inline editing still works).</div>
+<pre>{# top of the blog post template #}
+{% set clean_title = content.name|striptags %}
+
+{# JSON-LD — escape for JSON, never interpolate raw #}
+"headline": "{{ clean_title|escapejson }}",
+
+{# share links — URL-encode #}
+https://twitter.com/intent/tweet?url={{ content.absolute_url|urlencode }}&amp;text={{ clean_title|urlencode }}
+https://www.linkedin.com/sharing/share-offsite/?url={{ content.absolute_url|urlencode }}</pre>
+<p style="margin:4px 0 3px;font-size:9.6px;">And never emit empty values — omit the key instead:</p>
+<pre class="bad">- "image": [""],
+- "logo": { "@type": "ImageObject", "url": "" }
+- "wordCount": 2000</pre>
+<pre>+ {% if content.featured_image %}"image": ["{{ content.featured_image }}"],{% endif %}
++ "logo": { "@type": "ImageObject", "url": "{{ logo_url }}", "width": 512, "height": 512 }
++ {# drop wordCount, or compute it — a wrong value is worse than none #}</pre>
+<div class="row"><span class="lbl">Watch out</span> <code>escapejson</code> is the Jinjava filter name; if the template errors, HubL also accepts <code>escape_json</code>. Preview the template before publishing.</div>
+<div class="row"><span class="lbl">Verify</span> Paste a post URL into Google's Rich Results Test: <code>headline</code> and the breadcrumb name are plain text with no <code>&lt;span&gt;</code>, and no property has an empty value. Click the X share button and confirm the pre-filled text is the plain title.</div>
+</div>
+
+<div class="item">
+<h3>D5 · Never emit an empty <code>og:image</code> — add a branded fallback <span class="tag p0">P0</span></h3>
+<div class="ev"><strong>Measured:</strong> the post serves <code>&lt;meta property="og:image" content=""&gt;</code> and <code>&lt;meta name="twitter:image" content=""&gt;</code>. The homepage emits <strong>no <code>og:image</code> at all</strong>. Via the API, <strong>67 of 71 posts have no featured image.</strong> Result: every share on LinkedIn, X, Slack and every AI-generated card renders blank.</div>
+<div class="row"><span class="lbl">Where</span> Blog post template head, blog listing template head, site page template head.</div>
+<div class="row"><span class="lbl">Change</span> Produce one branded 1200×630 PNG (logo + wordmark on the ink background), upload to the theme as <code>images/og-default.png</code>, then:</div>
+<pre>{% set og_image = content.featured_image
+                  or get_asset_url('../images/og-default.png') %}
+&lt;meta property="og:image" content="{{ og_image }}"&gt;
+&lt;meta property="og:image:width" content="1200"&gt;
+&lt;meta property="og:image:height" content="630"&gt;
+&lt;meta property="og:image:alt" content="{{ clean_title|escape }}"&gt;
+&lt;meta name="twitter:image" content="{{ og_image }}"&gt;</pre>
+<div class="row"><span class="lbl">Note</span> This is the safety net, not the goal — real per-post featured images are better and are being backfilled separately (marketing item M4, which needs the <code>files</code> scope). Build the fallback anyway: it fixes all 67 posts in one deploy and keeps covering future posts that ship without an image.</div>
+<div class="row"><span class="lbl">Verify</span> LinkedIn Post Inspector and the X Card Validator on one post with a featured image and one without — both must render an image card.</div>
+</div>
+
+<div class="item">
+<h3>D6 · Three pages should not be indexable, and two are duplicates of the homepage <span class="tag p0">P0</span></h3>
+<div class="ev"><strong>Measured:</strong> the sitemap includes <code>/v3</code>, <code>/v5</code> and <code>/confirmation</code>.
+<ul style="margin:4px 0 0;">
+  <li><code>/v3</code> — HTTP 200, indexable, no robots meta, self-canonical. Title "GenFlows — Cold email works. We make it work for you."; H1 "Guaranteed meetings. Built like a system, not a service." This is an alternate version of the homepage competing with <code>/</code> for the same terms.</li>
+  <li><code>/v5</code> — HTTP 200, indexable, self-canonical. An MCA/SBA/commercial-finance variant of the same page.</li>
+  <li><code>/confirmation</code> — correctly <code>noindex,nofollow</code>, but listing a noindexed page in the sitemap sends crawlers a contradictory instruction.</li>
+</ul></div>
+<div class="row"><span class="lbl">Where</span> Each page: <em>page editor → Settings → Advanced options</em>.</div>
+<div class="row"><span class="lbl">Change</span> For all three, tick <strong>"Exclude from sitemap"</strong>. For <code>/v3</code> and <code>/v5</code>, additionally add to the page's head HTML:
+<pre>&lt;meta name="robots" content="noindex,follow"&gt;</pre>
+If either page is genuinely retired, unpublish it and add a 301 to <code>/</code> under <em>Settings → Content → Pages → URL Redirects</em> instead. If <code>/v5</code> is a live vertical landing page for paid traffic, keep it published but noindexed — paid landing pages should not compete in organic.</div>
+<div class="row"><span class="lbl">Decide</span> One question for the owner, not for the developer: is <code>/v5</code> (finance vertical) meant to rank organically? If yes it needs its own keyword target, its own copy and a canonical of its own — not a homepage clone. Until that decision, noindex is the safe state.</div>
+<div class="row"><span class="lbl">Verify</span> Re-fetch the sitemap: no <code>/v3</code>, <code>/v5</code> or <code>/confirmation</code>. <code>curl</code> each and confirm the robots meta.</div>
+</div>
+
+<div class="pagebreak"></div>
+<h2>P1 — next</h2>
+
+<div class="item">
+<h3>D7 · Remove the duplicated head tags <span class="tag p1">P1</span></h3>
+<div class="ev"><strong>Measured on one post</strong> — the theme hand-writes SEO tags in the head <em>and</em> <code>{{ standard_header_includes }}</code> emits HubSpot's own set, so the page serves: <code>canonical</code> ×2, <code>og:title</code> ×2, <code>og:description</code> ×2, <code>og:url</code> ×2, <code>og:type</code> ×2, <code>twitter:title</code> ×2, <code>twitter:description</code> ×2, <code>meta viewport</code> ×2, and <strong>two conflicting <code>twitter:card</code> values</strong> — the theme says <code>summary_large_image</code>, HubSpot then says <code>summary</code>.</div>
+<div class="row"><span class="lbl">Where</span> Blog post template head (and check the site page template for the same pattern).</div>
+<div class="row"><span class="lbl">Change</span> Delete from the theme the tags HubSpot already emits; keep only the ones it does not.</div>
+<pre class="bad">Delete from the theme head (standard_header_includes covers these):
+- &lt;link rel="canonical"&gt;
+- &lt;meta property="og:title"&gt;   - &lt;meta property="og:description"&gt;
+- &lt;meta property="og:url"&gt;     - &lt;meta property="og:type"&gt;
+- &lt;meta name="twitter:title"&gt;  - &lt;meta name="twitter:description"&gt;
+- the second &lt;meta name="viewport"&gt;</pre>
+<pre>Keep in the theme (HubSpot does not emit these):
+  og:image / og:image:width / og:image:height / og:image:alt   (D5)
+  twitter:image
+  og:site_name, article:published_time, article:modified_time,
+  article:author, article:tag
+  favicon / apple-touch-icon
+  the JSON-LD graph (D8)</pre>
+<div class="row"><span class="lbl">twitter:card</span> <span class="tag verify">VERIFY</span> HubSpot's <code>summary</code> tag comes from portal settings, not the theme, so it cannot be deleted in code. Check <em>Settings → Content → Pages → (domain) → Social</em> (and the blog's social sharing options) for a default card type and set the large-image variant there. If that setting does not exist, leave the theme's <code>summary_large_image</code> earlier in the head and validate with the X Card Validator — if X still renders the small card, that is the one duplicate we accept and document.</div>
+<div class="row"><span class="lbl">Verify</span> <code>curl -s &lt;post-url&gt; | grep -c 'rel="canonical"'</code> returns 1. Same for each tag above.</div>
+</div>
+
+<div class="item">
+<h3>D8 · One BlogPosting graph, with real author and Organization E-E-A-T <span class="tag p1">P1</span></h3>
+<div class="ev"><strong>Measured:</strong> a post serves <strong>four</strong> <code>ld+json</code> blocks — the theme's <code>BlogPosting</code>, the theme's <code>BreadcrumbList</code>, our injected <code>FAQPage</code>, and a second, minimal <code>BlogPosting</code> that HubSpot generates automatically. Two <code>BlogPosting</code> nodes on one URL with different <code>headline</code> values (one polluted per D4) is contradictory markup. Both name the author as <em>"GenFlows Team"</em> linking to <code>/blog/author/genflows-team</code>, while a real author page exists and returns 200 at <code>/consultancy/wouter</code>. Neither carries <code>sameAs</code>, though the site itself already links the proof: <code>linkedin.com/company/genflows-agency/</code>, <code>clay.com/experts/partner/wouter-harink</code>, <code>smartlead.ai/partner/wouter-harink</code>.</div>
+<div class="row"><span class="lbl">Where</span> Blog post template head.</div>
+<div class="row"><span class="lbl">Change</span> Replace the theme's two separate blocks with the single <code>@graph</code> in <strong>Appendix B</strong> — one <code>BlogPosting</code>, one <code>Person</code>, one <code>Organization</code>, one <code>BreadcrumbList</code>, all cross-referenced by <code>@id</code>. Keep <code>headline</code> and <code>datePublished</code> identical to what HubSpot's auto block emits so the two cannot contradict each other. Leave the injected <code>FAQPage</code> block alone — it is delivered per post through the API and must not be duplicated in the template.</div>
+<div class="row"><span class="lbl">Also</span> Create a proper HubSpot blog author record for the named author (bio, avatar, LinkedIn) and set it on the posts, so <code>content.blog_post_author</code> renders a real byline linking to <code>/consultancy/wouter</code>. Attribution to a named human with a bio is what E-E-A-T rewards; "GenFlows Team" is not.</div>
+<div class="row"><span class="lbl">Verify</span> Rich Results Test on two posts: exactly one <code>BlogPosting</code> reported, plus <code>FAQPage</code> and <code>BreadcrumbList</code>, zero errors. Schema.org validator shows the <code>Person</code> and <code>Organization</code> resolving by <code>@id</code>.</div>
+</div>
+
+<div class="item">
+<h3>D9 · Remove the duplicate GA4 tag <span class="tag p1">P1</span></h3>
+<div class="ev"><strong>Measured:</strong> the page loads <code>googletagmanager.com/gtag/js?id=G-P2W608VV8P</code> <strong>twice</strong> — once from HubSpot's GA4 integration (with Consent Mode v2 wiring) and once from a hand-added <code>gtag()</code> snippet, both calling <code>gtag('config', 'G-P2W608VV8P')</code>. Every visit is counted twice, which inflates sessions and halves reported bounce/conversion rates, and it costs an extra request on every page.</div>
+<div class="row"><span class="lbl">Where</span> The hand-added block sits in the theme head (search the theme for <code>G-P2W608VV8P</code>); it may also have been pasted into <em>Settings → Content → Pages → Site header HTML</em>.</div>
+<div class="row"><span class="lbl">Change</span> Delete the manual snippet. Keep HubSpot's GA4 integration, because it is the one that implements Consent Mode v2 (<code>_hsp.push(['useGoogleConsentModeV2'])</code>) — dropping that would break cookie-consent compliance for EU traffic.</div>
+<div class="row"><span class="lbl">Verify</span> <code>curl -s &lt;url&gt; | grep -c "gtag/js"</code> returns 1 on the homepage, listing and a post. GA4 Realtime shows one event per page view. Flag the date of the change to marketing so the traffic step-down in reporting is understood as a fix, not a drop.</div>
+</div>
+
+<div class="item">
+<h3>D10 · Image performance: dimensions, lazy-loading, priority, formats <span class="tag p1">P1</span></h3>
+<div class="ev"><strong>Measured:</strong> homepage — 30 <code>&lt;img&gt;</code> tags, <strong>none</strong> with <code>width</code>/<code>height</code>, 25 with <code>loading="lazy"</code>. Blog post — 5 <code>&lt;img&gt;</code>, <strong>zero</strong> lazy, zero dimensions. No <code>decoding</code>, no <code>fetchpriority</code>, no <code>srcset</code>, no <code>rel=preload</code> anywhere on the site. Missing intrinsic dimensions is a direct CLS cause; the blog post's badge images load eagerly even though they sit in the footer.</div>
+<div class="row"><span class="lbl">Where</span> Every template and module that outputs an <code>&lt;img&gt;</code> in <code>genflows-theme</code> (header logo, hero, client logos, partner badges, blog cards, footer).</div>
+<div class="row"><span class="lbl">Change</span> Standardise on this shape:</div>
+<pre>{# above the fold / LCP element — eager and prioritised #}
+&lt;img src="{{ src }}" width="1200" height="630" alt="…"
+     fetchpriority="high" decoding="async"&gt;
+
+{# everything below the fold #}
+&lt;img src="{{ src }}" width="240" height="80" alt="…"
+     loading="lazy" decoding="async"&gt;</pre>
+<ul style="margin-top:3px;">
+  <li>Give <em>every</em> image explicit <code>width</code> and <code>height</code> (the real intrinsic pixel size; CSS keeps controlling display size).</li>
+  <li>Make sure the LCP element — the homepage hero — is <strong>not</strong> lazy-loaded and carries <code>fetchpriority="high"</code>. Check which of the 25 lazy images is in the first viewport and un-lazy it.</li>
+  <li>Add <code>loading="lazy"</code> to the blog post's partner badges and any in-body images.</li>
+  <li>Serve responsive, modern formats through HubSpot's own helpers rather than raw <code>&lt;img&gt;</code>:
+    <pre style="margin:3px 0;">{% set img = resize_image_url(src, 1200) %}
+&lt;img src="{{ img }}"
+     srcset="{{ resize_image_url(src, 600) }} 600w,
+             {{ resize_image_url(src, 1200) }} 1200w"
+     sizes="(max-width: 768px) 100vw, 1200px"
+     width="1200" height="630" alt="…" loading="lazy" decoding="async"&gt;</pre></li>
+  <li>Convert the PNG logos and badges to WebP; the three badge PNGs are decorative and currently full-size.</li>
+</ul>
+<div class="row"><span class="lbl">Verify</span> PageSpeed Insights mobile on <code>/</code> and one post: CLS &lt; 0.1, LCP &lt; 2.5 s, and the "Image elements do not have explicit width and height" / "Properly size images" audits pass. Do this <em>after</em> D1 — the Tailwind CDN currently dominates the numbers.</div>
+</div>
+
+<div class="item">
+<h3>D11 · Fix the broken footer links <span class="tag p1">P1</span></h3>
+<div class="ev"><strong>Measured</strong> in the footer as rendered on a blog post: the "Book a call" link is <code>href="#"</code> — it goes nowhere. Four more footer links are bare fragments — <code>#process</code>, <code>#results</code>, <code>#calculator</code>, <code>#founder</code> — which resolve only on the homepage; on every blog post and site page they are dead clicks. The header nav does this correctly with <code>/#case-studies</code>, so the footer is simply inconsistent.</div>
+<div class="row"><span class="lbl">Where</span> The global footer partial in <code>genflows-theme</code> (and check the mobile menu, which repeats the same links).</div>
+<div class="row"><span class="lbl">Change</span></div>
+<pre class="bad">- &lt;a href="#"&gt;Book a call&lt;/a&gt;
+- &lt;a href="#process"&gt;How it works&lt;/a&gt;   (also #results, #calculator, #founder)</pre>
+<pre>+ &lt;a href="https://calendly.com/genflows/discovery-call-genflows-agency"&gt;Book a call&lt;/a&gt;
++ &lt;a href="/#process"&gt;How it works&lt;/a&gt;   (also /#results, /#calculator, /#founder)</pre>
+<div class="row"><span class="lbl">Verify</span> Load a blog post, click all six footer links; each lands on the intended section or the booking page. A crawl (Screaming Frog or similar) should report zero <code>href="#"</code> links.</div>
+</div>
+
+<div class="item">
+<h3>D12 · Turn off Google AMP for the blog <span class="tag p1">P1</span></h3>
+<div class="ev"><strong>Measured:</strong> every post emits <code>&lt;link rel="amphtml" href="…?hs_amp=true"&gt;</code>, and that AMP URL returns a real AMP page (HTTP 200, AMP boilerplate present). The AMP version does <strong>not</strong> contain our <code>FAQPage</code> schema — HubSpot's AMP renderer drops the post-level Head HTML that carries it, and it drops the theme entirely. So we are advertising to Google a second version of each post that is unbranded and stripped of the structured data the whole AEO strategy depends on. Google has not required AMP for Top Stories since 2021; there is no upside here.</div>
+<div class="row"><span class="lbl">Where</span> HubSpot: <em>Settings → Content → Blog → (select the GenFlows blog) → Google AMP → off.</em></div>
+<div class="row"><span class="lbl">Verify</span> <code>curl -s &lt;post-url&gt; | grep amphtml</code> returns nothing, and <code>?hs_amp=true</code> no longer serves an AMP document.</div>
+</div>
+
+<div class="item">
+<h3>D13 · Add Organization + WebSite schema to the homepage and site pages <span class="tag p1">P1</span></h3>
+<div class="ev"><strong>Measured:</strong> the homepage contains <strong>zero</strong> <code>ld+json</code> blocks. Blog posts have structured data; the pages that actually define the GenFlows entity have none. Also on the homepage: no <code>og:image</code> (see D5) and a <code>&lt;title&gt;</code> of 84 characters — "GenFlows · B2B Sales Meetings On Autopilot. 14 qualified calls in 30 days, guaranteed." — which will truncate in the SERP. The posts were all trimmed to ≤60; the homepage was not.</div>
+<div class="row"><span class="lbl">Where</span> Site page template head (or the homepage template head, plus <code>/consultancy/wouter</code> and <code>/hiring</code>).</div>
+<div class="row"><span class="lbl">Change</span> Add the <code>Organization</code> + <code>WebSite</code> graph from <strong>Appendix C</strong>, using the same <code>@id</code> values as Appendix B so the blog and the homepage describe one entity rather than two. Add a <code>Person</code> block to <code>/consultancy/wouter</code>. Shorten the homepage title to ≤60 characters, keyword first — e.g. <em>"B2B Outbound &amp; Cold Email Agency | GenFlows"</em> (44).</div>
+<div class="row"><span class="lbl">Verify</span> Rich Results Test on <code>/</code> reports <code>Organization</code> with no errors, and the <code>sameAs</code> URLs all resolve.</div>
+</div>
+
+<div class="pagebreak"></div>
+<h2>P2 — after the above</h2>
+
+<div class="item">
+<h3>D14 · Publish <code>/llms.txt</code> <span class="tag p2">P2</span> <span class="tag verify">VERIFY</span></h3>
+<div class="ev"><strong>Measured:</strong> <code>https://www.genflows.com/llms.txt</code> returns <strong>404</strong>.</div>
+<div class="row"><span class="lbl">Where</span> HubSpot cannot serve arbitrary static files from the domain root, so: create a template in <code>genflows-theme</code> with no HTML wrapper at all (no doctype, no <code>standard_header_includes</code>, no layout — just the text), then create a site page using it with the slug <code>llms.txt</code>.</div>
+<div class="row"><span class="lbl">Change</span> Content in <strong>Appendix D</strong>. The page will be served as <code>text/html</code> rather than <code>text/plain</code> — HubSpot does not let you override the content type, and in practice crawlers reading this convention accept it. Set the page to noindex so it does not appear in search results as a page.</div>
+<div class="row"><span class="lbl">Verify</span> <code>curl https://www.genflows.com/llms.txt</code> returns 200 and the body is the plain text with no markup around it.</div>
+</div>
+
+<div class="item">
+<h3>D15 · Cluster landing pages and a pillar hub template <span class="tag p2">P2</span></h3>
+<div class="ev"><strong>Measured</strong> on a post: the in-body CTAs point at <code>/</code> ("talk to our team") and at other blog posts. There is no service page for any of the five content clusters, so all the topical authority the blog is building routes to the homepage or sideways into more blog posts.</div>
+<div class="row"><span class="lbl">Where</span> New site pages, one per cluster: Cold Email, Clay / GTM Engineering, LinkedIn Outreach, RevOps, Outbound Systems. Plus a reusable pillar template.</div>
+<div class="row"><span class="lbl">Change</span>
+<ul style="margin-top:3px;">
+  <li>Build one landing-page template used by all five, with a slot for a hero, proof, offer and booking CTA.</li>
+  <li>Build a pillar-hub template that lists its cluster's posts by tag (the five topic tags already exist on all posts, so <code>{% for post in blog_recent_topic_posts(…) %}</code> can drive it automatically — no manual link lists to maintain).</li>
+  <li>Add a template-level CTA module to the blog post so the destination is driven by the post's topic tag instead of being hand-written into each post's body. That way cluster CTAs stay correct as content grows.</li>
+</ul></div>
+<div class="row"><span class="lbl">Verify</span> Each of the five pages resolves, is in the sitemap, has unique title/description/OG image, and at least three posts per cluster link into it.</div>
+</div>
+
+<div class="item">
+<h3>D16 · Listing-page hygiene <span class="tag p2">P2</span></h3>
+<div class="ev"><strong>Measured:</strong> <code>/blog/page/2</code> sets <code>canonical → /blog</code> <em>and</em> <code>noindex,follow</code>. Canonicalising page 2 to page 1 is against Google's pagination guidance (paginated URLs should self-canonicalise); combined with noindex it is not harmful today, but it is wrong and it hides the deeper archive from crawl consolidation. Tag and author listings are indexable and self-canonical (good) but their titles read <code>Blog | GenFlows | Clay &amp; GTM Engineering</code> — the distinguishing term is last, where it truncates.</div>
+<div class="row"><span class="lbl">Where</span> Blog listing template head.</div>
+<div class="row"><span class="lbl">Change</span> Self-canonicalise paginated URLs; keep <code>rel="next"/"prev"</code>; keep <code>noindex,follow</code> on pages 2+ if you want only page 1 in the index. Reformat listing titles topic-first: <code>Clay &amp; GTM Engineering — GenFlows Blog</code>.</div>
+<pre>{% if current_page_num &gt; 1 %}
+  &lt;link rel="canonical" href="{{ request.path_and_query|split('?')|first }}"&gt;
+{% endif %}</pre>
+<div class="row"><span class="lbl">Verify</span> <code>/blog/page/2</code> canonical equals its own URL; tag-page titles read topic-first and are ≤60 characters.</div>
+</div>
+
+<h2>Suggested sequencing</h2>
+<table>
+  <tr><th style="width:70px;">Deploy</th><th>Contents</th><th style="width:210px;">Why grouped</th></tr>
+  <tr><td><strong>1</strong> — settings only, no code</td><td>D2 (robots.txt), D3 (sitemap rebuild), D6 (noindex/exclude 3 pages), D12 (AMP off)</td><td>All portal settings. Zero regression risk, ship today, and D3 unblocks marketing's indexing work.</td></tr>
+  <tr><td><strong>2</strong> — head cleanup</td><td>D4 (escaping), D5 (OG fallback), D7 (de-duplicate), D8 (schema graph), D9 (GA4), D13 (homepage schema + title)</td><td>One coherent pass over the template <code>&lt;head&gt;</code>; verify all of it in one Rich Results / card-validator round.</td></tr>
+  <tr><td><strong>3</strong> — performance</td><td>D1 (Tailwind build), D10 (images, fonts, third-party defer)</td><td>Needs the theme locally, a build step and cross-breakpoint visual QA. Measure PageSpeed before and after.</td></tr>
+  <tr><td><strong>4</strong> — structure</td><td>D14 (llms.txt), D15 (cluster + pillar pages), D16 (listing hygiene)</td><td>New pages and templates; depends on copy from marketing.</td></tr>
+</table>
+
+<h2>What is explicitly <em>not</em> in this document</h2>
+<p>These belong to marketing and are specified in <em>GenFlows_Marketing_Actions_2026-07-27</em>: connecting Google Search Console; resubmitting the sitemap and requesting indexing; striking-distance and cannibalisation analysis; backlinks and digital PR; off-site AEO presence (Reddit, G2, LinkedIn); sourcing and writing featured-image creative; granting the HubSpot token the <code>files</code> scope; and the 17 older posts that have no FAQ section to mark up.</p>
+
+<div class="pagebreak"></div>
+<h1 style="font-size:18px;margin-bottom:2px;">Appendix — copy-paste assets</h1>
+
+<h3>A · robots.txt — replace the whole file (D2)</h3>
+<pre>User-agent: *
+Disallow: /_hcms/preview/
+Disallow: /hs/manage-preferences/
+Disallow: /hs/preferences-center/
+Disallow: /*?*hs_preview=*
+Disallow: /*?*hsCacheBuster=*
+
+# Allow AI answer-engine crawlers (AEO)
+User-agent: GPTBot
+Allow: /
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://www.genflows.com/sitemap.xml</pre>
+
+<h3>B · Blog post JSON-LD — one graph, replaces the theme's two blocks (D4, D8)</h3>
+<pre>{% set clean_title = content.name|striptags %}
+{% set og_image = content.featured_image or get_asset_url('../images/og-default.png') %}
+&lt;script type="application/ld+json"&gt;
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://www.genflows.com/#organization",
+      "name": "GenFlows",
+      "url": "https://www.genflows.com/",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://www.genflows.com/hubfs/genflows-theme/images/genflows-logo-orange-white.png"
+      },
+      "email": "info@genflowsagency.com",
+      "sameAs": [
+        "https://www.linkedin.com/company/genflows-agency/",
+        "https://www.clay.com/experts/partner/wouter-harink",
+        "https://www.smartlead.ai/partner/wouter-harink"
+      ]
+    },
+    {
+      "@type": "Person",
+      "@id": "https://www.genflows.com/consultancy/wouter#person",
+      "name": "Wouter Harink",
+      "url": "https://www.genflows.com/consultancy/wouter",
+      "jobTitle": "GTM Engineer",
+      "worksFor": { "@id": "https://www.genflows.com/#organization" },
+      "sameAs": [
+        "https://www.clay.com/experts/partner/wouter-harink",
+        "https://www.smartlead.ai/partner/wouter-harink"
+      ]
+    },
+    {
+      "@type": "BlogPosting",
+      "@id": "{{ content.absolute_url }}#blogposting",
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "{{ content.absolute_url }}" },
+      "url": "{{ content.absolute_url }}",
+      "headline": "{{ clean_title|escapejson }}",
+      "description": "{{ content.meta_description|striptags|escapejson }}",
+      "image": ["{{ og_image }}"],
+      "datePublished": "{{ content.publish_date_localized }}",
+      "dateModified": "{{ content.updated }}",
+      "inLanguage": "en",
+      "author": { "@id": "https://www.genflows.com/consultancy/wouter#person" },
+      "publisher": { "@id": "https://www.genflows.com/#organization" },
+      "keywords": "{% for t in content.topic_list %}{{ t.name }}{% if not loop.last %}, {% endif %}{% endfor %}"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "{{ content.absolute_url }}#breadcrumbs",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.genflows.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://www.genflows.com/blog" },
+        { "@type": "ListItem", "position": 3, "name": "{{ clean_title|escapejson }}" }
+      ]
+    }
+  ]
+}
+&lt;/script&gt;</pre>
+<p class="muted">Two notes. (1) Confirm the date filters render ISO-8601 with an offset in preview; if not, use <code>{{ content.publish_date|datetimeformat('%Y-%m-%dT%H:%M:%S%z') }}</code>. (2) Do <strong>not</strong> add <code>FAQPage</code> here — it is injected per post through the API and would duplicate.</p>
+
+<h3>C · Homepage / site page JSON-LD (D13)</h3>
+<pre>&lt;script type="application/ld+json"&gt;
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://www.genflows.com/#organization",
+      "name": "GenFlows",
+      "alternateName": "GenFlows Agency",
+      "url": "https://www.genflows.com/",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://www.genflows.com/hubfs/genflows-theme/images/genflows-logo-orange-white.png"
+      },
+      "description": "GenFlows runs the full outbound function for B2B companies: infrastructure, copy, lead lists and inbox management.",
+      "email": "info@genflowsagency.com",
+      "founder": { "@id": "https://www.genflows.com/consultancy/wouter#person" },
+      "sameAs": [
+        "https://www.linkedin.com/company/genflows-agency/",
+        "https://www.clay.com/experts/partner/wouter-harink",
+        "https://www.smartlead.ai/partner/wouter-harink"
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://www.genflows.com/#website",
+      "url": "https://www.genflows.com/",
+      "name": "GenFlows",
+      "publisher": { "@id": "https://www.genflows.com/#organization" },
+      "inLanguage": "en"
+    }
+  ]
+}
+&lt;/script&gt;</pre>
+
+<h3>D · llms.txt — page body (D14)</h3>
+<pre># GenFlows
+
+&gt; B2B outbound agency and GTM engineering: cold email infrastructure and
+&gt; deliverability, Clay-based GTM automation, LinkedIn outreach and RevOps
+&gt; systems. We run the outbound function end to end for B2B companies.
+
+## Services
+- Cold email infrastructure &amp; deliverability
+- Clay / GTM engineering &amp; workflow automation
+- LinkedIn outreach automation
+- RevOps &amp; outbound systems
+
+## Key pages
+- Home: https://www.genflows.com/
+- Consultancy: https://www.genflows.com/consultancy/wouter
+- Blog (71 in-depth guides): https://www.genflows.com/blog
+- Sitemap: https://www.genflows.com/sitemap.xml
+
+## Contact
+- info@genflowsagency.com</pre>
+
+<h3>E · One-command verification set</h3>
+<pre># D2 — sitemap directive present
+curl -s https://www.genflows.com/robots.txt | grep -i sitemap
+
+# D3 — sitemap current and complete
+curl -sI https://www.genflows.com/sitemap.xml | grep -i last-modified
+curl -s  https://www.genflows.com/sitemap.xml | grep -o '&lt;loc&gt;' | wc -l   # expect 78+
+
+# D1 — Tailwind CDN gone
+curl -s https://www.genflows.com/ | grep -c cdn.tailwindcss.com          # expect 0
+
+# D7 — no duplicated head tags
+for t in 'rel="canonical"' 'og:title' 'og:description' 'name="viewport"'; do
+  echo -n "$t: "; curl -s https://www.genflows.com/blog/n8n-vs-make-vs-zapier-gtm-automation-2026 \
+    | grep -c "$t"; done                                                  # expect 1 each
+
+# D9 — one GA4 loader
+curl -s https://www.genflows.com/ | grep -c "gtag/js"                     # expect 1
+
+# D4 — no editor markup in schema
+curl -s https://www.genflows.com/blog/n8n-vs-make-vs-zapier-gtm-automation-2026 \
+  | grep -c hs_cos_wrapper_name                                           # expect 1 (the H1 only)
+
+# D12 — AMP off
+curl -s https://www.genflows.com/blog/n8n-vs-make-vs-zapier-gtm-automation-2026 \
+  | grep -c amphtml                                                       # expect 0
+
+# D14 — llms.txt live
+curl -sI https://www.genflows.com/llms.txt | head -1                      # expect 200</pre>
+
+<div class="foot">Prepared 27 July 2026. All findings measured against the live www.genflows.com response HTML, robots.txt, sitemap.xml, HTTP headers and the HubSpot CMS API on that date. Items tagged VERIFY require checking a setting inside the HubSpot portal or theme, which was not accessible when this was written. Companion document: GenFlows_Marketing_Actions_2026-07-27. Supersedes GenFlows_Website_Dev_Actions_2026-07-22.</div>
+
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!-- TITLE TAG: How Many Domains & Mailboxes for Cold Email in 2026 -->
+<!-- META: The 2026 math for cold email infrastructure: how many secondary domains and mailboxes you need, safe daily send limits, warmup timelines, and cost per setup. -->
+<!-- SLUG: blog/how-many-domains-mailboxes-cold-email-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+  <p style="color:#e8732b;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 10px;font-size:13px;">TL;DR</p>
+  <ul style="margin:0;padding-left:20px;">
+    <li style="margin-bottom:8px;"><strong>Cold email is a capacity-planning problem.</strong> You scale by <em>adding domains</em>, not by piling more inboxes onto one domain. The math flows one way: target daily sends → mailboxes → domains.</li>
+    <li style="margin-bottom:8px;"><strong>Use ~20 sends per mailbox per day</strong> as your conservative working number (community estimates range 10–25 for Google Workspace, up to 30–50 cited for Microsoft 365) and <strong>2–3 mailboxes per domain</strong> <em>(directional)</em>.</li>
+    <li style="margin-bottom:8px;"><strong>1,000 emails/day ≈ ~50–60 mailboxes across ~30 domains</strong> once you add a warmup/rotation buffer.</li>
+    <li style="margin-bottom:8px;"><strong>Never send from your primary domain.</strong> Register secondary sending domains, redirect them to your main site, and keep the primary out of the send path.</li>
+    <li style="margin-bottom:0;"><strong>Warm new domains 2–4 weeks</strong> (treat 30 days as the floor), and stay under the 5,000/day-per-domain bulk-sender trigger — the multi-domain build does that structurally.</li>
+  </ul>
+</div>
+
+<p>"How many domains and mailboxes do I need?" is the first real question of any cold email build — and the one most people get wrong. They either cram 20 inboxes onto one domain and torch its reputation, or they buy a single Google Workspace seat and wonder why 500 emails a day lands them in spam. The right answer is a short calculation, and this post walks you through it end to end: the math, the naming and warmup rules, the provider caps you must respect, and what it actually costs.</p>
+
+<p><em>Sourcing note: the provider rules and thresholds here are VERIFIED against Google, Yahoo, and Microsoft's own announcements. The architecture ratios — sends per mailbox, mailboxes per domain, warmup timelines, and pricing — are practitioner and vendor guidance that varies by source; we flag those as <strong>(directional)</strong> and commit to conservative working numbers rather than presenting any single figure as settled.</em></p>
+
+<h2>The Short Answer</h2>
+<p>Divide your target daily send volume by a safe per-mailbox rate (~20/day), then divide the mailbox count by 2–3 mailboxes per domain, then add a 20–30% buffer for warmup and rotation. For 1,000 emails a day that lands around 50–60 mailboxes spread across roughly 30 domains; for 500 a day, about 25 mailboxes across ~16 domains. You send from secondary domains — never your primary company domain — redirect them to your main site, warm each new domain for two to four weeks, and keep each domain well under 5,000 sends a day so you sit below the Google/Yahoo bulk-sender threshold.</p>
+
+<h2>Why You Never Send From Your Primary Domain</h2>
+<p>Cold outreach carries reputation risk. One bad week — a spike in spam complaints, a blocklist listing — can start routing your invoices, contracts, and inbound sales replies to spam if that reputation is attached to your main company domain. So you isolate the risk: register standalone <strong>secondary sending domains</strong> that exist only to send cold email, and 301-redirect them to your main website so clicks and brand checks still resolve <em>(directional)</em>. Many teams also route link tracking through a separate custom tracking domain so the primary never appears in the send path at all. The rule is simple: your money domain never touches cold traffic.</p>
+
+<h2>The Core Math</h2>
+<p>Everything downstream flows from three inputs. Here's the chain:</p>
+<div style="background:#f4f7fb;border-left:4px solid #1f3a5f;padding:16px 20px;margin:22px 0;border-radius:6px;">
+  <p style="margin:0;"><strong>target daily sends ÷ safe sends-per-mailbox = mailboxes</strong><br>
+  <strong>mailboxes ÷ mailboxes-per-domain = domains</strong><br>
+  <strong>+ 20–30% buffer</strong> for warmup and rotation</p>
+</div>
+<p>Plug in conservative numbers — ~20 sends per mailbox per day and 2 mailboxes per domain <em>(directional)</em> — and the <strong>1,000-emails-a-day</strong> build looks like this:</p>
+<ul>
+  <li style="margin-bottom:6px;">1,000 ÷ 20 per inbox = <strong>50 mailboxes</strong></li>
+  <li style="margin-bottom:6px;">50 ÷ 2 per domain = <strong>25 domains</strong></li>
+  <li style="margin-bottom:0;">+ ~25% buffer = <strong>~30 domains, ~60 mailboxes</strong></li>
+</ul>
+<p>Scale it up or down and the ratios hold. Here's the reference build across common volume targets:</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+    <th style="padding:10px 12px;">Target sends/day</th>
+    <th style="padding:10px 12px;">Mailboxes (~20/day each)</th>
+    <th style="padding:10px 12px;">Domains (2/domain + buffer)</th>
+    <th style="padding:10px 12px;">Est. mailbox cost/mo (reseller ~$3)</th>
+    <th style="padding:10px 12px;">Warmup lead time</th>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">100</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">~5</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">~3</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">~$15</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">2–3 weeks</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">250</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">~13</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">~8</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">~$40</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">3–4 weeks</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">500</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">~25</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">~16</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">~$75</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">3–4 weeks</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">1,000</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">~50–60</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">~30</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">~$150–180</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">4 weeks</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">2,500</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">~125</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">~75</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">~$375</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">6–8 weeks</td>
+  </tr>
+</table>
+<p style="color:#64748b;font-size:14px;"><em>All figures directional (practitioner formulas + reseller pricing). Add ~$25–40/mo for domains and $50–200/mo for a sending platform. Sends-per-mailbox held conservative at 20/day; some Microsoft 365 operators run higher.</em></p>
+
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:16px 20px;margin:22px 0;border-radius:6px;">
+  <p style="margin:0;"><strong>The number that varies most is sends-per-mailbox-per-day.</strong> Sources put it anywhere from 10–25 (Google Workspace) to 30–50 (Microsoft 365). Don't chase the high end — reputation, not the platform cap, is what limits you. Start at 20/day per mailbox, watch your complaint and bounce rates, and only nudge upward if the data stays clean.</p>
+</div>
+
+<h2>Domain Choices and Naming</h2>
+<p>Once you know how many domains you need, buy them right:</p>
+<ul>
+  <li style="margin-bottom:8px;"><strong>TLD:</strong> prefer <strong>.com</strong>; .co, .io, and .net are acceptable. Avoid cheap, spam-associated TLDs like .xyz and .info <em>(directional)</em>.</li>
+  <li style="margin-bottom:8px;"><strong>Naming:</strong> use brand-adjacent variants of your real domain — <code>getacme.com</code>, <code>tryacme.com</code>, <code>acmehq.com</code> — so replies still feel legitimate and on-brand.</li>
+  <li style="margin-bottom:8px;"><strong>Age before sending:</strong> brand-new domains need warmup before any cold send. Google reportedly flags domains younger than 30 days, so treat <strong>30 days as the practical floor</strong> before real volume <em>(directional, single-source)</em>.</li>
+  <li style="margin-bottom:0;"><strong>Redirect:</strong> 301 each secondary domain to your main site so a curious prospect who types it in doesn't hit a dead page.</li>
+</ul>
+
+<h2>Where the Mailboxes Come From: Workspace vs 365 vs Pre-Warmed</h2>
+<p>You have three provisioning paths, and most serious builds mix them:</p>
+<ul>
+  <li style="margin-bottom:8px;"><strong>Google Workspace (direct):</strong> best inbox placement into Gmail; Business Starter runs ~$7/user/month. Keep it to ~2 inboxes per domain.</li>
+  <li style="margin-bottom:8px;"><strong>Microsoft 365:</strong> stronger into Outlook and enterprise recipients, cheaper at scale, and some operators push higher per-inbox volume <em>(directional)</em>. For a deeper comparison, see <a href="/blog/google-workspace-vs-microsoft-365-cold-email-2026">Google Workspace vs Microsoft 365 for cold email</a>.</li>
+  <li style="margin-bottom:0;"><strong>Resellers &amp; pre-warmed providers (the 2026 trend):</strong> Google Workspace resellers run roughly $2.50–$4.50/inbox/month versus ~$6–7 direct, and pre-warmed Microsoft 365 inboxes are advertised as ready in 30–40 minutes with authentication auto-configured. Treat every "instant" and "pre-warmed" claim as <em>(directional)</em> and verify placement yourself before trusting a provider with real campaigns.</li>
+</ul>
+
+<h2>Warmup: Domain vs Mailbox</h2>
+<p>Two different things warm up, and both matter. <strong>Domain warmup</strong> builds the sending domain's reputation; <strong>mailbox warmup</strong> builds each individual account's sending history. Ramp both:</p>
+<ul>
+  <li style="margin-bottom:8px;"><strong>Timeline:</strong> 2–4 weeks for a brand-new domain before full-volume cold sending; established domains need less. Enterprise senders targeting thousands a day should plan 6–8 weeks <em>(directional)</em>.</li>
+  <li style="margin-bottom:0;"><strong>Ramp:</strong> start at 5–10 sends per inbox per day, increase by ~5/day, and cap campaign volume around 25–30 per inbox <em>(directional)</em>.</li>
+</ul>
+<p>For the tooling side of this — warmup pools, deliverability monitors, and whether warmup services still work in 2026 — see our guide to the <a href="/blog/best-email-warmup-deliverability-tools-2026">best email warmup &amp; deliverability tools</a>.</p>
+
+<h2>Provider Caps and Compliance Thresholds</h2>
+<p>This is the VERIFIED backbone every build has to respect:</p>
+<ul>
+  <li style="margin-bottom:8px;"><strong>Google &amp; Yahoo bulk-sender rules (effective Feb 1, 2024):</strong> senders of more than 5,000 messages/day to Gmail must have SPF, DKIM, and DMARC, one-click unsubscribe (the List-Unsubscribe header), and a spam-complaint rate below 0.3%. Enforcement escalated from temporary errors in February 2024 to outright rejections by April.</li>
+  <li style="margin-bottom:8px;"><strong>Complaint threshold:</strong> the hard limit is 0.3%; target 0.1% and never drift toward the ceiling.</li>
+  <li style="margin-bottom:8px;"><strong>Microsoft Outlook.com (effective May 5, 2025):</strong> domains sending more than 5,000/day to consumer mailboxes that fail authentication get hard-rejected with <code>550 5.7.515 Access denied</code>. Microsoft switched from junk-foldering to outright rejection in late April 2025.</li>
+  <li style="margin-bottom:0;"><strong>Google Workspace hard cap:</strong> 2,000 messages/day per user account (with a 2,000 external-recipient limit). This is <em>far</em> above your ~20/day cold-send target — proof that reputation, not the platform ceiling, is the real constraint.</li>
+</ul>
+<div style="background:#f4f7fb;border-left:4px solid #1f3a5f;padding:16px 20px;margin:22px 0;border-radius:6px;">
+  <p style="margin:0;"><strong>Why the multi-domain architecture is a feature, not just overhead:</strong> spreading volume across ~30 domains keeps each one structurally below the 5,000/day bulk-sender trigger <em>and</em> isolates reputation risk. You get compliance and resilience from the same design. The authentication itself (SPF, DKIM, DMARC records per domain) is non-negotiable — see our <a href="/blog/cold-email-spf-dkim-dmarc-setup-2026">step-by-step SPF, DKIM &amp; DMARC setup guide</a>.</p>
+</div>
+
+<h2>What It Costs</h2>
+<p>Using the ~1,000-sends/day build (~30 domains, ~60 mailboxes), all figures <em>(directional)</em>:</p>
+<ul>
+  <li style="margin-bottom:6px;"><strong>Domains:</strong> ~$10–15/domain/year → ~$300–450/yr (~$25–38/mo)</li>
+  <li style="margin-bottom:6px;"><strong>Mailboxes:</strong> 60 × ~$3 (reseller) ≈ ~$180/mo; at Google-direct $7 ≈ ~$420/mo</li>
+  <li style="margin-bottom:6px;"><strong>Sending platform / sequencer:</strong> ~$50–200/mo</li>
+  <li style="margin-bottom:0;"><strong>Warmup tool:</strong> often bundled with reseller inboxes; otherwise ~$50–150/mo</li>
+</ul>
+<p>All-in, a ~1,000-sends/day operation runs roughly <strong>$260–600/month</strong>, driven mostly by how you source inboxes. One warning: don't confuse "1,000 sends/day" with "1,000 inboxes" — you only need ~60 inboxes for 1,000 daily sends, and cost calculators quoting four-figure monthly totals are almost always pricing a 1,000-<em>inbox</em> operation. To translate this infrastructure spend into a true cost per booked meeting, see <a href="/blog/cold-email-cost-per-meeting-budget-2026">what cold email really costs in 2026</a>.</p>
+
+<h2>Frequently Asked Questions</h2>
+
+<h3>How many cold email domains do I need?</h3>
+<p>Divide your daily send target by ~20 emails per mailbox, then by 2 mailboxes per domain, and add a 20–30% buffer. For 1,000 emails/day that's roughly 30 domains; for 500/day, about 16. You scale by adding domains, not by adding inboxes to existing ones.</p>
+
+<h3>How many mailboxes should I put on one domain?</h3>
+<p>Two to three — two for Google Workspace, two to three for self-managed Microsoft 365. Piling more inboxes onto a single domain concentrates reputation risk, which is the opposite of what the architecture is for.</p>
+
+<h3>How many cold emails can I send per mailbox per day in 2026?</h3>
+<p>Keep it around 20 per inbox per day. Community estimates range from 10–25 for Google Workspace up to 30–50 for Microsoft 365, but the platform cap (~2,000/day on Google Workspace) is far higher than what's safe — reputation, not the cap, is the real limit.</p>
+
+<h3>Should I send cold email from my main company domain?</h3>
+<p>No. Use secondary sending domains and redirect them to your main site. A reputation hit on your primary domain can push your invoices, contracts, and inbound sales replies into spam — a risk that is never worth taking.</p>
+
+<h3>How long do I warm up a new domain before sending?</h3>
+<p>Two to four weeks for a new domain, and treat 30 days as the safe floor since Google flags very young domains. Start at 5–10 sends/day and ramp by about 5/day up to 25–30. High-volume senders should plan 6–8 weeks.</p>
+
+<h3>What are the Google, Yahoo, and Microsoft bulk-sender rules I need to follow?</h3>
+<p>Google/Yahoo (since Feb 1, 2024) and Microsoft Outlook.com (since May 5, 2025) require SPF, DKIM, and DMARC for senders above 5,000/day, plus one-click unsubscribe and a spam-complaint rate under 0.3% (aim for 0.1%). Fail Microsoft's authentication check and you get a <code>550 5.7.515</code> rejection.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+
+<p><strong>Building your sending infrastructure from scratch? Start with the <a href="/blog/cold-email-infrastructure-deliverability">full cold email infrastructure guide</a> and the <a href="/blog/cold-email-spf-dkim-dmarc-setup-2026">SPF/DKIM/DMARC setup walkthrough</a> — or <a href="/">talk to our team</a> and we'll architect and warm the whole thing for you.</strong></p>
+
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. We build and run cold email infrastructure for B2B outbound programs. Architecture ratios and pricing marked directional vary by source — treat them as planning guidance, not guarantees. Last updated July 2026.</em></p>

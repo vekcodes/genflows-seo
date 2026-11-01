@@ -1,0 +1,84 @@
+<!-- TITLE TAG: RevOps for Startups: The Minimum Viable Stack (Stage-by-Stage 2026) -->
+<!-- META: What RevOps a startup actually needs at pre-seed, seed, and Series A — the minimum viable stack, what to skip, and when to make your first RevOps hire. -->
+<!-- SLUG: blog/revops-for-startups-minimum-viable-stack-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+  <strong style="display:block;text-transform:uppercase;letter-spacing:.04em;font-size:13px;color:#e8732b;margin-bottom:8px;">TL;DR</strong>
+  <ul style="margin:0;padding-left:20px;">
+    <li><strong>RevOps for a startup is not a 20-tool stack</strong> — it is one connected CRM, clean data, and a handful of automations that stop revenue leaking.</li>
+    <li>Match the stack to the <strong>stage</strong>: pre-seed needs a CRM and a definition of "lead"; Series A needs routing, scoring, and reporting.</li>
+    <li>The biggest early mistake is <strong>buying tools before fixing data</strong>. Disconnected tools cause more pain than missing ones.</li>
+    <li>Your first dedicated RevOps hire is usually a <strong>Series A problem</strong>, not a seed one — fractional or agency support bridges the gap.</li>
+    <li>Below: the exact minimum viable stack at each stage, what to deliberately skip, and the hiring trigger that tells you it's time.</li>
+  </ul>
+</div>
+
+<p>Most RevOps content is written for companies that already have a revenue problem big enough to need a department. Startups don't. A seed-stage company that copies an enterprise RevOps stack ends up with twelve subscriptions, three sources of truth, and a founder doing data cleanup at midnight. The goal at this stage is not sophistication — it is a <strong>system that doesn't leak</strong> and can grow without a rebuild.</p>
+
+<p>This is the stage-by-stage minimum viable RevOps stack we set up for early companies. It assumes you would rather ship pipeline than admire your tooling. If you are building the outbound motion that feeds this system, pair it with our guides on <a href="/blog/gtm-engineering-tools-the-complete-tech-stack-for-outbound-sales-teams">GTM tooling</a> and <a href="/blog/scalable-outbound-system-without-sales-team">building outbound without a sales team</a>.</p>
+
+<h2>What Does RevOps Actually Mean for a Startup?</h2>
+<p>RevOps (Revenue Operations) is the connective tissue between marketing, sales, and customer success — the data, tools, and processes that make revenue predictable. At enterprise scale that's a team. At startup scale it's a <strong>discipline</strong>: one place the truth lives, clear definitions of each pipeline stage, and automation that removes manual hand-offs. Nothing more until you've earned the complexity.</p>
+<p>The mental model: RevOps is plumbing, not furniture. You install it so water flows reliably — you don't keep adding fixtures because they look impressive.</p>
+
+<h2>What's the Minimum Viable Stack at Each Stage?</h2>
+<p>The stack should grow with the company, not ahead of it. Here is what to add — and what to deliberately leave out — at each funding stage.</p>
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <thead>
+    <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+      <th style="padding:10px 12px;">Stage</th><th style="padding:10px 12px;">What you actually need</th><th style="padding:10px 12px;">What to skip (for now)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;"><strong>Pre-seed</strong></td><td style="padding:10px 12px;">One CRM (free tier is fine), a shared definition of "lead," a single pipeline with named stages</td><td style="padding:10px 12px;">Automation, scoring, BI tools, a RevOps hire</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;"><strong>Seed</strong></td><td style="padding:10px 12px;">CRM + email/sequencer, basic lead capture automation, one source-of-truth for pipeline, weekly metric review</td><td style="padding:10px 12px;">Multiple databases, custom attribution, dedicated analyst</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;"><strong>Series A</strong></td><td style="padding:10px 12px;">Lead routing + scoring, marketing automation, reporting dashboard, data hygiene process, first RevOps hire (or strong fractional)</td><td style="padding:10px 12px;">Enterprise CPQ, heavy customization you can't maintain</td></tr>
+  </tbody>
+</table>
+<p>The pattern: each stage adds exactly one layer of capability on top of clean data — never a parallel system that has to be reconciled later.</p>
+
+<h2>Why Does Data Hygiene Come Before Tools?</h2>
+<p>The single most expensive RevOps mistake at a startup is buying tools to fix a data problem. A scoring tool fed dirty data produces confident, wrong priorities. An attribution tool on duplicated contacts produces numbers nobody trusts. <strong>Fix the data foundation first:</strong></p>
+<ul>
+  <li><strong>One source of truth.</strong> The CRM is it. If a number lives in three spreadsheets, you have three numbers and zero truth.</li>
+  <li><strong>Deduplicate contacts and companies.</strong> Do this before any automation touches the records.</li>
+  <li><strong>Define every lifecycle stage in writing.</strong> What exactly makes a "qualified opportunity"? If two people answer differently, your funnel metrics are fiction.</li>
+  <li><strong>Standardize fields.</strong> Country, industry, and company size should be picklists, not free text — or your segments will never hold.</li>
+</ul>
+<p>Clean data is unglamorous and it is the entire game early on. Tools amplify whatever you feed them.</p>
+
+<h2>How Do You Build It? A Step-by-Step Seed Setup</h2>
+<h3>Step 1 — Stand up one CRM and lock the pipeline</h3>
+<p>Pick one CRM (most startups land on HubSpot's free/starter tier) and define a single pipeline with named, written stages. Resist a second pipeline until you genuinely sell two motions.</p>
+<h3>Step 2 — Define and instrument your lead stages</h3>
+<p>Write down the entry and exit criteria for each stage. Then make the CRM enforce them with required fields so reps cannot advance a deal without the data you need to report on it.</p>
+<h3>Step 3 — Connect capture and outreach</h3>
+<p>Wire your forms and outbound <a href="/blog/outbound-sequencing-strategy-how-to-design-multi-touch-campaigns-that-convert">sequencer</a> directly into the CRM so every lead lands in one place automatically. No manual CSV imports — that's where data dies.</p>
+<h3>Step 4 — Add light scoring and routing</h3>
+<p>Once you have a few hundred records, layer in basic <a href="/blog/data-driven-lead-scoring-how-gtm-engineers-prioritize-prospects-for-outbound">lead scoring</a> and auto-routing so the right rep gets the right lead fast. Keep the rules simple enough to explain in one sentence.</p>
+<h3>Step 5 — Build one dashboard you'll actually read</h3>
+<p>A handful of numbers reviewed weekly beats a 40-widget dashboard reviewed never. Track the <a href="/blog/how-to-measure-and-optimize-outbound-roi-gtm-engineering-metrics-that-matter">metrics that actually move revenue</a>: pipeline created, conversion by stage, and cycle time.</p>
+
+<h2>When Should You Make Your First RevOps Hire?</h2>
+<p>Almost never at seed. The trigger is usually <strong>Series A and 8–15 people on the revenue team</strong>, when the founder or a sales lead can no longer maintain the system as a side job. Before that point, a fractional RevOps person or an agency keeps the plumbing clean for a fraction of the cost. Signs it's time:</p>
+<ul>
+  <li>Reps spend more than a few hours a week fighting the CRM instead of selling.</li>
+  <li>Leadership argues about whose number is correct.</li>
+  <li>New tools keep getting bought but nothing connects.</li>
+  <li>Reporting takes days and is stale by the time it lands.</li>
+</ul>
+<p>If you're not there yet, don't hire ahead of the pain — borrow the expertise instead.</p>
+
+<h2>Frequently Asked Questions</h2>
+<h3>What is the minimum RevOps stack for a startup?</h3>
+<p>One CRM as the single source of truth, a connected sequencer/email tool, written lifecycle-stage definitions, and clean, deduplicated data. Add scoring, routing, and dashboards as you approach Series A — not before.</p>
+<h3>Do startups need a RevOps person?</h3>
+<p>Not early. Pre-seed and seed companies are better served by a founder-owned process plus fractional or agency support. A dedicated hire usually makes sense around Series A and a revenue team of 8–15.</p>
+<h3>HubSpot or Salesforce for an early-stage startup?</h3>
+<p>For most startups, an all-in-one platform like HubSpot wins on time-to-value and fewer integrations to maintain. Salesforce's flexibility tends to pay off later, when you have someone to administer it.</p>
+<h3>How many tools should a startup RevOps stack have?</h3>
+<p>As few as possible. Most failures come from disconnected tools, not missing ones. Consolidate onto one core platform and only add a tool when a clear, recurring pain justifies it.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+<p><strong>Need the plumbing built without a full-time hire?</strong> GenFlows sets up startup RevOps — clean data, connected CRM, and the outbound system that feeds it — as a managed build. <a href="/blog/gtm-engineering-agency-how-to-choose">See how to choose a GTM partner</a> or <a href="/">talk to our team</a>.</p>
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. Last updated June 2026.</em></p>

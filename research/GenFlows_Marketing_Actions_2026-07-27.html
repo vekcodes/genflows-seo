@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>GenFlows — Marketing &amp; Access Action List (SEO/AEO)</title>
+<style>
+  @page { size: A4; margin: 15mm 14mm 16mm; }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: -apple-system, "Helvetica Neue", Arial, sans-serif; color: #1f2937; font-size: 10.3px; line-height: 1.5; margin: 0; }
+  h1 { font-size: 23px; color: #1f3a5f; margin: 0 0 4px; letter-spacing: -.3px; }
+  h2 { font-size: 14.5px; color: #1f3a5f; margin: 22px 0 8px; padding-bottom: 5px; border-bottom: 2px solid #e8732b; }
+  h3 { font-size: 11.8px; color: #1f3a5f; margin: 14px 0 4px; }
+  p { margin: 0 0 7px; }
+  a { color: #1f3a5f; text-decoration: none; }
+  ul, ol { margin: 4px 0 9px; padding-left: 17px; }
+  li { margin: 2.5px 0; }
+  code { background: #f1f5f9; padding: 1px 4px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 9px; }
+  pre { background: #0f172a; color: #e2e8f0; padding: 9px 11px; border-radius: 6px; font-family: "SF Mono", Menlo, monospace; font-size: 8.4px; line-height:1.45; white-space: pre-wrap; margin: 5px 0 8px; }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0 14px; font-size: 9.2px; }
+  th { background: #1f3a5f; color: #fff; text-align: left; padding: 6px 8px; font-weight: 600; }
+  td { padding: 5px 8px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+  tr:nth-child(even) td { background: #f8fafc; }
+  .cover { border-bottom: 3px solid #e8732b; padding-bottom: 13px; margin-bottom: 6px; }
+  .sub { color: #64748b; font-size: 9.8px; }
+  .tldr { background: #f4f7fb; border-left: 4px solid #e8732b; padding: 11px 15px; border-radius: 5px; margin: 11px 0 16px; }
+  .tag { display: inline-block; font-size: 8px; font-weight: 700; padding: 1px 6px; border-radius: 3px; color: #fff; vertical-align: middle; white-space:nowrap; }
+  .p0 { background: #dc2626; } .p1 { background: #ea580c; } .p2 { background: #16a34a; }
+  .done { background:#0e7490; }
+  .muted { color:#64748b; }
+  .pagebreak { page-break-before: always; }
+  .foot { margin-top: 20px; padding-top: 9px; border-top: 1px solid #e2e8f0; color: #94a3b8; font-size: 8.4px; }
+  .item { border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 13px; margin: 0 0 12px; page-break-inside: avoid; }
+  .item h3 { margin-top: 0; }
+  .lbl { display:inline-block; min-width:66px; font-weight:700; color:#1f3a5f; font-size:9.2px; }
+  .row { margin: 3px 0; font-size: 9.6px; }
+  .ev { background:#fff7ed; border-left:3px solid #e8732b; padding:6px 9px; border-radius:4px; font-size:9.2px; margin:5px 0 6px; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <h1>GenFlows — Marketing &amp; Access Action List</h1>
+  <p class="sub"><strong>For the account owner / marketing, not the developer.</strong> Search Console, indexing, authority, off-site AEO, creative and credentials. Everything that is a change to the website itself — theme, templates, schema, performance, page settings — is specified separately in <em>GenFlows_Website_Tech_Spec_2026-07-27</em>.</p>
+  <p class="sub"><strong>Date:</strong> 27 July 2026 &nbsp;·&nbsp; <strong>Property:</strong> www.genflows.com (HubSpot portal 49399880) &nbsp;·&nbsp; <strong>Companion audit:</strong> GenFlows_SEO_AEO_Report_2026-07-21</p>
+</div>
+
+<div class="tldr">
+  <strong>Where we stand on 27 July.</strong> 71 posts published. On-page hygiene is now clean — every title ≤60 characters, every meta description ≥70, FAQ schema live on 54 posts, five topic clusters tagged across the library. Two things still gate results, and neither is a writing problem: <strong>(1)</strong> we still have no Search Console connection, so every query-level decision is guesswork; <strong>(2)</strong> we have no off-site authority, which is the only lever that moves the competitive commercial terms. M1 and M5 are the whole game.
+</div>
+
+<h2>At a glance</h2>
+<table>
+  <tr><th style="width:34px;">#</th><th>Action</th><th style="width:66px;">Owner</th><th style="width:60px;">Effort</th><th style="width:44px;">Prio</th></tr>
+  <tr><td>M1</td><td>Connect Google Search Console</td><td>Owner</td><td>5 min</td><td><span class="tag p0">P0</span></td></tr>
+  <tr><td>M2</td><td>Resubmit the sitemap, request indexing for the 9 newest posts</td><td>Owner</td><td>15 min</td><td><span class="tag p0">P0</span></td></tr>
+  <tr><td>M3</td><td>Grant the HubSpot token the <code>files</code> scope</td><td>Owner</td><td>5 min</td><td><span class="tag p1">P1</span></td></tr>
+  <tr><td>M4</td><td>Featured-image creative for 67 posts</td><td>Design + automation</td><td>Medium</td><td><span class="tag p1">P1</span></td></tr>
+  <tr><td>M5</td><td>Backlink / digital-PR programme</td><td>Owner + team</td><td>High, ongoing</td><td><span class="tag p1">P1</span></td></tr>
+  <tr><td>M6</td><td>Off-site AEO presence (Reddit, G2, LinkedIn, comparison sites)</td><td>Owner + team</td><td>High, ongoing</td><td><span class="tag p1">P1</span></td></tr>
+  <tr><td>M7</td><td>Striking-distance optimisation from GSC data</td><td>Automation</td><td>Medium</td><td><span class="tag p1">P1</span></td></tr>
+  <tr><td>M8</td><td>Author identity: named byline + bio content</td><td>Owner</td><td>Low</td><td><span class="tag p1">P1</span></td></tr>
+  <tr><td>M9</td><td>Copy for the five cluster landing pages</td><td>Marketing</td><td>Medium</td><td><span class="tag p2">P2</span></td></tr>
+  <tr><td>M10</td><td>Backfill FAQ sections into the 17 older posts that have none</td><td>Automation</td><td>Medium</td><td><span class="tag p2">P2</span></td></tr>
+  <tr><td>M11</td><td>Cannibalisation review once GSC data exists</td><td>Automation</td><td>Low</td><td><span class="tag p2">P2</span></td></tr>
+  <tr><td>M12</td><td>Decide the fate of <code>/v3</code> and <code>/v5</code></td><td>Owner</td><td>5 min</td><td><span class="tag p1">P1</span></td></tr>
+  <tr><td>M13</td><td>Analytics: note the GA4 de-duplication date</td><td>Marketing</td><td>Trivial</td><td><span class="tag p2">P2</span></td></tr>
+</table>
+
+<h2>P0 — this week</h2>
+
+<div class="item">
+<h3>M1 · Connect Google Search Console <span class="tag p0">P0</span></h3>
+<div class="ev">Still not connected — the OAuth token was never minted, so there is no impression, click, position or indexation data available to work from. This is the single biggest blocker on the analysis side and it takes five minutes.</div>
+<div class="row"><span class="lbl">Do this</span> Run <code>python3 research/gsc_connect.py</code> and authorise as bivek@genflowsagency.com. If the script lists zero properties, first verify <code>genflows.com</code> in Search Console and grant that Google account at least Full User access.</div>
+<div class="row"><span class="lbl">Unlocks</span> Striking-distance queries (positions 5–20 — the fastest wins available), CTR gaps, query-to-page mapping, real indexation status, and the Links report that finally quantifies our backlink position instead of inferring it.</div>
+</div>
+
+<div class="item">
+<h3>M2 · Resubmit the sitemap and request indexing <span class="tag p0">P0</span></h3>
+<div class="ev">As of 27 July the live sitemap lists 62 of 71 published posts. Nine posts from 22–24 July are missing. The cause is on the website side and is specified as <strong>D3</strong> in the technical document — <em>do this step only after the developer confirms the sitemap has rebuilt.</em></div>
+<div class="row"><span class="lbl">Do this</span> In Search Console: resubmit <code>https://www.genflows.com/sitemap.xml</code>, then use URL Inspection → Request Indexing on each of these nine:</div>
+<pre>/blog/linkedin-outreach-limits-account-safety-2026
+/blog/smartlead-vs-instantly-2026
+/blog/revenue-attribution-models-b2b-2026
+/blog/google-workspace-vs-microsoft-365-cold-email-2026
+/blog/clay-hubspot-integration-sync-crm-2026
+/blog/sales-forecasting-methods-b2b-2026
+/blog/how-many-domains-mailboxes-cold-email-2026
+/blog/mql-vs-sql-lead-lifecycle-stages-2026
+/blog/generative-engine-optimization-b2b-ai-search-2026</pre>
+<div class="row"><span class="lbl">Then</span> Make this a standing step after every publishing batch until D3's root cause is fixed: check the sitemap contains the new slugs, then request indexing for them.</div>
+</div>
+
+<h2>P1 — next two to four weeks</h2>
+
+<div class="item">
+<h3>M3 · Grant the HubSpot private-app token the <code>files</code> scope <span class="tag p1">P1</span></h3>
+<div class="ev">The token can edit posts but cannot manage files, so featured images cannot be uploaded or attached programmatically.</div>
+<div class="row"><span class="lbl">Do this</span> HubSpot → Settings → Integrations → Private Apps → the SEO automation app → Scopes → add <code>files</code> and <code>files.ui_hidden.read</code>. The token string does not change, so nothing needs re-configuring afterwards.</div>
+<div class="row"><span class="lbl">Unblocks</span> M4.</div>
+</div>
+
+<div class="item">
+<h3>M4 · Featured images for 67 posts <span class="tag p1">P1</span></h3>
+<div class="ev">Confirmed via the API: 67 of 71 posts have no featured image, which is why <code>og:image</code> is empty and every share renders blank. The developer is adding a branded fallback (technical item D5) so no share is ever blank again — but a fallback is a safety net, not a substitute for real per-post creative.</div>
+<div class="row"><span class="lbl">Do this</span> Decide the creative approach, then the automation can bulk-attach once M3 is done:
+<ol style="margin-top:3px;">
+  <li><strong>Templated (recommended to start):</strong> one 1200×630 template — post title on the ink background with the flame accent and logo — generated per post. Cheap, consistent, instantly covers all 67.</li>
+  <li><strong>Bespoke</strong> for the ~10 highest-intent commercial posts (software comparisons, pricing posts), templated for the rest.</li>
+</ol></div>
+<div class="row"><span class="lbl">Also supply</span> One branded default 1200×630 PNG for the developer's fallback (D5), and alt text conventions for the generated images.</div>
+</div>
+
+<div class="item">
+<h3>M5 · Backlink / digital-PR programme <span class="tag p1">P1</span> — the real lever</h3>
+<div class="ev">We are targeting commercial head terms ("best cold email software", "clay pricing", "best AI SDR tools") where incumbents have years of domain age and hundreds of referring domains. On-page quality does not beat that; links do. Everything in the technical document makes the site correct and fast — none of it substitutes for authority.</div>
+<div class="row"><span class="lbl">Do this</span>
+<ul style="margin-top:3px;">
+  <li><strong>Partner links first — the cheapest wins we have.</strong> We already display Clay Artisan Solutions Partner, Smartlead Certified Partner and First 100 Partner badges. Ask each for a directory listing or partner-page link, and for a co-written case study.</li>
+  <li><strong>Client case studies</strong> with the logos already on the homepage (UDS, Emergent3, Symbus, Tweezr, Flizz) — ask each for a link from their site or a joint post.</li>
+  <li><strong>Guest posts and expert quotes</strong> in GTM/RevOps publications and newsletters; the 71-post library is the credibility proof.</li>
+  <li><strong>Directory listings:</strong> Clutch, G2 (agency category), relevant HubSpot/Clay/Smartlead solution directories.</li>
+</ul></div>
+<div class="row"><span class="lbl">Measure</span> Referring-domain count monthly, from the GSC Links report once M1 is done.</div>
+</div>
+
+<div class="item">
+<h3>M6 · Off-site AEO presence <span class="tag p1">P1</span></h3>
+<div class="ev">AI answer engines weight what other sites say about us. Our on-site AEO is now strong — answer-first TL;DRs, comparison tables, FAQ schema live on 54 posts — but with zero third-party mentions, there is little for a model to cite us <em>from</em>.</div>
+<div class="row"><span class="lbl">Do this</span> Build genuine presence where these engines read: relevant subreddits (r/sales, r/SaaS, r/RevOps) answering real questions without link-dropping; G2/Clutch reviews and an agency profile; consistent LinkedIn posting from the founder account tied to blog topics; getting listed in third-party "best cold email agency" and "Clay experts" roundups.</div>
+<div class="row"><span class="lbl">Measure</span> Query ChatGPT, Perplexity, Claude and Google AI Overviews monthly for our target questions and log whether GenFlows is cited. That log is the AEO scoreboard.</div>
+</div>
+
+<div class="item">
+<h3>M7 · Striking-distance optimisation <span class="tag p1">P1</span> — needs M1</h3>
+<div class="row"><span class="lbl">What</span> Pull every query where we rank 5–20, group by landing page, and edit the page to match the intent that is already earning impressions. This is the highest-ROI recurring SEO work that exists, and it is impossible without Search Console.</div>
+<div class="row"><span class="lbl">Do this</span> Once M1 is live, run the pull with <code>research/gsc_actions.py</code>, then work the list weekly: strongest impressions with worst CTR first.</div>
+</div>
+
+<div class="item">
+<h3>M8 · Author identity <span class="tag p1">P1</span></h3>
+<div class="ev">Every post is attributed to "GenFlows Team" and links to <code>/blog/author/genflows-team</code>, while a real author page exists at <code>/consultancy/wouter</code>. Search engines and AI engines both reward content attributed to an identifiable, credentialled human.</div>
+<div class="row"><span class="lbl">Do this — content side</span> Supply the author bio (2–3 sentences, credentials, years in GTM), a headshot, and the personal LinkedIn URL. Then create the HubSpot blog author record and set it as the author on the posts. The developer wires it into schema and the byline (technical item D8).</div>
+</div>
+
+<div class="item">
+<h3>M12 · Decide what <code>/v3</code> and <code>/v5</code> are for <span class="tag p1">P1</span></h3>
+<div class="ev">Both are live, indexable and in the sitemap. <code>/v3</code> is an alternate homepage ("Cold email works. We make it work for you.") competing with <code>/</code> for the same terms. <code>/v5</code> is an MCA/SBA/commercial-finance variant. The developer is noindexing both as the safe default (technical item D6) — but the decision is yours.</div>
+<div class="row"><span class="lbl">Answer one question</span> Is either page meant to earn organic traffic? If yes it needs its own keyword target and its own copy, not homepage messaging. If it is a paid-traffic landing page, noindex is correct and permanent. If it is a retired experiment, say so and it gets unpublished with a redirect to <code>/</code>.</div>
+</div>
+
+<h2>P2 — the compounding work</h2>
+
+<div class="item">
+<h3>M9 · Copy for the five cluster landing pages <span class="tag p2">P2</span></h3>
+<div class="row">Blog CTAs currently point at the homepage, so all the topical authority the library is building lands on a generic page. The developer is building the templates (technical item D15); marketing supplies the offer, proof and copy for each of the five clusters: Cold Email, Clay / GTM Engineering, LinkedIn Outreach, RevOps, Outbound Systems. One target keyword per page, no overlap with an existing blog post's target.</div>
+</div>
+
+<div class="item">
+<h3>M10 · The 17 posts with no FAQ section <span class="tag p2">P2</span></h3>
+<div class="ev">FAQ schema is live on 54 of 71 posts. The 17 without it are the older June batches, which were written before the house format included an FAQ block — there is nothing to mark up, so this is a content gap rather than a markup gap.</div>
+<div class="row"><span class="lbl">Do this</span> Add a six-question FAQ section to each in the house format, then re-run the schema injection so all 71 posts carry <code>FAQPage</code>. Prioritise the commercial ones (<code>gtm-engineering-tools</code>, <code>clay-workflow-automation</code>, <code>cold-email-infrastructure-deliverability</code>, <code>gtm-engineering-agency-how-to-choose</code>).</div>
+</div>
+
+<div class="item">
+<h3>M11 · Cannibalisation review <span class="tag p2">P2</span> — needs M1</h3>
+<div class="row">We have four deliverability posts and five LinkedIn posts. They are cross-linked to disambiguate, but only query data proves whether two of them are competing for the same term. Once GSC is connected, check for pages swapping positions on one query and either consolidate or re-angle the weaker one.</div>
+</div>
+
+<div class="item">
+<h3>M13 · Note the analytics correction date <span class="tag p2">P2</span></h3>
+<div class="ev">The site currently loads the GA4 tag twice, so every page view has been counted twice — sessions are inflated and bounce/conversion rates understated. The developer is removing the duplicate (technical item D9).</div>
+<div class="row"><span class="lbl">Do this</span> Record the fix date as an annotation in GA4 and in any reporting. Traffic will appear to halve on that date; that is the measurement being corrected, not a real decline. Do not compare pre- and post-fix periods without noting it.</div>
+</div>
+
+<h2>What to realistically expect</h2>
+<ul>
+  <li><strong>Weeks 1–4:</strong> the nine missing posts get indexed; FAQ rich results and first AI citations become possible; social and AI cards stop rendering blank once images land.</li>
+  <li><strong>Months 2–3:</strong> long-tail and low-competition queries start ranking. Striking-distance edits from GSC produce the first page-1 wins. Median post age is still under three months, so this is the normal curve, not underperformance.</li>
+  <li><strong>Months 3–6+:</strong> head terms move <em>only if</em> M5 and M6 are genuinely underway. Without authority, on-page work caps out — that ceiling is the honest constraint on the whole programme.</li>
+</ul>
+
+<div class="foot">Prepared 27 July 2026 from live HubSpot CMS API and genflows.com data. Post counts, image counts and FAQ-schema counts were measured on that date. Website/technical changes are specified separately in GenFlows_Website_Tech_Spec_2026-07-27. Supersedes Part 2 of GenFlows_Website_Dev_Actions_2026-07-22.</div>
+
+</body>
+</html>

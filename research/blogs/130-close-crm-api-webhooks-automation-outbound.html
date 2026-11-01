@@ -1,0 +1,125 @@
+<!-- TITLE TAG: Close CRM API & Webhooks for Outbound Automation (2026) -->
+<!-- META: Close CRM API, webhooks and Zapier for outbound teams: auth, rate limits, event types, signature checks and four automations that handle replies and meetings. -->
+<!-- SLUG: blog/close-crm-api-webhooks-automation-outbound-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+<p style="margin:0 0 10px;color:#e8732b;font-weight:700;text-transform:uppercase;letter-spacing:.04em;font-size:13px;">TL;DR</p>
+<ul style="margin:0;padding-left:20px;">
+<li><strong>Close has a full REST API and webhooks.</strong> Auth is an API key sent as the Basic-auth username with a blank password, or OAuth 2 for apps other organizations will use.</li>
+<li><strong>There is no &ldquo;reply received&rdquo; event.</strong> Subscribe to <code>activity.email.created</code> and filter for incoming direction <em>(directional on the exact payload field)</em>.</li>
+<li><strong>Verify every webhook.</strong> Close signs payloads with HMAC-SHA256 in the <code>close-sig-hash</code> header.</li>
+<li><strong>Retries last up to 72 hours</strong>, and a subscription is paused after 3 days of failed deliveries, so queue payloads and process them asynchronously.</li>
+<li><strong>No code?</strong> Zapier lists 25 triggers and 45 actions for Close, including find-or-create actions that avoid duplicate leads.</li>
+</ul>
+</div>
+
+<p>Most outbound stacks end in the same place: replies and meetings land in the CRM, and someone has to move the lead to the right status. In Close you can do that without a person touching it, using the API, webhooks or Zapier. This guide covers what Close actually exposes, the limits that bite, and four automations we set up for cold email and LinkedIn outbound teams.</p>
+
+<p>If you only need built-in automation, start with <a href="/blog/close-crm-workflows-sequences-outbound-2026">Close workflows and sequences</a>. This post is for what workflows cannot do: reacting to events from other tools and pushing data in and out.</p>
+
+<p><em>Sourcing note: details come from Close's developer documentation, pricing page and Zapier's Close listing, read in October 2026. Where a page did not state something (webhook create-body fields, OAuth scopes, duplicate handling on lead create, Make and n8n native modules, plan gating of webhooks) we say so or mark it (directional). Test in a sandbox before relying on it.</em></p>
+
+<h2>The Short Answer</h2>
+
+<p>Use <strong>Zapier</strong> (or another no-code tool) if your automation is one trigger to one action, such as a new meeting creating an opportunity. Use <strong>webhooks plus a small script or n8n/Make HTTP module</strong> when you need filtering, signature checks or to fan one Close event out to several tools. Use the <strong>REST API</strong> to push leads in from Clay, HeyReach or Smartlead, and always search before you create so you do not duplicate leads.</p>
+
+<h2>Authentication: API Keys vs OAuth</h2>
+
+<p>Create an API key under Settings, Developer, API Keys. You send it as the HTTP Basic-auth username with an empty password against <code>https://api.close.com/api/v1</code>. Each key belongs to one user in one organization and inherits that user's permissions; the docs do not describe separate key scopes. Close positions keys for scripts and internal integrations. For a product used by other Close customers, use OAuth 2.</p>
+
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:14px 18px;margin:18px 0;border-radius:6px;"><p style="margin:0;"><strong>Practical tip:</strong> create a dedicated integration user and key rather than using a rep's key. Activity created through the API is then attributed to that user, and nothing breaks when a rep leaves.</p></div>
+
+<h2>Rate Limits</h2>
+
+<p>Close limits requests per endpoint group (a URL path plus HTTP method), per API key and per organization, and the organization limit is currently three times the key limit. Every response carries a <code>RateLimit</code> header with limit, remaining and reset values. A 429 includes <code>retry-after</code> and <code>rate_reset</code>; Close recommends using <code>rate_reset</code>. Some endpoints have stricter limits. Close does not publish fixed per-endpoint numbers, so build your push jobs to read the header and back off rather than hard-coding a rate.</p>
+
+<h2>The Close Data Model for Outbound</h2>
+
+<p>A <strong>Lead</strong> is the company or account. Contacts, opportunities, tasks and activities (emails, calls, notes, meetings, status changes) hang off a Lead. That matters for outbound: a prospect from Clay becomes a Lead with one or more Contacts, not a standalone person. Custom fields are returned as <code>custom.FIELD_ID</code>, and the older <code>custom</code> dictionary is deprecated. Every plan lists 250 custom fields. Good fields to create for outbound include source campaign, sequencer, LinkedIn URL and reply category. See <a href="/blog/clay-close-crm-integration-push-leads-2026">pushing leads from Clay into Close</a> for the field mapping.</p>
+
+<h3>Avoiding duplicate leads</h3>
+<p>We could not confirm from the docs whether creating a lead rejects or merges a duplicate <em>(directional)</em>. Assume it does not. Search for an existing lead by email domain or URL first, then update or create. Zapier's find-or-create actions give you that pattern without code, and Close has a merge-leads endpoint for cleaning up. See <a href="/blog/crm-data-hygiene-outbound-teams-2026">CRM data hygiene for outbound teams</a>.</p>
+
+<h2>Webhooks: What You Can Subscribe To</h2>
+
+<p>A webhook subscription is a URL plus the object types and actions you care about. Close POSTs JSON with a <code>subscription_id</code> and an <code>event</code> object containing the action, object type and ID, the new <code>data</code>, <code>previous_data</code>, <code>changed_fields</code>, <code>lead_id</code> and <code>user_id</code>. The events that matter for outbound:</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;"><th style="padding:10px 12px;">Event</th><th style="padding:10px 12px;">Use it for</th></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><code>lead.created</code> / <code>lead.updated</code></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Syncing new or changed leads to other tools; status changes also fire <code>lead.updated</code></td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><code>activity.email.created</code></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Catching replies (filter for incoming direction)</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><code>activity.email.sent</code></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Logging outbound touches from synced mailboxes</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><code>activity.meeting.scheduled</code> / <code>.completed</code> / <code>.canceled</code></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Creating opportunities, prep tasks and no-show follow-up</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><code>activity.lead_status_change.created</code></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Reacting when a lead moves to Interested or Not Interested</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><code>activity.opportunity_status_change.created</code></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Won/lost handoffs, Slack alerts, onboarding</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><code>unsubscribed_email.created</code></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Pushing suppressions to your sequencer</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><code>task.completed</code></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Closing the loop on follow-up tasks</td></tr>
+</table>
+
+<p>The docs list events for leads, contacts, opportunities, calls, SMS, notes, form submissions, custom activities and tasks as well. Note that <code>opportunity.status_change</code> is not a valid event name; use <code>activity.opportunity_status_change.created</code> or <code>opportunity.updated</code>.</p>
+
+<h3>Security and delivery rules</h3>
+<ul>
+<li><strong>Verify signatures.</strong> Compute HMAC-SHA256 over the <code>close-sig-timestamp</code> value concatenated with the raw request body, keyed with the <code>signature_key</code> returned when you create the subscription, and compare it to <code>close-sig-hash</code>.</li>
+<li><strong>Expect retries and disorder.</strong> Failed deliveries retry with exponential backoff (up to every 20 minutes) for up to 72 hours, and ordering is not guaranteed. Make handlers idempotent using the event <code>id</code>.</li>
+<li><strong>Do not block.</strong> Close recommends queueing payloads and processing them asynchronously.</li>
+<li><strong>A subscription can be paused.</strong> That happens if the backlog reaches 100,000 events or every delivery fails for 3 days. Reactivate it through the API.</li>
+<li><strong>Limits.</strong> 40 subscriptions per organization. The event log API keeps 30 days of history, which you can use to backfill missed events.</li>
+</ul>
+
+<h2>Zapier, Make and n8n</h2>
+
+<p>Zapier's Close listing shows 25 triggers, 45 actions, 14 searches and 8 find-or-create actions. Triggers include New Lead, New Lead in Status, New Lead in Smart View, New Opportunity in Status, New Email, New Meeting and New Form Submission. Actions include create, update and merge lead, create contact, opportunity, note and task, send email or SMS, and subscribe contacts to a workflow. Zapier is listed on every Close plan.</p>
+
+<p>We did not verify native Make or n8n modules for Close. Any tool with an HTTP request module and a webhook trigger can still call the REST API and receive Close webhooks <em>(directional)</em>. For how the three tools compare, see <a href="/blog/n8n-vs-make-vs-zapier-gtm-automation-2026">n8n vs Make vs Zapier for GTM</a>.</p>
+
+<h2>Four Outbound Automations Worth Building</h2>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;"><th style="padding:10px 12px;">Automation</th><th style="padding:10px 12px;">Trigger</th><th style="padding:10px 12px;">What it does</th></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Reply to status</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><code>activity.email.created</code> (incoming)</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Looks up the lead, sets status to Replied, writes the reply category to a custom field, creates a follow-up task</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Meeting to opportunity</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><code>activity.meeting.scheduled</code></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Finds or creates an opportunity at Meeting Booked and creates a prep task</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Won/lost handoff</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><code>activity.opportunity_status_change.created</code></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Posts to Slack, kicks off onboarding or writes the outcome back to Clay</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Suppression sync</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><code>unsubscribed_email.created</code></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Adds the address to the suppression list in Smartlead, Instantly or HeyReach</td></tr>
+</table>
+
+<p>These are our patterns built from the documented events, not Close-published recipes, so confirm payload fields in a test account first. Pair the reply automation with a clear reply taxonomy; our guide to <a href="/blog/how-to-handle-cold-email-replies-objection-handling-2026">handling cold email replies</a> covers the categories. For the LinkedIn side, see <a href="/blog/heyreach-close-crm-integration-2026">HeyReach and Close</a>, and for sender tools see <a href="/blog/close-crm-cold-email-integration-2026">Close CRM cold email integration</a>.</p>
+
+<h2>Which Plan Do You Need?</h2>
+
+<p>Close's pricing page lists the API and event log, Zapier and 250 custom fields on every plan. Automated workflows, custom activities and bulk email start at Growth, and custom objects and customizable roles are on Scale. The pricing page does not say whether webhooks are gated, so check with Close if they matter to your plan choice. Full prices are in our <a href="/blog/close-crm-pricing-2026">Close CRM pricing guide</a>.</p>
+
+<h2>Common Pitfalls</h2>
+<ul>
+<li><strong>Hard-coded rate limits.</strong> Read the header and honor <code>rate_reset</code>.</li>
+<li><strong>Treating a rep's key as infrastructure.</strong> Use an integration user.</li>
+<li><strong>Processing in the request.</strong> Acknowledge fast, process from a queue.</li>
+<li><strong>Skipping signature checks.</strong> Anyone who finds the URL can post fake events.</li>
+<li><strong>Replying loops.</strong> Status changes you make through the API fire events too; filter on user ID so your own updates do not retrigger the automation.</li>
+</ul>
+
+<h2>Frequently Asked Questions</h2>
+
+<h3>How do I authenticate with the Close API?</h3>
+<p>Use an API key as the HTTP Basic-auth username with a blank password, or OAuth 2 if you are building an integration for other organizations. Keys are created under Settings, Developer, API Keys.</p>
+
+<h3>What is the Close API rate limit?</h3>
+<p>Limits apply per endpoint group, per key and per organization, with the organization limit currently three times the key limit. Close does not publish fixed numbers. Read the <code>RateLimit</code> header and wait for <code>rate_reset</code> after a 429.</p>
+
+<h3>Is there a webhook for a cold email reply?</h3>
+<p>Not a dedicated one. Subscribe to <code>activity.email.created</code> and filter for incoming emails by checking the direction in the payload <em>(confirm the exact field in a test)</em>.</p>
+
+<h3>How do I verify a Close webhook?</h3>
+<p>Compute an HMAC-SHA256 of the <code>close-sig-timestamp</code> value plus the raw body using your subscription's <code>signature_key</code> and compare it with the <code>close-sig-hash</code> header.</p>
+
+<h3>What happens if my webhook endpoint is down?</h3>
+<p>Close retries with exponential backoff for up to 72 hours. If every delivery fails for 3 days, or the backlog hits 100,000 events, the subscription is paused and must be reactivated through the API. You can backfill from the 30-day event log.</p>
+
+<h3>Do I need a paid plan to use Zapier with Close?</h3>
+<p>Zapier is listed on every Close plan, including the entry plan. Zapier itself has its own pricing. Automated workflows inside Close need Growth or above.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+
+<p><strong>Want your outbound events wired into Close without the engineering?</strong> See our <a href="/blog/close-crm-vs-hubspot-outbound-sales-teams-2026">Close vs HubSpot comparison</a> to confirm Close is the right CRM, then <a href="/">talk to our team</a>.</p>
+
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. Close documentation and pricing checked October 2026. Last updated October 2026.</em></p>

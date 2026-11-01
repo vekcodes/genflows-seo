@@ -1,0 +1,462 @@
+<!-- TITLE TAG: HubSpot CRM Migration: What Survives the Import (2026) -->
+<!-- META: Migrating a CRM into HubSpot in 2026: verified import limits, which activity history survives, why deal stage history cannot be backfilled, and what it costs. -->
+<!-- SLUG: blog/hubspot-crm-migration-checklist-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+<p style="margin:0 0 10px;color:#e8732b;font-weight:700;letter-spacing:.04em;font-size:13px;">TL;DR</p>
+<ul style="margin:0;padding-left:20px;">
+<li><strong>HubSpot imports records. It does not import history.</strong> Contacts, companies, deals, calls, emails, meetings, notes and tasks all have supported import paths. The <em>derived reporting layer</em> &mdash; time in stage, date entered stage, create dates on some objects &mdash; does not come with them.</li>
+<li><strong>The single most expensive field in your whole migration is optional.</strong> HubSpot documents Activity date as recommended, not required &mdash; and if you leave it out, activity dates are "automatically set to the date and time the activities were created." Two years of call and email history collapses onto go-live day.</li>
+<li><strong>Deal stage timestamps are read-only and derived from stage movement inside HubSpot.</strong> Import a deal that is already Closed Won and its only stage-history entry is the import itself. Time-in-stage and sales-velocity reporting starts at go-live, not at your first deal.</li>
+<li><strong>A multi-file import is capped at two files and two objects.</strong> "Select the two desired objects," says the UI. So a five-object migration is a planned <em>sequence</em> of imports joined on Record ID &mdash; not one upload.</li>
+<li><strong>Emails, meetings, notes and tasks are create-only.</strong> They "cannot be updated through imports." Get the timestamp or the association wrong and your only fix is delete-and-reimport.</li>
+<li><strong>Good news on the bill:</strong> the import tool sets contacts as <strong>non-marketing by default</strong>, and a multi-file import always does. Migrating 80,000 contacts does not automatically move you up a marketing-contact tier.</li>
+<li><strong>HubSpot's native Salesforce integration is not a migration tool.</strong> HubSpot's own documentation: "Records won't automatically sync after installing and setting up the Salesforce integration."</li>
+<li><strong>The onboarding fee is mandatory, and it is not migration.</strong> $1,500 on Sales Hub Professional, $3,500 on Enterprise, described as "required" in HubSpot's own product catalogue. It buys onboarding &mdash; HubSpot sells no productised CRM-data migration service at all.</li>
+<li><strong>Custom objects are Enterprise-only.</strong> If your old CRM leaned on them, that is a re-architecture decision during scoping, not a field-mapping problem on migration weekend.</li>
+</ul>
+</div>
+
+<p>Almost every CRM migration guide describes the same project: export a CSV, map your fields, click import, done. That project is real, and it is the easy fifth of the work. It is not where migrations go wrong.</p>
+
+<p>Migrations go wrong two weeks after go-live, when someone opens a pipeline report and every deal in the business appears to have been created on the same Tuesday. Nothing was lost, exactly &mdash; the records are there, the notes are there. What is missing is the <em>time dimension</em>: when things happened, in what order, how long they sat. HubSpot builds that layer by watching records move, which is precisely why an import cannot hand it over. This post is the migration written backwards from that failure: what transfers, what structurally cannot, and which decisions are one-way doors.</p>
+
+<p><em>Sourcing note: every limit, quoted sentence and property behaviour below was read on HubSpot's own knowledge base or developer documentation in September 2026, and quoted verbatim where it matters. Where HubSpot's own pages are inconsistent or silent, we say so explicitly rather than picking the tidier answer. Cost figures and project durations are marked (directional) in-text. Re-confirm limits against your own portal before you plan around them.</em></p>
+
+<h2>The Short Answer</h2>
+
+<p>Three mechanisms exist, and they solve different problems:</p>
+
+<ul>
+<li><strong>The import wizard</strong> is the right default for almost everyone: 512MB files, 1,048,576 rows per file and 10,000,000 rows per day on a paid seat. Its real constraint is not volume but that a multi-file import handles only two objects at a time.</li>
+<li><strong>The CRM imports API</strong> is for scale and repeatability &mdash; same per-file limits, but 80,000,000 rows a day. Use it when the migration should be a script you can rehearse against a sandbox rather than clicks somebody has to remember.</li>
+<li><strong>Data Hub data sync</strong> (formerly Operations Hub) can act like a migration but isn't one. Its initial pass does move existing records &mdash; "All existing records in both apps are passed through the sync engine" &mdash; then it keeps running, checking every five minutes, forever. Choosing it is a decision to operate two systems.</li>
+</ul>
+
+<p>And one that is <em>not</em> a mechanism despite being sold as one: the native Salesforce integration. HubSpot is plain about it &mdash; "Records won't automatically sync after installing and setting up the Salesforce integration. You can import your Salesforce records into HubSpot, or allow them to sync gradually based on automatic sync triggers." It is a sync layer for running both platforms in parallel. If you are leaving Salesforce, you are still doing an import.</p>
+
+<h2>What Actually Moves, and What Doesn't</h2>
+
+<p>Take this into your planning meeting. The middle column is what people assume; the right column is what bites.</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;">
+<th style="padding:10px 12px;">Data layer</th><th style="padding:10px 12px;">Transfers?</th><th style="padding:10px 12px;">What you need to know</th>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Contact, company, deal, ticket records</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes &mdash; create and update</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">The straightforward part. Required fields: Email for contacts; Name <em>or</em> domain for companies; Deal name, Pipeline and Deal stage for deals.</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Custom objects and properties</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes &mdash; create and update</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Build the schema first. Importing into a property that does not exist yet means a second pass.</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Calls</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes &mdash; create and update</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Call notes is the required property. Calls are the one activity type you can go back and fix, which makes them the safest to migrate first.</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Emails, meetings, notes, tasks</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Create only</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">They "cannot be updated through imports" &mdash; on any import path. One shot per record. Delete-and-reimport is the only correction.</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Activity timestamps</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes &mdash; but opt-in</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Activity date is "recommended," not required. Omit the column and every activity is dated at import time. See below &mdash; this is the trap.</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Activity ownership ("who logged this")</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Activity "Created by user ID" &mdash; "This value is set automatically by HubSpot." Your migrated history is attributed to the importing user.</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Deal stage history / time in stage</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Read-only properties, derived from movement through a pipeline <em>inside HubSpot</em>. No documented way to set them.</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Last Modified Date, Last Activity Date</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Set automatically by HubSpot and not editable or importable. Deal Last Modified Date reflects "any property on a deal was updated, regardless of the source" &mdash; so your import itself sets it.</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Create Date</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Unclear &mdash; test it</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">HubSpot's own pages are inconsistent. See the section below; do not plan reporting around an assumption here.</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Attachments and call recordings</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Indirectly</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">The activity property holds "the IDs of the files attached to the activity" &mdash; file IDs, not URLs. The files must already exist in HubSpot, so uploading them is a prior step (directional: inferred from the property definition, not stated as a migration rule).</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Email opt-out status</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes &mdash; separate import type</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">A dedicated opt-out import, not a column on your contact file. Do it as its own step.</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Per-type subscription preferences</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Not via import</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">HubSpot documents managing subscription types on the record, in bulk from the index page, or by workflow &mdash; import is referenced only for opt-out lists.</td>
+</tr>
+</table>
+
+<h2>The Activity Date Trap</h2>
+
+<p>If you read one section, read this one: it is the most common defect and the most permanent.</p>
+
+<p>HubSpot's documentation says "while not required, it's recommended to include Activity date when importing new activities." That word "recommended" is doing enormous work. Activity date is what HubSpot defines as "the date and time the activity occurred" &mdash; the property that places an activity on the timeline. Omit it and the documented behaviour is that "the Activity date values are automatically set to the date and time the activities were created": the moment your import ran.</p>
+
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:16px 20px;margin:20px 0;border-radius:6px;">
+<p style="margin:0;"><strong>Why this is not recoverable.</strong> Emails, meetings, notes and tasks "cannot be updated through imports." So if you import 40,000 notes without an Activity date column, you cannot go back and add the dates &mdash; you have to identify all 40,000 wrongly-dated activities, delete them, and import again. On a live portal that people are already working in, that is a materially harder job than the original import.</p>
+</div>
+
+<p>Two consequences. Activities are the part to rehearse in a sandbox rather than do confidently on the first pass. And calls are the exception worth exploiting: they support create <em>and</em> update, so a call import you get wrong is fixable &mdash; migrate them early while you are still learning your data, and save notes and emails for when the mapping is proven.</p>
+
+<p>On the API the same idea is an explicit required field rather than a footnote: a note requires <code>hs_timestamp</code>, which HubSpot describes as marking "the note's time of creation" and determining "where the note sits on the record timeline." One more argument for the API path on a history-heavy migration &mdash; there, the thing you must not forget is not optional.</p>
+
+<h3>Required properties, by activity type</h3>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;">
+<th style="padding:10px 12px;">Activity</th><th style="padding:10px 12px;">Required</th><th style="padding:10px 12px;">Also bring</th>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Call</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Call notes</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Activity date, direction, duration, outcome</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Email</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Email body, Email direction</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Activity date, subject</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Meeting</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Meeting description, start time, end time</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Activity date, outcome</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Note</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Note body</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Activity date</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Task</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Task title, Due date</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Activity date, status, type</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Line item</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Name, Quantity, Price</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Must be associated with a deal &mdash; Record ID or Deal name</td>
+</tr>
+</table>
+
+<h2>The Reporting Layer You Cannot Import</h2>
+
+<p>This is the part no amount of careful field mapping solves, and the reason a migration is a reporting project rather than a data project.</p>
+
+<p>HubSpot's stage calculated properties &mdash; "Date entered [stage]", "Date exited [stage]", "Latest time in [stage]", "Cumulative time in [stage]", "Date entered current stage", "Time in current stage" &mdash; are the foundation of every pipeline, velocity and conversion report you will build. One HubSpot sentence settles the question: "These are read-only HubSpot default properties that automatically update based on record movement through a pipeline." Read-only, and derived from <em>movement through a pipeline</em>. There is no column to map and no field to write.</p>
+
+<p>The same page carries a sentence that is easy to misread in your own favour: "The values for the properties will be populated retroactively based on existing data." That retroactive population runs against HubSpot's own property history, not your legacy CRM &mdash; it does not mean HubSpot reconstructs the history of a system it has never seen. To be precise about what is documented: HubSpot nowhere states, in so many words, that historical stage timestamps cannot be backfilled. It states that they are read-only and derived. The consequence follows from the mechanism, and the mechanism is unambiguous.</p>
+
+<div style="background:#f4f7fb;border-left:4px solid #1f3a5f;padding:16px 20px;margin:20px 0;border-radius:6px;">
+<p style="margin:0;"><strong>What this looks like on go-live day.</strong> You import a deal that closed eleven months ago, already at Closed Won. HubSpot writes one stage value, now. That deal's only stage-history entry is the import timestamp. It has no date entered Discovery, no date entered Proposal, and no time in any stage but its last. Multiply by your whole deal table and your average-sales-cycle report reads as roughly zero days, forever, for every deal that predates the migration. <em>(Directional: this is the reasoned consequence of the documented mechanism, not a quoted HubSpot statement.)</em></p>
+</div>
+
+<p>Note too that these properties are gated to Professional and Enterprise across HubSpot's hubs. On Starter you do not get the reporting layer at all, which changes what is even worth migrating.</p>
+
+<h3>The three things to do about it instead</h3>
+
+<p><strong>1. Migrate stage history into custom properties.</strong> If your source CRM exports "date entered proposal" per deal, create matching custom date properties &mdash; <code>legacy_date_entered_proposal</code> and so on &mdash; and import into those. Native velocity reports will not read them; a custom report will, and the data lives in HubSpot rather than in a decommissioned tool. Do it before you cancel the old contract.</p>
+
+<p><strong>2. Draw a bright line in your reporting.</strong> Decide explicitly that native pipeline-velocity reporting measures post-migration deals only, tell leadership that date before they find it themselves, and keep pre-migration history as a separate, clearly-labelled custom report. The failure mode is not missing data &mdash; it is a blended report quietly averaging real cycle times with zeros.</p>
+
+<p><strong>3. Keep the source system readable for a quarter.</strong> Readable, not writable. A month of the old CRM's cheapest tier is the best insurance in the project, because the questions you cannot anticipate all arrive in weeks two through six.</p>
+
+<p>For what to build once you are the other side of this, our guides to <a href="/blog/hubspot-deal-stages-outbound-teams-2026">HubSpot deal stages for outbound teams</a> and <a href="/blog/revops-dashboard-metrics-how-to-build-2026">building a RevOps dashboard</a> both assume a clean stage-history layer &mdash; which is exactly why the migration decision above determines what you can report on for the next year.</p>
+
+<h2>Create Date: Two HubSpot Pages, Two Answers</h2>
+
+<p>Every migration asks this, and the honest answer is that HubSpot does not say clearly.</p>
+
+<p>On the default <em>deal</em> properties page, Create date is "set automatically by HubSpot, but can be manually edited." On the default <em>contact</em> properties page it is "the date that the contact was created in your HubSpot account. This is automatically set by HubSpot" &mdash; no editability clause. The company page takes no position either way. So one object's docs say editable, another's say automatic, and none of the three states whether the property accepts a mapped column on import. You will find confident blog posts asserting each answer; we could not find the sentence.</p>
+
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:16px 20px;margin:20px 0;border-radius:6px;">
+<p style="margin:0;"><strong>The only safe move: test it, on your own portal, before you plan around it.</strong> Import ten records with a mapped Create Date into a sandbox or a throwaway pipeline, then look at what the property says. Ten minutes of testing beats a documented answer that does not exist &mdash; and beats discovering the behaviour after 60,000 contacts are in.</p>
+</div>
+
+<p>One genuine backfill path exists for editable properties: HubSpot supports exporting a property's history and re-importing it &mdash; "once you've exported a property's history, use the data to restore past values," then "import the new file into HubSpot." It is capped at 45 revisions for contacts and 20 for companies, deals, tickets and custom objects, and it does not rescue read-only stage-calculated properties. It restores values you once had in HubSpot; it is not an on-ramp for foreign history.</p>
+
+<h2>The Two-Object Ceiling, and Why Import Order Matters</h2>
+
+<p>Most migrations involve at least four objects &mdash; companies, contacts, deals, activities. HubSpot's multi-file import handles two; the UI instruction is "Select the two desired objects," with one object plus one activity type also allowed. That single constraint dictates the shape of the project: not one import but a planned sequence, stitched together by <strong>Record ID</strong>.</p>
+
+<p>Three documented behaviours to internalise first:</p>
+
+<ul>
+<li>"If a row in your file doesn't contain a value for Record ID, a new record will be created." This is how a careless second pass duplicates your entire contact table.</li>
+<li>"Record ID is mapped during your import, it will supersede any other mapped unique identifiers." Record ID wins over email, over domain, over your custom key. Powerful, and unforgiving.</li>
+<li>For same-object associations (contact to contact, company to company), "At least one record in a record pair must already exist in HubSpot" &mdash; and explicitly, "You cannot import to create and associate two new contacts."</li>
+</ul>
+
+<p>Cross-file associations are made on a <strong>common column</strong> present in both files and unique per row in one of them &mdash; your source CRM's own account ID is usually the right choice, and worth importing into a custom property so the mapping survives the project. Where one record associates to several, separate values in the cell with semicolons. Association <em>labels</em> require Professional or Enterprise.</p>
+
+<p>The order that works, and why:</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;">
+<th style="padding:10px 12px;">Pass</th><th style="padding:10px 12px;">What</th><th style="padding:10px 12px;">Why here</th>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>0</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Schema: properties, pipelines, stages, owners, custom objects</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Nothing can land in a property that does not exist. Deals need their Pipeline and Deal stage to exist first.</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>1</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Companies, carrying the source system ID</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">The top of the association tree. Deduped on domain.</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>2</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Contacts + company association (two-file import)</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Companies now exist, so the common column resolves. Export the resulting Record IDs.</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>3</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Deals + their associations</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Needs contacts and companies in place. Bring legacy stage-date custom properties on this pass.</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>4</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Calls (fixable), then notes / emails / meetings / tasks (not)</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Last, with Activity date mapped, against known Record IDs. Rehearse in a sandbox first.</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>5</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Opt-out list, as its own import type</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Separate mechanism from the contact import. Never leave this to the end of a busy week.</td>
+</tr>
+</table>
+
+<p>One note on runway: HubSpot runs a maximum of three simultaneous imports &mdash; "if you start 4 or more simultaneous imports, they will be queued" &mdash; with at most two exceeding 10,000 rows. A weekend migration is serial by design. Plan the hours.</p>
+
+<h2>Dedupe Before You Import, Not After</h2>
+
+<p>Import-time deduplication is <strong>exact match on a single unique identifier</strong>: Email for contacts, Company domain name for companies, Record ID for any object, or a custom property whose values you have made unique. There is no fuzzy matching in the import path.</p>
+
+<p>HubSpot <em>does</em> have fuzzy duplicate detection &mdash; a separate tool that scores likely duplicates daily, matching contacts on First Name, Last Name, Email address, IP country, Phone number, Zip Code and Company Name, and companies on Company Domain Name, Company Name, Country/Region, Phone Number and Industry, with custom rules over up to nine properties on Data Hub. But that is post-import cleanup; it will not stop a messy file from making the mess.</p>
+
+<p>Two controls to use deliberately: the import mode &mdash; "Create and update", "Create new only", "Update existing only" &mdash; and the per-column <strong>"Don't overwrite"</strong> checkbox, which stops an import replacing values that already exist. On any pass after the first, "Update existing only" is what makes a correction safe.</p>
+
+<p>One easily-missed rule: "If you're using a custom unique value property to deduplicate contacts, the Email property will still require unique values." A clever composite key does not exempt you from HubSpot's email uniqueness, so if your source CRM lets two contacts share an address, resolve it in the file rather than the wizard. Our guide to <a href="/blog/crm-data-hygiene-outbound-teams-2026">CRM data hygiene for outbound teams</a> covers the cleanup worth doing first &mdash; a migration is the best chance you will get not to carry six years of duplicates forward.</p>
+
+<h2>Opt-Outs, Compliance and the Bill</h2>
+
+<p><strong>Opt-outs are a separate import type, not a column.</strong> HubSpot's opt-out import takes a CSV with an Email column and sets "the Unsubscribed from all email property of all the contacts" to true, disqualifying those addresses "from receiving any future marketing emails or emails sent through the sequences tool." That covers sequences, not just marketing email &mdash; exactly what an outbound team needs it to cover.</p>
+
+<p>A useful billing nuance rides along: "Contacts added via an opt-out import will not be added to your billable contact total or created as contacts." If the address already exists as a contact it stays one and keeps counting, and HubSpot's documented workaround is to delete those contacts then re-import the addresses as opted-out. For a large suppression list of people you will never market to, that is a real saving, and a migration is the right moment to take it.</p>
+
+<p>Two more compliance details. For legitimate one-to-one outbound, you "can still send a one-to-one email to an existing contact updated through an opt-out import as long as you provide one time legal basis with each one-to-one send." And the "Legal basis for processing contact's data" property carries a consequence worth reading twice: "if this is set to Not applicable, it will exempt the contact from GDPR protections." Set that field intentionally during a migration rather than leaving it to a default &mdash; our <a href="/blog/cold-email-compliance-guide-gdpr-can-spam-2026">cold email compliance guide</a> covers the consent side in depth.</p>
+
+<p><strong>On marketing contacts, the news is good.</strong> Only marketing contacts count toward your contact tier and affect subscription cost, and HubSpot documents the import default clearly: "the import tool sets contacts as non-marketing by default," and "if you're completing a multi-object or multi-file import, the import tool will always set contacts as non-marketing." API and integrations behave the same way. So a large migration does not silently push you up a pricing tier &mdash; the tool defaults to the cheap side and you opt contacts into marketing status afterwards, deliberately. (Forms, by contrast, set contacts as marketing by default.) Still worth setting a maximum marketing contacts limit as a guard before go-live.</p>
+
+<h2>Import Wizard vs API vs Data Sync</h2>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;">
+<th style="padding:10px 12px;"></th><th style="padding:10px 12px;">Import wizard</th><th style="padding:10px 12px;">Imports API</th><th style="padding:10px 12px;">Data Hub data sync</th>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Per file</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">512MB, 1,048,576 rows (paid); 20MB on free tools</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">512MB, 1,048,576 rows</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">n/a &mdash; record-level sync</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Per day</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">10,000,000 rows, 500 imports (paid); 500,000 rows, 50 imports (free)</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">80,000,000 rows</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Continuous; five-minute change checks</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Objects at once</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Two files / two objects max</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Multiple, with association type mapping</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Supported objects per app</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Repeatable</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Manual, clicks</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes &mdash; scriptable, sandbox-testable</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Ongoing by design</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Tier notes</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Association labels need Pro/Enterprise</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Needs the <code>crm.import</code> scope; rate limits are tier-based</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Available on all plans; custom field mappings need Data Hub Starter+</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Use it when</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Most migrations. Under a few hundred thousand records.</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Heavy activity history, or you need a rehearsable script</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">You are keeping both systems, not leaving one</td>
+</tr>
+</table>
+
+<p>On the API path, know the rate limits before you write the script. For a privately-distributed app: 100 requests per 10 seconds and 250,000 per day on Free and Starter; 190 per 10 seconds and 625,000 per day on Professional; 190 and 1,000,000 on Enterprise. An API Limit Increase add-on can be bought up to twice, each adding 250 per app and 1,000,000 per account, and exceeding a limit returns HTTP 429. The burst limit applies per app while the daily limit is shared across every app in the account <em>(directional &mdash; consistent with HubSpot's published per-app vs per-account columns)</em>, which matters when your migration script competes with a production integration. One deal-specific gotcha: "You must use the internal ID of a deal stage or pipeline when creating a deal via the API" &mdash; not the label in the UI, so pull the internal IDs first.</p>
+
+<p>If your outbound tools are the reason you are moving to HubSpot at all, the integration path is a separate design question &mdash; see <a href="/blog/sync-cold-email-linkedin-data-hubspot-2026">syncing cold email and LinkedIn data into HubSpot</a> and <a href="/blog/clay-hubspot-integration-sync-crm-2026">the Clay + HubSpot integration</a>. Do not try to solve both in the same weekend.</p>
+
+<h2>Before You Cancel the Old Contract</h2>
+
+<p>Every migration has one genuinely irreversible step, and it is not an import &mdash; it is the day the source system stops being readable. Almost every "we lost our history" story traces back to an export nobody took, or took in a format nobody checked. Gotchas by source system, from each vendor's own documentation:</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;">
+<th style="padding:10px 12px;">Source</th><th style="padding:10px 12px;">The gotcha nobody plans for</th>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Close CRM</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Your call, email and SMS history <em>is</em> fully exportable &mdash; but "JSON is the only format you can use to export all Activities." Not CSV, which is what your migration tool and your ops person both expect. Also: contacts export from the Leads page, "not from the Contacts page"; Notes, Meetings, Email Messages and SMS Messages need a support request for CSV; download links <strong>expire after 7 days</strong>; and the Event Log API reaches back only 30 days, so audit history older than a month is already gone.</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Pipedrive</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">"Activities, notes and files linked to deals and contacts must be exported separately" &mdash; there is no one-click everything. Worse, exports reflect only what is visible to the exporting user, so a rep-run export silently drops records; use a global admin. Files stored in Google Drive are not included. Exports remain available <strong>28 days</strong>.</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Salesforce</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">The cliff. Standard Field History Tracking retains history for <strong>18&ndash;24 months</strong> and tracks up to 20 fields per object; Salesforce "archives data after 18 months in production." The Field Audit Trail add-on extends that to "until deleted" and 200 fields &mdash; but is <strong>API access only</strong>, with no UI export. Then in Data Loader, plain Export omits archived activity and soft-deleted records: you need <strong>"Export All."</strong></td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Apollo.io</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Better than its reputation. Emails export to CSV from the Emails hub, and per-contact engagement state &mdash; Email sent, Email open, Replied, Email bounced, Last contacted, Stage &mdash; rides along on the contact export. Watch two things: exports consume export credits, and CSV exports do not retain Apollo's sort order, with emails and phone numbers not always included unless enabled in export settings.</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Smartlead</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">The best reply export of any tool here. The inbox CSV carries Sequence Number, Sent Time, Opened Time, Clicked Time, Replied Time and <strong>Reply Message</strong> &mdash; "the content of the reply, if applicable." Actual reply bodies, in a spreadsheet.</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Instantly</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Every event <em>about</em> a reply exports &mdash; sent, opened, clicked, replied, bounced, with timestamps and clicked links &mdash; but "there is no direct way to bulk export all Unibox replies from the interface." Reply text needs API work. And an active subscription is required to reach the dashboard at all, so <strong>export before you cancel</strong>, not after.</td>
+</tr>
+</table>
+
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:16px 20px;margin:20px 0;border-radius:6px;">
+<p style="margin:0;"><strong>The one-line version: take every export while the subscription is still active, keep the raw files, and check the format before you trust them.</strong> Close links die in 7 days, Pipedrive's in 28, and Instantly locks the dashboard when the plan lapses. If your Salesforce org has been running longer than two years without Field Audit Trail, some of the history you are planning to migrate does not exist any more &mdash; find that out now, not in the kickoff call.</p>
+</div>
+
+<h2>What Your HubSpot Tier Can Actually Hold</h2>
+
+<p>One structural limit reshapes more migrations than any other: <strong>custom objects are Enterprise-only.</strong> Marketing, Sales, Service, Content and Revenue Hub Enterprise allow up to 10 custom object definitions, 1,000,000 custom object records and 50 custom object pipelines; Data Hub Enterprise raises that to 20 definitions, 1,500,000 records and 100 pipelines. On Sales Hub Professional you model contacts, companies, deals and tickets &mdash; and nothing else.</p>
+
+<p>If your Salesforce org or Close instance leaned on custom objects, that is a re-architecture decision for scoping, not a mapping problem to discover mid-import. Flatten the custom object into properties on an existing one, or accept the Enterprise price step &mdash; both are fine; being surprised on migration weekend is not.</p>
+
+<p>Other published ceilings worth knowing while you scope: <strong>1,000 custom properties per object</strong>, identical on Starter, Professional and Enterprise; 15 million records per object type included, extendable to 50 million via paid limit increases at $1,100 per month per additional million (Enterprise only); workflows capped at 300 on Professional and 1,000 on Enterprise; active lists at 50 on Starter, 1,200 on Professional, 2,000 on Enterprise.</p>
+
+<h2>Cost and Timeline</h2>
+
+<p>There is exactly one hard, published number in this entire market, and it is HubSpot's own.</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;">
+<th style="padding:10px 12px;">Line item</th><th style="padding:10px 12px;">Published cost</th><th style="padding:10px 12px;">Confidence</th>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>HubSpot Sales Hub Professional onboarding</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">$1,500 one-time, <strong>required</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Verified &mdash; product catalogue and pricing page</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>HubSpot Sales Hub Enterprise onboarding</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">$3,500 one-time, <strong>required</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Verified</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Marketing Hub onboarding, if in scope</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">$3,000 Professional / $7,000 Enterprise</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Verified &mdash; and the reason "$3,500 for Professional" gets misquoted</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Import2 CRM migration</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">$499 up to 50k records · $999 up to 100k · $1,499 up to 200k · $1,999+ above</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Verified on Import2's own pricing page</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>MigrateMyCRM by SyncMatters</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Free under 100 records · $149 under 5k · $349 under 12.5k · $599 under 25k · $1,199 under 100k · $2,499 under 500k · $3,499 to 2M. Guided Migration add-on $875</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Verified on SyncMatters' own pricing page</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Agency / Solutions Partner migration</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Roughly $3,000&ndash;$6,000 for basic onboarding; CRM data migration quoted from about $7,000</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><em>(directional)</em> &mdash; no published rate card exists; see below</td>
+</tr>
+</table>
+
+<p>Three things about that table deserve saying out loud.</p>
+
+<p><strong>The onboarding fee is required, and HubSpot's own pages are inconsistent about it.</strong> The pricing-page footnote and the legal product-and-services catalogue both use the word "required" &mdash; "Onboarding is required for a one-time fee of $1,500" &mdash; while HubSpot's softer services page frames it as "when you purchase onboarding." The legal catalogue is the binding document, so budget it as mandatory at Professional and above. And note what it buys: <em>onboarding</em>, not data migration. HubSpot's published "Migration Services" SKUs are website and CMS replatforming and require Content Hub. <strong>HubSpot does not sell a productised CRM-data migration service at all.</strong></p>
+
+<p><strong>Do not trust marketplace listing prices.</strong> Both Import2 and MigrateMyCRM appear in HubSpot's app marketplace at $99, which matches neither vendor's own pricing page ($499 and $149). Import2's listing even carries the disclaimer that "the pricing here is for display purposes only." Quote the vendor page. Both are HubSpot <em>Certified</em> apps &mdash; a marketplace programme, not HubSpot authorship &mdash; and if you are looking for Trujay, that brand is retired and redirects to SyncMatters.</p>
+
+<p><strong>Agency pricing has no published floor.</strong> HubSpot publishes no partner rate card, and every range in circulation comes from agencies selling the service. The most traceable set we found compiles partners' own published rate cards: roughly $3,000&ndash;$6,000 for basic onboarding, $10,000&ndash;$25,000 for complex multi-hub work, CRM data migration from about $7,000. That is self-published marketing rather than survey data, so treat it as a sighting shot, not a benchmark. Our <a href="/blog/revops-agency-pricing-2026">RevOps agency pricing guide</a> goes deeper on what HubSpot help costs.</p>
+
+<h3>On timeline, and one statistic we are not going to repeat</h3>
+
+<p>You will read that 70% of CRM projects fail. We tried to source it. Every trail ends at a consultancy's own blog, a literature review we could not open, or a Gartner press release from the early 2000s that is no longer published. There is no primary study behind the number, so we will not quote it &mdash; and you should discount any migration proposal that opens with it.</p>
+
+<p>What we can offer instead is HubSpot's own scoping: every hub onboarding SKU carries a stated delivery period of <strong>90 days from purchase</strong>. That is a far better planning anchor than a folklore percentage. The data work is usually a small fraction of that window &mdash; the schema decisions, the reporting bright line and the export archaeology are what fill it.</p>
+
+<h2>The Migration Checklist</h2>
+
+<p>In order, and the first four are the ones that get skipped:</p>
+
+<ol>
+<li><strong>Export everything from the source CRM while you still pay for it</strong> &mdash; including the exports you do not think you need, and field history and activity logs especially. Then download the files: Close links expire in 7 days, Pipedrive's in 28, and Instantly locks the dashboard when the subscription lapses. This is a one-way door tied to a billing date.</li>
+<li><strong>Decide your reporting bright line</strong> and tell leadership the date before go-live. Native velocity reporting starts at migration.</li>
+<li><strong>Check what your tier can hold</strong> before mapping anything &mdash; custom objects need Enterprise, and properties cap at 1,000 per object on every tier.</li>
+<li><strong>Build the schema first</strong>: properties, pipelines and stages, owners, custom objects, and legacy date properties for stage history you want to keep.</li>
+<li><strong>Rehearse activities in a sandbox.</strong> Emails, notes, meetings and tasks are create-only; the rehearsal is the only cheap place to get Activity date wrong.</li>
+<li><strong>Test Create Date behaviour on ten records</strong> rather than trusting any blog post, this one included.</li>
+<li><strong>Clean and dedupe the files</strong>, resolve duplicate email addresses, and carry the source system ID into a custom property on every object.</li>
+<li><strong>Import in dependency order</strong>: companies, then contacts, then deals, then calls, then the create-only activities.</li>
+<li><strong>Run the opt-out import as its own step</strong>, and delete-then-reimport pure suppression addresses so they stop counting as billable contacts.</li>
+<li><strong>Set marketing contact status deliberately</strong> and set a maximum marketing contacts limit as a cost guard.</li>
+<li><strong>Reconcile by count and by spot-check</strong>: record counts per object, association counts, then ten records walked end to end against the source.</li>
+<li><strong>Keep the old CRM readable for a quarter</strong> at its cheapest tier.</li>
+<li><strong>Only then</strong> connect your sending tools, sequences and automation. A migration and an integration project in the same week means you cannot tell which one broke.</li>
+</ol>
+
+<h2>Frequently Asked Questions</h2>
+
+<h3>Can you import deal stage history into HubSpot?</h3>
+<p>No, not into HubSpot's native stage properties. Stage calculated properties such as "Date entered [stage]" and "Cumulative time in [stage]" are, in HubSpot's words, "read-only HubSpot default properties that automatically update based on record movement through a pipeline" &mdash; they are computed from stage changes that happen inside HubSpot, so there is no column to map. HubSpot's note that values are "populated retroactively based on existing data" refers to its own property history, not your legacy CRM. The practical workaround is to create custom date properties, import your legacy stage dates into those, and build a custom report on them. Native pipeline-velocity reporting will effectively start at your migration date.</p>
+
+<h3>Does migrating contacts into HubSpot increase my bill?</h3>
+<p>Not automatically. Only marketing contacts count toward your contact tier and affect subscription cost, and HubSpot documents that "the import tool sets contacts as non-marketing by default" &mdash; and that a multi-object or multi-file import "will always set contacts as non-marketing." Integrations and the API default to non-marketing too. So a large migration lands on the cheap side of the meter and you opt contacts into marketing status afterwards, deliberately. Two things to still do: set a maximum marketing contacts limit as a guard, and handle pure suppression addresses through the opt-out import, since contacts added that way "will not be added to your billable contact total."</p>
+
+<h3>How much history actually transfers when you migrate to HubSpot?</h3>
+<p>The records and their content transfer well; the metadata about when and by whom does not, fully. Calls, emails, meetings, notes and tasks all have supported import paths, and their timestamps transfer <em>if</em> you map Activity date &mdash; a property HubSpot describes as recommended rather than required, which is why so many migrations flatten their whole timeline onto the import date. What does not transfer: activity ownership, because activity "Created by user ID" is "set automatically by HubSpot"; deal stage history and time-in-stage; and Last Modified Date, which your import itself sets. Attachments are referenced by HubSpot file ID, so files have to be uploaded to HubSpot before an activity can point at them.</p>
+
+<h3>Is HubSpot's Salesforce integration a way to migrate off Salesforce?</h3>
+<p>No, and HubSpot says so directly: "Records won't automatically sync after installing and setting up the Salesforce integration. You can import your Salesforce records into HubSpot, or allow them to sync gradually based on automatic sync triggers." It is a two-way sync layer for running both platforms together, and it requires Professional or Enterprise on the HubSpot side plus a Salesforce edition with API access &mdash; Group Edition is not supported. If you are leaving Salesforce, you are doing an import or an API migration; the integration is for the parallel-running period, not the move.</p>
+
+<h3>Can you import all your objects into HubSpot in one go?</h3>
+<p>No. A multi-file import is capped at two files and two objects &mdash; the UI instruction is "Select the two desired objects" &mdash; or one object plus one activity type. A typical migration is therefore a sequence of imports joined on Record ID and on a common column carried in both files. Two rules govern that sequence: "if a row in your file doesn't contain a value for Record ID, a new record will be created," which is how second passes duplicate whole tables, and "Record ID is mapped during your import, it will supersede any other mapped unique identifiers." HubSpot also runs at most three simultaneous imports, queueing the rest, so plan the migration as serial work.</p>
+
+<h3>How much does it cost to migrate to HubSpot?</h3>
+<p>Budget three separate line items. First, HubSpot's onboarding fee, which is the only published hard number in this market and is described as required: $1,500 one-time on Sales Hub Professional and $3,500 on Enterprise (Marketing Hub is $3,000 and $7,000, which is where the misquoted "$3,500 for Professional" comes from). That fee buys onboarding, not data migration &mdash; HubSpot's own "Migration Services" SKUs are website and CMS replatforming, and it sells no productised CRM-data migration service. Second, tooling if you use it: Import2 charges $499 for up to 50,000 records and $999 up to 100,000, while MigrateMyCRM by SyncMatters runs from free under 100 records to $1,199 under 100,000, with an $875 guided add-on. Ignore the $99 figures on their HubSpot marketplace listings &mdash; neither matches the vendors' own pricing pages. Third, implementation help, where no published rate card exists; partner rate cards we could trace suggest roughly $3,000&ndash;$6,000 for basic onboarding and around $7,000 upward for data migration <em>(directional)</em>.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+
+<p><strong>Planning a move into HubSpot and want the reporting consequences mapped before the first file goes up?</strong> If you are still choosing the platform, start with our <a href="/blog/close-crm-vs-hubspot-outbound-sales-teams-2026">Close CRM vs HubSpot comparison for outbound teams</a> or the wider <a href="/blog/best-crm-b2b-outbound-hubspot-salesforce-pipedrive-attio-2026">CRM comparison for B2B outbound</a> &mdash; then <a href="/">talk to our team</a>. We build cold email, LinkedIn and HubSpot infrastructure for B2B teams, and migrations are where we spend most of our RevOps time.</p>
+
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. All import limits, property behaviours and quoted sentences were read on HubSpot's own knowledge base and developer documentation in September 2026 and are quoted verbatim where quoted; where HubSpot's pages are inconsistent or silent we say so rather than pick an answer. Cost and duration figures are marked directional in-text. HubSpot changes limits &mdash; re-confirm against your portal before planning around them. Last updated September 2026.</em></p>

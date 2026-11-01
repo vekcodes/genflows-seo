@@ -1,0 +1,81 @@
+<!-- TITLE TAG: Close CRM Power Dialer: Plans, Setup & Limits -->
+<!-- META: Close CRM Power Dialer and Predictive Dialer explained: plan requirements, building a call queue from a Smart View, voicemail drops, costs and limits. -->
+<!-- SLUG: blog/close-crm-power-dialer-outbound-calling-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+  <p style="color:#e8732b;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 10px;font-size:13px;">TL;DR</p>
+  <ul style="margin:0;padding-left:20px;">
+    <li style="margin-bottom:8px;"><strong>Close has two human dialers.</strong> The Power Dialer calls one lead at a time, and the Predictive Dialer calls several and connects you only on a live answer.</li>
+    <li style="margin-bottom:8px;"><strong>Plan gating:</strong> the pricing page lists the Power Dialer on Growth and Scale, and the Predictive Dialer on Scale only. Solo and Essentials have neither.</li>
+    <li style="margin-bottom:8px;"><strong>Your queue is a Smart View.</strong> Click Call on the view, and the queue refreshes about every five minutes.</li>
+    <li style="margin-bottom:8px;"><strong>Both dialers call only the primary number of the primary contact</strong> <strong>(directional)</strong>, so clean contact data matters.</li>
+    <li style="margin-bottom:0;"><strong>Compliance is your job.</strong> Close does not verify call consent, and its terms say dialers may be restricted in some locations.</li>
+  </ul>
+</div>
+
+<p>Cold email gets the attention, but for many B2B teams a phone call is what turns a warm reply into a meeting. Close CRM was built around calling, and its built-in dialers are a common reason outbound teams pick it over HubSpot. Here is the full picture: what each dialer does, what plan you need, how to set up a call queue and where the limits are.</p>
+
+<p><em>Sourcing note: dialer behaviour and plan gating come from Close's help center, calling page and pricing page, read on 8 October 2026. Several details came from search summaries of help pages rather than the pages themselves and are marked <strong>(directional)</strong>. Plan prices are omitted on purpose because Close's pricing page did not label monthly versus annual figures in our read; see our <a href="/blog/close-crm-pricing-2026">Close pricing guide</a>.</em></p>
+
+<h2>The Short Answer</h2>
+<p>If you have a few reps working a list of leads, you want the <strong>Power Dialer</strong> on Growth. If you have a bigger team and a large list where most calls go unanswered, the <strong>Predictive Dialer</strong> on Scale cuts the dead time by filtering out voicemails and busy signals. Either way, calling works best as one step in a sequence with email and LinkedIn, not a replacement for them. See <a href="/blog/cold-calling-vs-cold-email-b2b-outbound-2026">cold calling vs cold email</a> for when each wins.</p>
+
+<h2>Power Dialer vs Predictive Dialer</h2>
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;"><tr style="background:#1f3a5f;color:#fff;text-align:left;"><th style="padding:10px 12px;"></th><th style="padding:10px 12px;">Power Dialer</th><th style="padding:10px 12px;">Predictive Dialer</th></tr><tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Calls at once</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">One lead at a time; next call dials when one ends</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Several leads at once; connects a rep only on a human answer</td></tr><tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Plan (pricing page)</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Growth and Scale</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Scale only</td></tr><tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Voicemails and busy signals</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Reach the rep unless you use a voicemail drop</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Filtered out before reaching the rep</td></tr><tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Solo rep</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Works well</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Poor fit: needs several reps online <strong>(directional)</strong></td></tr><tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Best for</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">SDRs working a Smart View list</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Teams with many reps on one big list</td></tr></table>
+<p>The Predictive Dialer adjusts how many calls it places based on the number of available reps, answer and abandonment rates and average conversation length <strong>(directional)</strong>. It skips leads called in the last hour and leads abandoned in the last 72 hours unless you choose "Start from Scratch" <strong>(directional)</strong>. Close also has an AI voice caller, Chloe, which was in beta at the time of the sources we read and limited to US and Canadian numbers <strong>(directional)</strong>. We do not cover it here because its status may have changed.</p>
+
+<h2>What Each Plan Includes</h2>
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;"><tr style="background:#1f3a5f;color:#fff;text-align:left;"><th style="padding:10px 12px;">Plan</th><th style="padding:10px 12px;">Power Dialer</th><th style="padding:10px 12px;">Predictive Dialer</th><th style="padding:10px 12px;">Voicemail drop</th><th style="padding:10px 12px;">Recording retention</th></tr><tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Solo</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">30 days</td></tr><tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Essentials</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">30 days</td></tr><tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Growth</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">90 days</td></tr><tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Scale</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Unlimited</td></tr></table>
+<p>Source: Close's pricing page as read on 8 October 2026. Close also lists a Call Assistant add-on on every plan for transcription and call summaries, priced at $50 a month plus $0.02 per transcribed minute.</p>
+
+<h2>How to Build a Call Queue From a Smart View</h2>
+<ol>
+<li><strong>Build the Smart View.</strong> Filter for leads that match your ICP, have a phone number and are in the right status. Our <a href="/blog/close-crm-smart-views-outbound-2026">Close Smart Views guide</a> has the filter recipes and the double-negative trap to avoid.</li>
+<li><strong>Click Call at the top of the view.</strong> The Power Dialer works down the list in the view's sort order.</li>
+<li><strong>Let the queue refresh.</strong> Close's help center says it rechecks the view every five minutes or less. New leads slot in by sort order and leads that leave the view drop out.</li>
+<li><strong>Use Continue Calling or Start from Scratch.</strong> Continue skips leads you have already called or reached in the last hour. Start from Scratch redials everyone.</li>
+<li><strong>Take notes before it moves on.</strong> You can log notes and edit the lead before the dialer advances.</li>
+</ol>
+<p>Ring time defaults to 32 seconds, long enough to reach voicemail, with a 20-second reduced option. Both apply to the two dialers.</p>
+
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:14px 18px;margin:18px 0;border-radius:6px;">
+  <p style="margin:0;"><strong>Data quality limit:</strong> both dialers call only the primary number of the primary contact and cannot redial the same number or work through several contacts <strong>(directional)</strong>. If your best contact is not marked primary, they never get called. Fix this before you launch a call day. See our <a href="/blog/crm-data-hygiene-outbound-teams-2026">CRM data hygiene guide</a>.</p>
+</div>
+
+<h2>Voicemail Drops, Recording and Transcription</h2>
+<p><strong>Voicemail drop.</strong> Close lists one-click pre-recorded voicemail drops on Growth and Scale, configured in the phone and voicemail settings. For a rep making 60 dials in a session, that is the difference between recording the same message 40 times and not.</p>
+<p><strong>Recording.</strong> Recording is a per-user setting <strong>(directional)</strong>, and the pricing page lists retention of 30 days on Solo and Essentials, 90 days on Growth and unlimited on Scale.</p>
+<p><strong>Transcription.</strong> The optional Call Assistant transcribes recorded calls and voicemails and writes short per-call summaries in 20 languages. Only calls longer than 30 seconds are transcribed, and voicemail transcription is free. It uses a third-party processor, so check that against your own data policies. We found no built-in call script feature in Close's calling material, so keep scripts in your own docs for now.</p>
+
+<h2>Reporting on Calls</h2>
+<p>Close logs calls made in the app automatically, and every call gets a disposition such as answered, no-answer, voicemail left or busy <strong>(directional)</strong>. Custom outcomes for connected calls are listed for Growth and Scale <strong>(directional)</strong>. Close does not detect voicemail automatically, so an "answered" call can be a voicemail. Filter on duration, for example calls over about two minutes, to approximate real conversations <strong>(directional)</strong>. For the wider reporting setup, see our <a href="/blog/close-crm-reporting-outbound-2026">Close CRM reporting guide</a>.</p>
+
+<h2>Costs and Coverage</h2>
+<p>Close says it supports outbound calling to nearly 200 countries. Calls are billed at pay-as-you-go voice rates that vary by country and number type, rounded up to the next minute, and Close's usage page lists no single rate. We saw conflicting per-minute figures in secondary sources, so we are not quoting one. Budget by testing a day of calls in your target countries and reading the bill. The usage page states no cap on call volume or duration.</p>
+
+<h2>Compliance: Your Responsibility</h2>
+<p>Close's terms say you must follow recording and telemarketing laws and notify participants where required, and that dialers may be prohibited in some locations <strong>(directional, from search summaries)</strong>. We found no do-not-call list scrubbing for the human dialers, so scrub lists before you import them. The rules differ by country and state, and for email the equivalent is covered in our <a href="/blog/cold-email-compliance-guide-gdpr-can-spam-2026">cold email compliance guide</a>. Get legal advice for the markets you call.</p>
+
+<h2>Combining Calls With Email and LinkedIn</h2>
+<p>Close's calling material does not mention LinkedIn or email sequences, so the combination is something you build. A common pattern: send two emails, add a LinkedIn touch, and put leads who opened or replied into a "Call today" Smart View for the dialer. Close Workflows can handle the email and task steps. See our <a href="/blog/close-crm-workflows-sequences-outbound-2026">Close Workflows guide</a>. Calling fast also helps once a prospect replies: see <a href="/blog/lead-routing-speed-to-lead-2026">speed to lead</a>, and for booked meetings that actually happen, the <a href="/blog/sales-meeting-no-shows-show-rate-playbook-2026">show rate playbook</a>.</p>
+
+<h2>Close or HubSpot for Calling-Heavy Teams?</h2>
+<p>If dialing volume drives your pipeline, built-in dialers are a strong reason to choose Close. If marketing automation, reporting depth and a wider ecosystem matter more, HubSpot may fit better. Our <a href="/blog/close-crm-vs-hubspot-outbound-sales-teams-2026">Close vs HubSpot comparison</a> walks through the full trade-off.</p>
+
+<h2>Frequently Asked Questions</h2>
+<h3>What is the difference between the Power and Predictive Dialer in Close?</h3>
+<p>The Power Dialer calls one lead at a time and starts the next call as soon as one ends. The Predictive Dialer calls several leads at once and connects a rep only when a person answers, so it needs several reps online to work well.</p>
+<h3>Which Close plan do I need for the dialer?</h3>
+<p>Close's pricing page lists the Power Dialer on Growth and Scale, and the Predictive Dialer on Scale only. Marketing pages have conflicted on the Predictive tier <strong>(directional)</strong>, so confirm in your account. See our <a href="/blog/close-crm-pricing-2026">Close CRM pricing guide</a>.</p>
+<h3>How do I build a call queue in Close?</h3>
+<p>Create a Smart View of the leads you want to call and click Call at the top of it. Close's help center says the queue rechecks the view every five minutes or less, so new matching leads join and leads that leave the view drop out.</p>
+<h3>Can Close drop a voicemail automatically?</h3>
+<p>Yes. Close lists one-click pre-recorded voicemail drops on Growth and Scale. The default ring time is 32 seconds, which is long enough to reach voicemail, with a 20-second reduced option.</p>
+<h3>How much do calls cost in Close?</h3>
+<p>Close bills calls at pay-as-you-go voice rates that vary by country and number type, rounded up to the next minute, and its usage page lists no single rate. Optional Call Assistant transcription is listed at $50 a month plus $0.02 per transcribed minute.</p>
+<h3>Is it legal to cold-call and record with Close?</h3>
+<p>Close's terms put compliance on you: recording consent, telemarketing rules and do-not-call lists vary by country and state, and the terms say automated dialers may be restricted in some locations <strong>(directional, from search summaries)</strong>. Get legal advice for your markets before dialing.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+<p><strong>Want a Close setup that combines cold email, LinkedIn and calling in one pipeline?</strong> Read our <a href="/blog/close-crm-workflows-sequences-outbound-2026">Close Workflows guide</a> or <a href="/">talk to our team</a>.</p>
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. Last updated October 2026.</em></p>

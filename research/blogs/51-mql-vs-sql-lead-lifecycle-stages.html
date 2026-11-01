@@ -1,0 +1,153 @@
+<!-- TITLE TAG: MQL vs SQL vs SAL: The B2B Lead Lifecycle, Explained -->
+<!-- META: MQL vs SQL vs SAL defined, with handoff criteria, HubSpot & Salesforce setup, SLAs, and how outbound leads break the classic inbound funnel in 2026. -->
+<!-- SLUG: blog/mql-vs-sql-lead-lifecycle-stages-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+  <p style="color:#e8732b;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 10px;font-size:13px;">TL;DR</p>
+  <ul style="margin:0;padding-left:20px;">
+    <li style="margin-bottom:8px;"><strong>MQL = marketing's verdict; SQL = sales' verdict.</strong> A Marketing Qualified Lead meets marketing's fit-and-behavior bar; a Sales Qualified Lead has been vetted by a salesperson through direct interaction.</li>
+    <li style="margin-bottom:8px;"><strong>SAL is the handshake in between.</strong> A Sales Accepted Lead is an MQL that sales has formally agreed to work within an SLA — the accountability checkpoint that stops MQLs from silently dying.</li>
+    <li style="margin-bottom:8px;"><strong>HubSpot has no default SAL stage.</strong> Its lifecycle stages are Subscriber → Lead → MQL → SQL → Opportunity → Customer. You model SAL with Lead Status or a custom stage.</li>
+    <li style="margin-bottom:8px;"><strong>Outbound breaks the inbound funnel.</strong> A positive cold-email or LinkedIn reply is closer to an SAL/SQL than an MQL — model outbound separately so it doesn't inflate MQL metrics.</li>
+    <li style="margin-bottom:0;"><strong>Every stage needs an exit criterion and an SLA.</strong> A stage without a "what must be true to advance" rule is just a rep's gut feeling.</li>
+  </ul>
+</div>
+
+<p>Marketing says it delivered 400 leads last quarter. Sales says it got nothing worth calling. Both are looking at the same CRM. That argument is almost always a lead-lifecycle problem: MQL, SAL, and SQL aren't defined, aren't tied to exit criteria, or aren't the same thing to both teams. This guide defines each stage, shows where the handoff breaks, maps it into HubSpot and Salesforce, and covers the part most articles skip — where outbound-sourced leads actually fit.</p>
+
+<p><em>Sourcing note: the stage definitions from HubSpot and the lead-conversion flow from Salesforce are VERIFIED against their own documentation. The Demand Waterfall lineage, qualification frameworks, conversion benchmarks, and the outbound-modeling recommendations are practitioner guidance and GenFlows POV — flagged <strong>(directional)</strong> or called out as opinion. Don't quote the benchmarks as hard fact without checking the primary study.</em></p>
+
+<h2>The Short Answer</h2>
+<p>An MQL is a lead marketing has qualified as "ready for sales" based on fit and behavior, before any 1:1 sales conversation. A SAL is that MQL after sales has formally <em>accepted</em> it and committed to work it within an SLA. An SQL is a lead sales has <em>qualified</em> through direct interaction and confirmed as a real opportunity worth pursuing. In order: marketing hands over an MQL, sales accepts it as a SAL, and if discovery confirms budget, need, authority, and timing, it becomes an SQL and then an Opportunity. The SAL step exists specifically to make the marketing-to-sales handoff accountable instead of a black hole.</p>
+
+<h2>The Full Funnel, Stage by Stage</h2>
+<p>The vocabulary most B2B teams use descends from the <strong>SiriusDecisions Demand Waterfall</strong> (SiriusDecisions was acquired by Forrester in 2018), which is credited with introducing SAL as the explicit acceptance handshake between marketing and sales <em>(directional)</em>. Here are the stages as HubSpot defines them by default (VERIFIED, from HubSpot's knowledge base):</p>
+<ul>
+  <li style="margin-bottom:6px;"><strong>Subscriber</strong> — a contact who opted in to hear from you (blog, newsletter) but nothing more.</li>
+  <li style="margin-bottom:6px;"><strong>Lead</strong> — a contact who converted on your site or interacted beyond a subscription.</li>
+  <li style="margin-bottom:6px;"><strong>Marketing Qualified Lead (MQL)</strong> — a contact marketing has qualified as ready for sales.</li>
+  <li style="margin-bottom:6px;"><strong>Sales Qualified Lead (SQL)</strong> — a contact sales has qualified as a potential customer.</li>
+  <li style="margin-bottom:6px;"><strong>Opportunity</strong> — a contact associated with a deal.</li>
+  <li style="margin-bottom:6px;"><strong>Customer</strong> — a contact with at least one closed-won deal.</li>
+  <li style="margin-bottom:0;"><strong>Evangelist / Other</strong> — advocate and catch-all.</li>
+</ul>
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:16px 20px;margin:22px 0;border-radius:6px;">
+  <p style="margin:0;"><strong>Note SAL is missing from that list.</strong> HubSpot's default lifecycle stages jump straight from MQL to SQL (VERIFIED). SAL is a Demand-Waterfall concept you add yourself — via the Lead Status property, a custom stage, or a deal stage — because it's a workflow checkpoint, not a native CRM stage.</p>
+</div>
+
+<h2>MQL vs SQL: The Core Distinction — and Where It Breaks</h2>
+<p>The clean version: an <strong>MQL</strong> is qualified by <em>marketing</em> on fit plus behavior — a score threshold, a pricing-page visit, a demo request — with no 1:1 sales conversation yet. An <strong>SQL</strong> has been vetted by a <em>human in sales</em> through direct interaction and confirmed as a real opportunity <em>(directional consensus)</em>.</p>
+<p>Where it breaks is the gap between them. Marketing declares an MQL and books the win. Sales looks at it, decides it's the wrong ICP or has no real intent, and quietly never works it. Marketing's dashboard shows "leads delivered"; sales' pipeline shows nothing; and no one measures the leak. That's exactly what the <strong>SAL</strong> stage fixes: sales must formally accept or reject each MQL within an SLA, against agreed criteria, <em>before</em> discovery starts. Acceptance makes the handoff visible and the leak measurable. One widely-cited (secondhand) benchmark suggests only about a third of MQLs get sales-accepted and roughly half of those progress to SQL — illustrating why the checkpoint matters, though you should verify those figures against your own funnel <em>(directional)</em>.</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+    <th style="padding:10px 12px;">Dimension</th>
+    <th style="padding:10px 12px;">MQL</th>
+    <th style="padding:10px 12px;">SAL</th>
+    <th style="padding:10px 12px;">SQL</th>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Owner</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Marketing</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Sales (accepting)</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Sales (qualifying)</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Definition</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Fit + behavior meets marketing's bar</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Sales accepts and commits to work it</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Vetted via 1:1 interaction; real opportunity</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Entry criteria</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Score threshold or high-intent action</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">MQL passes ICP + intent check</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">SAL passes discovery (BANT/MEDDIC)</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Exit criteria</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Handed to sales for acceptance</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Worked within SLA, or rejected + recycled</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Converted to Opportunity / deal created</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Example signal</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Downloaded pricing; hit lead score</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Rep logs first outreach within SLA</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Booked call; confirmed need + timeline</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>CRM location</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">HubSpot lifecycle = MQL / SF Lead Status</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">HubSpot Lead Status / SF custom status</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">HubSpot SQL stage / SF lead conversion</td>
+  </tr>
+</table>
+
+<h2>The Framework That Decides SQL</h2>
+<p>What turns a SAL into an SQL is passing a qualification framework — and the framework you choose <em>is</em> your SQL exit criteria. Pick one and hard-code its checks as required fields in the CRM <em>(directional)</em>:</p>
+<ul>
+  <li style="margin-bottom:6px;"><strong>BANT</strong> (Budget, Authority, Need, Timeline) — lightweight, budget-first; good for faster, higher-velocity deals.</li>
+  <li style="margin-bottom:6px;"><strong>CHAMP</strong> (Challenges, Authority, Money, Prioritization) — leads with the buyer's challenge instead of budget; more discovery-oriented.</li>
+  <li style="margin-bottom:6px;"><strong>MEDDIC / MEDDPICC</strong> — built for complex, multi-stakeholder enterprise deals with formal procurement.</li>
+</ul>
+
+<h2>Mapping It in Your CRM</h2>
+<p><strong>HubSpot</strong> (VERIFIED): the <em>Lifecycle Stage</em> property tracks the macro funnel (the stages above), while <em>Lead Status</em> is a separate property for granular sub-status within sales work — New, Open, In Progress, Attempted to Contact, Connected, Bad Timing, Unqualified. The clean pattern: use Lifecycle Stage for the macro funnel and Lead Status to represent the SAL handshake and your recycle states <em>(directional)</em>.</p>
+<p><strong>Salesforce</strong> (VERIFIED): the funnel is split across objects. A <em>Lead</em> record is worked via the standard <em>Lead Status</em> picklist, then <em>converted</em> into an Account, Contact, and (if promising) an Opportunity — at which point the lead record becomes read-only. In practice, MQL/SAL/SQL live as Lead Status values, SQL maps to the point of conversion, and the Opportunity object carries everything from there <em>(directional modeling)</em>. For choosing between them for outbound, see our <a href="/blog/best-crm-b2b-outbound-hubspot-salesforce-pipedrive-attio-2026">best CRM for B2B outbound comparison</a>.</p>
+
+<h2>The Outbound Angle Most Guides Miss</h2>
+<p>Here's where GenFlows' point of view diverges from the standard playbook — and we'll flag it plainly as practitioner opinion. <strong>The classic lifecycle is built for inbound.</strong> Subscriber → Lead → MQL assumes the prospect raised their hand first. But an outbound-sourced contact never subscribed, never downloaded anything, and never scored a behavioral point — so those early stages simply don't apply.</p>
+<p>Our recommendation:</p>
+<ul>
+  <li style="margin-bottom:8px;"><strong>Treat a positive outbound reply as an SAL/SQL, not an MQL.</strong> By definition an SQL requires 1:1 interaction and a sales judgment — which is exactly what an interested cold-email or LinkedIn reply, or a booked meeting, represents. Outbound skips MQL scoring entirely.</li>
+  <li style="margin-bottom:8px;"><strong>Define the outbound "MQL equivalent" as a targeting decision, not a behavior score:</strong> ICP fit + verified contactability + a named trigger (funding, a tooling change, a role move). A matching job title alone is not a trigger.</li>
+  <li style="margin-bottom:8px;"><strong>Split the funnel by source.</strong> Use a lead source or record-type split (Inbound vs Outbound) so outbound contacts enter at SAL/SQL rather than being force-fit through MQL — but keep <em>one shared SQL definition</em> and <em>one shared pipeline</em> so both motions report into the same revenue funnel.</li>
+  <li style="margin-bottom:0;"><strong>Never let outbound replies inflate MQL counts</strong> — it corrupts your inbound conversion math and hides how each motion is really performing.</li>
+</ul>
+<p>The upstream work here is your targeting: a positive-reply "SQL" is only as good as the list behind it. Get that right with a sharp <a href="/blog/icp-definition-template-b2b-framework-2026">ICP definition</a> and disciplined <a href="/blog/data-driven-lead-scoring-how-gtm-engineers-prioritize-prospects-for-outbound">lead scoring</a>, and handle the replies themselves with a real process — see <a href="/blog/how-to-handle-cold-email-replies-objection-handling-2026">how to handle cold email replies</a>.</p>
+
+<h2>SLAs, Handoff, and Closed-Loop Recycling</h2>
+<p>Stages are inert without service-level agreements. Set two:</p>
+<ul>
+  <li style="margin-bottom:8px;"><strong>Speed-to-lead SLA:</strong> contact high-intent leads in minutes, not hours. The classic (dated, secondhand) research on lead response consistently shows that fast contact sharply raises qualification odds while most teams still respond in hours <em>(directional)</em>. For the mechanics of routing and round-robin, see <a href="/blog/lead-routing-speed-to-lead-2026">lead routing &amp; speed-to-lead</a>.</li>
+  <li style="margin-bottom:8px;"><strong>Acceptance SLA:</strong> sales must accept or reject each MQL within a defined window (say, 24 business hours). Acceptance creates the SAL; the clock is what makes it real.</li>
+  <li style="margin-bottom:0;"><strong>Closed-loop recycling:</strong> rejected MQLs shouldn't die — route them back to marketing with a reason code (bad timing, wrong role, no budget) for nurture and re-entry. That feedback loop is what keeps your MQL definition honest over time.</li>
+</ul>
+<p>None of this survives dirty data. If contact records are stale or duplicated, your stage counts lie — keep the pipeline clean with disciplined <a href="/blog/crm-data-hygiene-outbound-teams-2026">CRM data hygiene</a>, and instrument the whole funnel on a <a href="/blog/revops-dashboard-metrics-how-to-build-2026">RevOps dashboard</a>.</p>
+
+<h2>The Five Mistakes That Break Lifecycle Reporting</h2>
+<ol>
+  <li style="margin-bottom:6px;"><strong>Too many stages</strong> — micro-stages nobody updates, so the CRM stops reflecting reality.</li>
+  <li style="margin-bottom:6px;"><strong>Vanity MQLs</strong> — volume goals with no fit/intent bar, so sales stops trusting marketing.</li>
+  <li style="margin-bottom:6px;"><strong>No SAL handshake</strong> — no acceptance step, so leakage between MQL and SQL is invisible.</li>
+  <li style="margin-bottom:6px;"><strong>Stages without exit criteria</strong> — advancement becomes a rep's gut feeling instead of an objective rule.</li>
+  <li style="margin-bottom:0;"><strong>Forcing outbound through an inbound funnel</strong> — inflates MQL counts and breaks conversion reporting.</li>
+</ol>
+<p>For the wider system these stages plug into, see our <a href="/blog/revops-complete-guide-what-is-revenue-operations-2026">complete guide to RevOps</a>.</p>
+
+<h2>Frequently Asked Questions</h2>
+
+<h3>What's the difference between an MQL and an SQL?</h3>
+<p>An MQL is qualified by marketing on fit and behavior before any sales conversation; an SQL has been vetted by a salesperson through direct interaction and confirmed as a real opportunity. MQL is marketing's verdict, SQL is sales' verdict.</p>
+
+<h3>What is a Sales Accepted Lead (SAL)?</h3>
+<p>A SAL is an MQL that sales has formally accepted and agreed to work within an SLA — the accountability handshake that sits between MQL and SQL, before discovery confirms qualification. Acceptance is what makes the marketing-to-sales handoff measurable.</p>
+
+<h3>Does HubSpot have an SAL lifecycle stage?</h3>
+<p>No. HubSpot's default lifecycle stages are Subscriber, Lead, MQL, SQL, Opportunity, Customer, Evangelist, and Other. SAL is modeled using the separate Lead Status property or a custom stage.</p>
+
+<h3>Where do outbound leads fit — are cold-email replies MQLs?</h3>
+<p>Generally no. A positive outbound reply reflects a 1:1 sales interaction, which makes it closer to an SAL or SQL than an MQL. Outbound leads typically skip the MQL step; model them with a separate lead source so they don't inflate your inbound MQL metrics.</p>
+
+<h3>Which qualification framework should decide when a lead becomes an SQL?</h3>
+<p>Use BANT or CHAMP for faster, simpler deals and MEDDIC or MEDDPICC for complex, multi-stakeholder enterprise deals — then hard-code that framework's checks as your SQL exit criteria in the CRM.</p>
+
+<h3>What SLA should we set for MQL handoff?</h3>
+<p>Set two: a speed-to-lead response target (minutes for high-intent leads, up to a couple of business hours for standard MQLs) and an acceptance window (for example, 24 business hours to accept or reject as a SAL with a reason code). Fast response sharply increases qualification odds.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+
+<p><strong>Building a lifecycle that handles both inbound and outbound cleanly? Start with the <a href="/blog/revops-complete-guide-what-is-revenue-operations-2026">complete RevOps guide</a> and a tight <a href="/blog/icp-definition-template-b2b-framework-2026">ICP definition</a> — or <a href="/">talk to our team</a> and we'll design the funnel, SLAs, and CRM setup with you.</strong></p>
+
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. We build RevOps and outbound systems for B2B teams. HubSpot and Salesforce mechanics are verified against vendor docs; benchmarks and outbound-modeling guidance are directional or practitioner opinion — validate against your own funnel. Last updated July 2026.</em></p>

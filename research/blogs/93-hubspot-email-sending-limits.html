@@ -1,0 +1,176 @@
+<!-- TITLE TAG: HubSpot Email Sending Limits for Sales Reps (2026) -->
+<!-- META: HubSpot email sending limits for sales reps: per-inbox 1:1 caps, Sequences limits by tier, Gmail and Microsoft caps, and what happens when you hit them. -->
+<!-- SLUG: blog/hubspot-email-sending-limits-sales-reps-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+  <p style="color:#e8732b;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 10px;font-size:13px;">TL;DR</p>
+  <ul style="margin:0;padding-left:20px;">
+    <li style="margin-bottom:8px;"><strong>Three separate limits stack on every rep email:</strong> HubSpot's per-inbox 1:1 cap, the Sequences cap, and the cap your email provider (Google or Microsoft) enforces. The lowest one wins.</li>
+    <li style="margin-bottom:8px;"><strong>HubSpot's default 1:1 limits depend on the inbox:</strong> 350/day for free Gmail, 1,000/day for Google Workspace, Microsoft 365, Exchange and generic accounts. Limits run on a rolling 24-hour window, not a midnight reset.</li>
+    <li style="margin-bottom:8px;"><strong>Sequences are capped per seat:</strong> 500/day on Sales Hub Professional, 1,000/day on Enterprise. Admins can set custom 1:1 limits, but only up to 1,000/day and 10/minute.</li>
+    <li style="margin-bottom:8px;"><strong>The monthly marketing email limit does not apply to 1:1 sales email.</strong> Reps are not "using up" the marketing allowance.</li>
+    <li style="margin-bottom:0;"><strong>The cap you should worry about is reputation, not quota.</strong> Sales email leaves from the rep's own mailbox, so complaints land on that domain long before any send limit bites.</li>
+  </ul>
+</div>
+
+<p>A rep hits "Send" and gets a red banner instead of a sent email. Or a manager rolls out Sequences to ten reps and asks how many contacts each can really touch per day. Or someone sizing an outbound program wants to know whether HubSpot can be the sender at all. Every one of those questions comes down to the same thing: HubSpot's sales email limits are documented, but they are scattered across several help pages and they interact with limits HubSpot does not control.</p>
+
+<p>This post puts them in one place: the 1:1 limits, the Sequences limits, the Gmail and Microsoft caps underneath them, what the error looks like, and where the numbers stop mattering. If you are deciding whether Sequences should be your cold sender at all, our comparison of <a href="/blog/hubspot-sequences-vs-cold-email-tools-2026">HubSpot Sequences vs cold email tools</a> covers that call. This post is the reference for the numbers.</p>
+
+<p><em>Sourcing note: HubSpot limits are VERIFIED against HubSpot's own knowledge base as of September 2026. Google and Microsoft figures are from their admin documentation. Anything we could not confirm on a vendor page is marked <strong>(directional)</strong>, and we have left out numbers we could not source. Limits change, so check the linked help pages before you plan around them.</em></p>
+
+<h2>The Short Answer</h2>
+<p>A rep can send up to 350 to 1,000 one-to-one emails a day from a connected inbox depending on the provider, and up to 500 (Professional) or 1,000 (Enterprise) sequence emails a day per seat. Google Workspace independently caps a user at 2,000 messages a day, and Microsoft Exchange Online caps a mailbox at 10,000 recipients a day and 30 messages a minute. Whichever ceiling is lowest is the one you hit. In practice, deliverability degrades at volumes far below every one of these numbers if the list is cold.</p>
+
+<h2>The Three Layers of Limits</h2>
+<p>Most confusion comes from treating "the HubSpot limit" as one number. It is three.</p>
+<ol>
+  <li style="margin-bottom:6px;"><strong>HubSpot's connected-inbox limit</strong> for one-to-one and logged email.</li>
+  <li style="margin-bottom:6px;"><strong>HubSpot's Sequences limit</strong>, set per assigned Sales Hub seat.</li>
+  <li style="margin-bottom:0;"><strong>Your email provider's own limit</strong>, because sales email is sent through the inbox you connected, not HubSpot's sending network. HubSpot documents that Sequences and 1:1 email use the connected inbox's network.</li>
+</ol>
+
+<h2>1:1 Email Limits Per Connected Inbox</h2>
+<p>HubSpot sets a default daily send limit based on the type of inbox a rep connects (VERIFIED):</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+    <th style="padding:10px 12px;">Connected inbox type</th>
+    <th style="padding:10px 12px;">HubSpot default daily limit</th>
+    <th style="padding:10px 12px;">Notes</th>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Free Gmail</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">350</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Stays at 350 even if an admin sets a custom limit</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Google Workspace (Google Apps)</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">1,000</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Google enforces its own, higher cap separately</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Microsoft 365 / Exchange</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">1,000</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Microsoft enforces per-minute and per-recipient caps separately</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Generic / other</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">1,000</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Provider limits vary</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">HubSpot-hosted inbox</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">500 (free) / 5,000 (paid)</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Uncommon for sales reps</td>
+  </tr>
+</table>
+
+<p>Two details matter more than the numbers. First, the limit is a <strong>rolling 24-hour window</strong>, so it does not reset at midnight or at a fixed hour. A rep who sent 900 emails between 3 and 5 p.m. does not get a fresh allowance the next morning. Second, admins on Sales Hub Professional or Enterprise can set custom limits, but the ceiling is <strong>1,000 emails a day and 10 a minute</strong>, and HubSpot states that a custom limit takes precedence over the defaults it would otherwise apply. The custom limit lets you lower a rep's cap. It does not let you raise it past 1,000.</p>
+
+<h2>Sequences Limits by Tier</h2>
+<p>Sequences require Sales Hub Professional or Enterprise, and the send limit is tied to each assigned seat (VERIFIED):</p>
+<ul>
+  <li style="margin-bottom:6px;"><strong>Sales Hub Professional:</strong> 500 sequence emails per day, per seat.</li>
+  <li style="margin-bottom:6px;"><strong>Sales Hub Enterprise:</strong> 1,000 per day, per seat.</li>
+  <li style="margin-bottom:6px;"><strong>Starter:</strong> we could not confirm a Sequences allowance for Starter on a HubSpot page, so we are not stating one. Check the current pricing page.</li>
+  <li style="margin-bottom:0;"><strong>Bulk enrollment throttle:</strong> emails from a bulk enrollment go out at no more than three per minute, so a big enrollment does not send instantly.</li>
+</ul>
+<p>HubSpot calculates the sequence limit looking 24 hours forward and 24 hours back, which is why it may refuse an enrollment even when the rep has sent little today: follow-ups already scheduled for tomorrow count against the window. HubSpot also states it cannot increase the Sequences send limit for you, so plan capacity around the number as published. For the full picture of how enrollment and follow-ups consume that allowance, see the mechanics in our <a href="/blog/hubspot-sequences-vs-cold-email-tools-2026">Sequences comparison</a>.</p>
+
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:16px 20px;margin:22px 0;border-radius:6px;">
+  <p style="margin:0;"><strong>Seat math:</strong> the cap is per rep, not per account. Ten Professional seats give you 5,000 sequence sends a day in aggregate, but a single rep cannot borrow a colleague's unused allowance.</p>
+</div>
+
+<h2>The Provider Caps Underneath HubSpot</h2>
+<p>Because sales email leaves through the rep's connected mailbox, Google's and Microsoft's own limits sit beneath HubSpot's.</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+    <th style="padding:10px 12px;">Provider</th>
+    <th style="padding:10px 12px;">Documented cap</th>
+    <th style="padding:10px 12px;">If you exceed it</th>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Google Workspace (paid)</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">2,000 messages/day per user</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Sending blocked for up to 24 hours; receiving continues</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Google Workspace (trial)</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">500 messages/day</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Same</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Exchange Online</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">10,000 recipients/day and 30 messages/minute per mailbox</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Mailbox cannot send until the trailing 24-hour count drops below the limit</td>
+  </tr>
+</table>
+<p>Google also publishes per-message and unique-recipient limits; we are not quoting those here because the figures should be read directly on Google's page before you rely on them. The takeaway is that HubSpot's 1,000/day default is stricter than either provider's cap, so HubSpot is normally the first wall a rep hits. It is not the one that should worry you.</p>
+
+<h2>What Happens When You Hit a Limit</h2>
+<ul>
+  <li style="margin-bottom:6px;"><strong>1:1 email:</strong> reps see a yellow warning as they approach the limit and a red error once they hit it. The contact timeline records "This email wasn't sent because you've hit your HubSpot send limit."</li>
+  <li style="margin-bottom:6px;"><strong>Sequences:</strong> HubSpot blocks enrolling a contact if the daily limit is already exceeded and prompts the rep to choose another send day.</li>
+  <li style="margin-bottom:6px;"><strong>Bulk enrollment:</strong> emails trickle out at three a minute, so a "missing" send is often just queued.</li>
+  <li style="margin-bottom:0;"><strong>Monitoring:</strong> we found no dashboard that reports limit usage per rep, so managers typically track sent volume through activity reports. That gap is one of the reasons a proper <a href="/blog/cold-email-deliverability-monitoring-2026">deliverability monitoring</a> setup matters once volume grows.</li>
+</ul>
+
+<h2>Marketing Email Limits Are a Different System</h2>
+<p>HubSpot's monthly email send limit applies to marketing emails, automated workflow emails (including internal notifications) and form follow-up emails. HubSpot explicitly excludes one-to-one emails sent from the CRM from that count (VERIFIED), so your reps are not burning down the marketing allowance. HubSpot ties the monthly allowance to the size of your marketing contact tier, with multipliers we have seen cited as roughly 5x, 10x and 20x for Starter, Professional and Enterprise <em>(directional: confirm on HubSpot's Product &amp; Services Catalog before planning around it)</em>.</p>
+<p>The marketing side does have one enforcement rule worth knowing, because it is the strictest public number HubSpot gives: HubSpot suspends marketing sending when a month exceeds a 5% hard bounce rate, a 0.1% spam report rate or a 3% unsubscribe rate (VERIFIED). That applies to marketing email, and HubSpot notes separate suspension criteria exist for one-to-one mail that it does not publish.</p>
+
+<h2>Why the Quota Is Not the Real Constraint</h2>
+<p>A rep will almost never send 1,000 personalised emails a day. The reason to read the limits is capacity planning; the reason not to obsess over them is that reputation runs out much sooner.</p>
+<p>Sales email goes out from the rep's own mailbox on the company's primary domain. If a rep sends 300 emails a day to an unverified list, HubSpot will allow it, Google will allow it, and the spam complaints and bounces will still accumulate against that domain. Google and Yahoo both expect spam complaint rates well under 0.3%, and 0.1% is the level Google says it wants to see, so a handful of complaints across a few hundred cold sends is enough to cause damage <em>(directional: the arithmetic is ours, the thresholds are Google's and Yahoo's published guidance)</em>. The same mailbox carries your invoices, contracts and customer replies.</p>
+<p>HubSpot's Acceptable Use Policy also states you may not use HubSpot to send spam, and its guidance bars purchased or rented lists from marketing email <em>(directional: confirm the current wording on HubSpot's legal pages)</em>. Sales sends rely on the rep's own domain reputation, so the practical rule is the same: do not point unconsented, unverified lists at a primary mailbox.</p>
+
+<h2>A Sensible Split for Outbound Teams</h2>
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+    <th style="padding:10px 12px;">Email type</th>
+    <th style="padding:10px 12px;">Send from</th>
+    <th style="padding:10px 12px;">Why</th>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Replies, inbound follow-up, customer email</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">HubSpot 1:1 / Sequences on the primary domain</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Warm recipients, low complaint risk, full CRM logging</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Newsletters, nurture, announcements</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">HubSpot marketing email</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Opted-in list, built-in suppression and unsubscribe handling</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Cold outreach at volume</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Dedicated tool on separate sending domains</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Keeps reputation risk off the primary domain; see <a href="/blog/how-many-domains-mailboxes-cold-email-2026">how many domains and mailboxes you need</a></td>
+  </tr>
+</table>
+<p>Cold volume belongs on secondary domains with proper authentication (<a href="/blog/cold-email-spf-dkim-dmarc-setup-2026">SPF, DKIM and DMARC</a>) and low per-mailbox volume. Replies and booked meetings then sync into HubSpot so the CRM owns the record from that point on; our guide to <a href="/blog/sync-cold-email-linkedin-data-hubspot-2026">syncing cold email and LinkedIn data into HubSpot</a> shows the wiring.</p>
+
+<h2>Frequently Asked Questions</h2>
+
+<h3>How many emails can a sales rep send per day in HubSpot?</h3>
+<p>Through Sequences, up to 500 per day per seat on Sales Hub Professional and 1,000 on Enterprise. One-to-one emails default to 350 per day for free Gmail and 1,000 per day for Google Workspace, Microsoft 365, Exchange and generic inboxes. The lower of HubSpot's limit and your email provider's limit applies.</p>
+
+<h3>Can I raise HubSpot's daily sending limit?</h3>
+<p>Admins on Sales Hub Professional or Enterprise can set custom limits for connected inboxes, but only up to 1,000 emails per day and 10 per minute, and free Gmail stays at 350. HubSpot states it cannot increase the Sequences send limit, so the published per-seat number is the ceiling.</p>
+
+<h3>What happens when a rep hits the HubSpot send limit?</h3>
+<p>For one-to-one email, the rep sees a warning near the limit and an error at the limit, and the timeline notes the email was not sent because the HubSpot send limit was reached. For Sequences, HubSpot blocks enrolling more contacts and prompts the rep to choose another send day.</p>
+
+<h3>Do 1:1 sales emails count toward the monthly marketing email limit?</h3>
+<p>No. HubSpot's monthly limit counts marketing emails, workflow emails and form follow-ups. One-to-one emails sent from the CRM are explicitly excluded, so reps do not consume the marketing allowance.</p>
+
+<h3>Do Gmail and Microsoft have their own sending limits on top of HubSpot's?</h3>
+<p>Yes, because sales email is sent through the connected mailbox. Paid Google Workspace allows up to 2,000 messages per day per user and blocks sending for up to 24 hours if exceeded. Exchange Online allows 10,000 recipients per day and 30 messages per minute per mailbox. HubSpot's default is usually the tighter limit.</p>
+
+<h3>Is HubSpot a good tool for high-volume cold email?</h3>
+<p>Not on its own. The send limits are workable, but the mailbox is the rep's own on your primary domain, and cold lists generate bounces and complaints that damage that domain's reputation. Most outbound teams run cold volume on separate domains in a dedicated tool and use HubSpot for warm follow-up, deals and reporting.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+<p><strong>Sizing an outbound program and unsure where HubSpot should stop and a cold email stack should start? Read our comparison of <a href="/blog/hubspot-sequences-vs-cold-email-tools-2026">HubSpot Sequences vs cold email tools</a>, or <a href="/">talk to our team</a> about building outbound infrastructure that protects your primary domain.</strong></p>
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. HubSpot limits verified against HubSpot's knowledge base and legal pages; Google and Microsoft caps from their admin documentation; unverified figures are labelled directional or omitted. Last updated September 2026.</em></p>

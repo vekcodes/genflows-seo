@@ -1,0 +1,168 @@
+<!-- TITLE TAG: Smartlead HubSpot Integration: Setup, Fields & Limits -->
+<!-- META: How to connect Smartlead and Instantly to HubSpot: the two Smartlead sync routes, what fields move, Instantly's two-way automations, duplicates and API limits. -->
+<!-- SLUG: blog/smartlead-hubspot-integration-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+  <p style="color:#e8732b;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 10px;font-size:13px;">TL;DR</p>
+  <ul style="margin:0;padding-left:20px;">
+    <li style="margin-bottom:8px;"><strong>Smartlead has two separate HubSpot syncs, and both are one-way.</strong> The older one is a per-campaign toggle that must be switched on when you create the campaign. The newer one runs through SmartAgents over OAuth.</li>
+    <li style="margin-bottom:8px;"><strong>The SmartAgents sync moves only four fields:</strong> email, first name, last name and company name. Empty Smartlead fields never overwrite existing HubSpot values.</li>
+    <li style="margin-bottom:8px;"><strong>Instantly's HubSpot integration is two-way.</strong> Its Automations tab can pull HubSpot contacts in and push positive replies, status changes and engagement outcomes back.</li>
+    <li style="margin-bottom:8px;"><strong>Neither vendor documents unsubscribe or bounce sync into HubSpot.</strong> Build that yourself, or your reps can email people who opted out.</li>
+    <li style="margin-bottom:0;"><strong>For deals, owner routing and custom properties, use a webhook flow</strong> (n8n, Make or Zapier) that searches HubSpot by email, upserts the contact and then creates the deal.</li>
+  </ul>
+</div>
+
+<p>Cold email tools send; HubSpot decides what happens next. If a reply lands in Smartlead or Instantly and never reaches HubSpot, nobody follows up, your pipeline reports undercount outbound, and attribution breaks. The integration between the two is where a lot of outbound setups quietly leak.</p>
+
+<p>This guide covers exactly what Smartlead and Instantly sync to HubSpot, where each route stops, the HubSpot-side limits that bite at volume, and a reply-to-deal pattern you can build. For the wider picture of moving outbound data into your CRM, see our <a href="/blog/sync-cold-email-linkedin-data-hubspot-2026">guide to syncing cold email and LinkedIn data into HubSpot</a>.</p>
+
+<p><em>Sourcing note: Smartlead and Instantly behaviour below was read in their help centers on 5 October 2026. HubSpot limits come from HubSpot's developer and knowledge-base documentation. Vendor docs change often and do not state plan requirements, so confirm in your own account. Anything we could not confirm is marked <strong>(directional)</strong>, and the build patterns are our own recommendation.</em></p>
+
+<h2>The Short Answer</h2>
+<p>If you only need new leads and replied leads to appear in HubSpot, Smartlead's native routes or Instantly's Automations are enough. If you need deals created on a positive reply, custom properties like campaign name and reply category, owner assignment or suppression of opt-outs, put a webhook flow in the middle. Most teams running cold email at any volume end up with the native sync for contact creation plus a small automation for everything else.</p>
+
+<h2>Integration Routes at a Glance</h2>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+    <th style="padding:10px 12px;">Route</th>
+    <th style="padding:10px 12px;">Setup</th>
+    <th style="padding:10px 12px;">What moves</th>
+    <th style="padding:10px 12px;">Direction</th>
+    <th style="padding:10px 12px;">Main catch</th>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Smartlead campaign sync</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Toggle on while creating the campaign, pick a HubSpot list, map fields</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Leads and activities not already in HubSpot</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Smartlead to HubSpot</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Cannot be added to a running campaign; must be enabled per campaign</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Smartlead SmartAgents</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">OAuth in SmartAgents &gt; Integrations, then build an agent</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Email, first name, last name, company name</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Smartlead to HubSpot</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Four fields only; event triggers cannot be edited after creation</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Instantly Automations</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Connect HubSpot in the Automations tab, add a trigger and action</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Contacts, deals, tasks, notes; positive replies, status changes, outcomes</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Two-way</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Plan requirement and unsubscribe/bounce handling not documented <strong>(directional)</strong></td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Webhook flow (n8n, Make, Zapier)</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Sending-tool webhook plus a HubSpot private app token</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Anything you build, including custom properties and deals</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">As designed</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">You maintain it and respect HubSpot API limits</td>
+  </tr>
+</table>
+
+<h2>Smartlead: Two Routes, Both One-Way</h2>
+
+<h3>Route 1: the per-campaign sync</h3>
+<p>Smartlead's older HubSpot sync is set up inside the campaign. You upload your lead file, switch on "Create the lead in HubSpot if they don't exist in HubSpot already", choose the HubSpot list and group for new leads, map the Smartlead fields to HubSpot properties, and confirm the Import leads section shows "Yes".</p>
+<p>Two limits matter. First, Smartlead's help article states it can only be integrated while creating the campaign, so you cannot bolt it onto a campaign that is already sending. Second, the connection does not apply to all campaigns automatically. Someone has to remember the toggle every time, which is exactly the kind of step that gets skipped when a new client campaign launches on a Friday.</p>
+
+<h3>Route 2: SmartAgents</h3>
+<p>The newer route is a SmartAgents integration. You connect HubSpot once through OAuth, build an agent from a template or a custom prompt, choose a trigger and deploy. Triggers are either schedule-based, a batch at a set time, or event-based, firing on campaign activity such as replies, category updates or link clicks.</p>
+<p>What it syncs is deliberately narrow: email address, first name, last name and company name. Only fields that exist in the Smartlead record are sent, and empty values do not overwrite what HubSpot already holds. Smartlead's guide also lists Slack as a requirement for notifications, so plan for that connection. Event triggers cannot be edited after the agent is created, so a wrong trigger means rebuilding the agent.</p>
+
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:14px 18px;margin:18px 0;border-radius:6px;">
+  <p style="margin:0;"><strong>What neither route is documented to do:</strong> create deals, write custom properties such as campaign name or reply category through the SmartAgents path, or sync unsubscribes and bounces. Smartlead's campaign-sync meta description mentions deals, but we could not confirm deal sync from the article body <strong>(directional)</strong>. The plan tier needed for SmartAgents is not stated in the guide.</p>
+</div>
+
+<p>If you are still choosing a sending tool, our <a href="/blog/smartlead-vs-instantly-2026">Smartlead vs Instantly comparison</a> and <a href="/blog/smartlead-pricing-2026">Smartlead pricing guide</a> cover cost and features. For the data side of feeding Smartlead, see our <a href="/blog/clay-smartlead-integration-push-leads-2026">Clay to Smartlead guide</a>.</p>
+
+<h2>Instantly: A Two-Way Automations Integration</h2>
+<p>Instantly connects to HubSpot through its Automations tab. You connect your HubSpot account, click "Add New", and pick HubSpot as a trigger or action source. Instantly's documentation lists these triggers: contact created, updated or deleted; deal created, updated or deleted; plus tasks, notes, communications, conversations and deal association changes.</p>
+<p>Actions include create or update contact, create message, create task, create note, send event, and create or update record. You map variables such as email, first name, last name, phone, company name, website, job title and custom variables. Instantly describes the sync as bidirectional: contacts can flow from HubSpot into Instantly, and key events such as positive replies, status changes and engagement outcomes can be pushed back.</p>
+<p>The page does not state which plan includes it, and it does not say how unsubscribes or bounces are handled. Test those two cases with a throwaway contact before you trust it with live campaigns <strong>(directional)</strong>. Instantly's changelog dates this integration to January 2026, so it is newer than Smartlead's routes <strong>(directional, from a changelog snippet)</strong>. For costs, see our <a href="/blog/instantly-pricing-2026">Instantly pricing guide</a>.</p>
+
+<h2>HubSpot-Side Constraints That Bite at Volume</h2>
+
+<h3>API rate limits</h3>
+<p>HubSpot's usage documentation gives these limits for privately distributed apps, which is what a custom webhook flow uses:</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+    <th style="padding:10px 12px;">HubSpot tier</th>
+    <th style="padding:10px 12px;">Calls per 10 seconds</th>
+    <th style="padding:10px 12px;">Calls per day</th>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Free / Starter</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">100</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">250,000</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Professional</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">190</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">625,000</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Enterprise</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">190</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">1,000,000</td>
+  </tr>
+</table>
+<p>Exceed them and HubSpot returns a 429 error. HubSpot recommends batch endpoints and webhooks over polling. A bulk back-fill of thousands of replied leads is the most common way to trip this, so batch the calls or space them out.</p>
+
+<h3>Marketing vs non-marketing contacts</h3>
+<p>According to HubSpot's knowledge base, contacts created through the API or integrations default to non-marketing, while contacts from forms default to marketing. Non-marketing contacts are not billed as marketing contacts, so syncing cold leads in does not by default inflate your marketing-contact tier. They become billable if someone sets them to marketing. Keep cold-outreach contacts non-marketing, and do not enrol them in HubSpot marketing email: that is a compliance and deliverability risk, covered in our <a href="/blog/cold-email-compliance-guide-gdpr-can-spam-2026">cold email compliance guide</a>.</p>
+
+<h3>Duplicates</h3>
+<p>Email is HubSpot's primary dedupe key. HubSpot community threads describe a create call on an existing email returning a 409 conflict, with the usual fix being to search first and update, or catch the 409 and patch <strong>(directional, community-sourced)</strong>. Smartlead's campaign sync only creates leads that do not already exist, and SmartAgents upserts by email. A person who appears under two addresses, or a prospect already owned by a rep, still needs your own rules. Our <a href="/blog/crm-data-hygiene-outbound-teams-2026">CRM data hygiene guide</a> covers the broader cleanup.</p>
+
+<h2>A Reply-to-Deal Pattern That Works</h2>
+<p>This is our recommended build, not vendor documentation. Use it when the native sync is not enough.</p>
+<ol>
+  <li><strong>Trigger:</strong> a reply or lead-category webhook from Smartlead or Instantly, filtered to positive categories only.</li>
+  <li><strong>Search:</strong> look up the HubSpot contact by email.</li>
+  <li><strong>Upsert:</strong> update the contact if found, create it if not, and set a source property such as "Outbound - Smartlead" plus a campaign property.</li>
+  <li><strong>Deal:</strong> create a deal in your first outbound stage, associate it with the contact and company, and assign the owner from your routing rule.</li>
+  <li><strong>Task:</strong> create a follow-up task for the rep with the reply text in the note.</li>
+  <li><strong>Suppression:</strong> on unsubscribe or hard bounce, set a "do not contact" property and stop any HubSpot sequence or workflow enrolment.</li>
+</ol>
+<p>Pair this with <a href="/blog/hubspot-deal-stages-outbound-teams-2026">outbound-specific deal stages</a> and <a href="/blog/hubspot-workflow-automation-reply-handling-2026">HubSpot workflows for reply handling</a>. To pick the automation platform, see our <a href="/blog/n8n-vs-make-vs-zapier-gtm-automation-2026">n8n vs Make vs Zapier comparison</a>.</p>
+
+<div style="background:#f4f7fb;border-left:4px solid #1f3a5f;padding:14px 18px;margin:18px 0;border-radius:6px;">
+  <p style="margin:0;"><strong>Property setup first.</strong> Create your custom properties (campaign, reply category, source, do-not-contact) in HubSpot before connecting anything, so mappings have somewhere to land. We did not verify HubSpot's custom property rules in this research, so check HubSpot's properties documentation for naming and type limits <strong>(directional)</strong>.</p>
+</div>
+
+<h2>What Breaks Most Often</h2>
+<ul>
+  <li><strong>Forgotten campaign toggle.</strong> New Smartlead campaigns launch without the HubSpot sync and replies never appear.</li>
+  <li><strong>Double firing.</strong> A schedule trigger and an event trigger both syncing the same lead produce duplicate activity or overwritten fields.</li>
+  <li><strong>Missing custom fields.</strong> With only four fields synced, reps cannot see which campaign or offer a lead replied to.</li>
+  <li><strong>Opt-outs not synced.</strong> A rep sequences a contact who already unsubscribed in the sending tool.</li>
+  <li><strong>Bulk 429 errors.</strong> A back-fill hits the 10-second limit and silently drops records.</li>
+</ul>
+
+<h2>Frequently Asked Questions</h2>
+
+<h3>Does Smartlead integrate natively with HubSpot?</h3>
+<p>Yes. Smartlead has a per-campaign sync that you enable when creating a campaign, and a SmartAgents integration connected through OAuth. Both push data from Smartlead to HubSpot only, and neither is documented to sync data back.</p>
+
+<h3>Which fields does the Smartlead HubSpot sync move?</h3>
+<p>The SmartAgents integration syncs email address, first name, last name and company name. Empty Smartlead fields do not overwrite existing HubSpot values. The older campaign sync lets you map fields yourself when creating the campaign.</p>
+
+<h3>Does Instantly sync with HubSpot in both directions?</h3>
+<p>Yes. Instantly's Automations integration can bring HubSpot contacts into Instantly and push events such as positive replies, status changes and engagement outcomes back to HubSpot. Instantly's page does not state plan requirements.</p>
+
+<h3>Will syncing cold leads increase my HubSpot bill?</h3>
+<p>Not by default. HubSpot's knowledge base says contacts created through the API or integrations default to non-marketing status, which is not billed as marketing contacts. They become billable if someone sets them to marketing, so keep outreach contacts non-marketing.</p>
+
+<h3>How do I create a HubSpot deal when a lead replies?</h3>
+<p>Use a webhook flow in n8n, Make or Zapier. Trigger on a positive reply, search HubSpot by email, upsert the contact, create the deal in your first outbound stage, associate it and assign an owner. The native Smartlead routes are not clearly documented to create deals.</p>
+
+<h3>Do unsubscribes and bounces sync to HubSpot?</h3>
+<p>Neither vendor's documentation says they do. Build it explicitly: on an unsubscribe or hard bounce, set a do-not-contact property in HubSpot and exclude those contacts from sequences and workflows. Test with a throwaway contact first.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+<p><strong>Want replies landing in HubSpot as qualified deals instead of lost threads? Read our <a href="/blog/hubspot-sequences-vs-cold-email-tools-2026">guide to HubSpot sequences vs dedicated cold email tools</a>, or <a href="/">talk to our team</a> and we will build and run the cold email, LinkedIn and RevOps stack for you.</strong></p>
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. Integration details from Smartlead and Instantly help centers and HubSpot documentation, checked 5 October 2026. Build patterns are our own recommendation. Last updated October 2026.</em></p>

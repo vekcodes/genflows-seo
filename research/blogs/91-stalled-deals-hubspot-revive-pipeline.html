@@ -1,0 +1,149 @@
+<!-- TITLE TAG: Stalled Deals in HubSpot: Spot & Revive At-Risk Pipeline -->
+<!-- META: How to spot stalled deals in HubSpot using native properties, custom reports, and workflow alerts, plus proven tactics to revive at-risk pipeline. -->
+<!-- SLUG: blog/stalled-deals-hubspot-revive-pipeline-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+  <p style="color:#e8732b;font-weight:700;text-transform:uppercase;font-size:13px;letter-spacing:0.5px;margin:0 0 10px;">TL;DR</p>
+  <ul style="margin:0;padding-left:20px;">
+    <li style="margin-bottom:8px;"><strong>HubSpot has no native "stalled deals" dashboard</strong> — but it does have the raw properties to build one: "Time in current stage," "Date entered current stage," and a calculated "Is stalled after timestamp" field that flags a deal once it's sat 20% longer than that owner's own closed-won average for the stage.</li>
+    <li style="margin-bottom:8px;"><strong>The practical stack is report + workflow, not a single button</strong>: filter deals on time-in-stage and last-activity-date, then automate an alert (task, email, Slack) when a deal crosses your threshold. Stage-calculated properties and workflows both require Sales Hub, Marketing Hub, or Smart CRM <strong>Professional or Enterprise</strong>.</li>
+    <li style="margin-bottom:8px;"><strong>Deal Score is the closest built-in "health" signal</strong> (AI-driven, Professional/Enterprise + a Sales seat) — HubSpot's own documentation calls it "informational only" and warns against using it as the sole basis for a decision.</li>
+    <li style="margin-bottom:8px;"><strong>Forrester's own 2024 research: 86% of B2B purchases stall</strong> somewhere in the buying process, more often from internal misalignment and budget hesitation than from losing to a competitor.</li>
+    <li style="margin-bottom:0;"><strong>The viral "76% breakup-email response rate" stat is one rep's 2014 anecdote</strong>, not a study — treat revival tactics as tactics, not proven benchmarks.</li>
+  </ul>
+</div>
+
+<p>A deal that isn't moving costs you twice: it ties up a rep's attention on something that may already be dead, and it inflates a forecast that finance is going to ask questions about later. HubSpot gives you the pieces to catch this early, but not a finished report — you have to assemble it yourself, and most teams either don't know the pieces exist or wire them together incorrectly.</p>
+
+<p><em>Note on sourcing: every statistic below is attributed to its original source with a fetch date, and marked as either a directly-verified vendor claim or a directional/unconfirmed figure. Several widely-circulated "stalled deal" statistics turned out to be mathematically odd, unsourced, or cross-attributed to two different vendors in secondary blogs — those are called out explicitly rather than repeated as fact.</em></p>
+
+<h2>The Short Answer</h2>
+<p>Build a stalled-deal view from three native HubSpot properties — "Time in current stage," "Last activity date," and (where available) "Is stalled after timestamp" — filtered against open deals only, then automate an alert or task when a deal crosses your threshold via a workflow. This requires Sales Hub, Marketing Hub, or Smart CRM <strong>Professional</strong> at minimum, since both stage-calculated properties and workflows sit behind that gate. Deal Score adds an AI-driven risk signal on top, but HubSpot itself frames it as directional, not a verdict. Reviving the deal once it's flagged is a sales-tactics problem, not a HubSpot-configuration problem — re-qualify, multithread, or write it off.</p>
+
+<h2>What "Stalled" Actually Means in HubSpot</h2>
+<p>HubSpot does not ship a "Stalled Deals" report or dashboard out of the box. What it has is a set of calculated properties that, combined, tell you the same thing:</p>
+
+<ul>
+  <li><strong>Time in current stage</strong> and <strong>Date entered current stage</strong> — read-only, auto-calculated, and reset every time a deal changes stage. This is the property most stalled-deal reports should actually filter on.</li>
+  <li><strong>Is stalled after timestamp</strong> — a native calculated property under "Calculated Deal Information." HubSpot's own description: it fires when "Time in stage" becomes 20% longer than the deal owner's closed-won average for that stage. It's a relative, per-rep benchmark, not a fixed day count — a deal that's "stalled" for a fast-closing rep might still be normal for a slower one.</li>
+  <li><strong>Deal probability</strong> — auto-set from the win probability configured on the pipeline stage. The trap: once anyone edits it manually — directly, via bulk edit, import, or an API/integration sync — it stops auto-updating and freezes at that value until the deal closes. A stalled deal with a suspiciously stable probability may just have a frozen field, not an accurate one.</li>
+  <li><strong>Deal score</strong> — an AI-generated 0–100 win-likelihood score that factors in deal properties and engagement signals, including inactivity and overdue tasks. This is a different property from Deal probability and requires Sales Hub or Smart CRM Professional/Enterprise plus an assigned Sales seat. HubSpot's own guidance is explicit: scores are "for information only and shouldn't be used as the only factor in making business decisions," and can lag up to 48 hours.</li>
+</ul>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+    <th style="padding:10px 12px;">Capability</th>
+    <th style="padding:10px 12px;">Free / Starter</th>
+    <th style="padding:10px 12px;">Professional</th>
+    <th style="padding:10px 12px;">Enterprise</th>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Single-object deals report</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes (Starter)</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Cross-object custom report builder</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">"Time in current stage" / stage-calculated properties</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Not confirmed available</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Workflows (stall alerts, auto-tasking)</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Deal Score (AI)</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes (+ Sales seat)</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes (+ Sales seat)</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Formula fields ("days since last activity")</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes</td>
+  </tr>
+</table>
+
+<p>This post assumes your <a href="/blog/hubspot-deal-stages-outbound-teams-2026">deal stages are already well-designed</a> — if reps are parking deals in the wrong stage or your stages don't map to a real buying process, fix that first; a stall report built on bad stages just reports noise.</p>
+
+<h2>Why Deals Stall (What the Data Actually Shows)</h2>
+<p>Forrester's own newsroom release for <em>The State of Business Buying, 2024</em> states that <strong>86% of B2B purchases stall during the buying process</strong>, and that 81% of buyers report dissatisfaction with the provider they eventually chose. Forrester attributes this primarily to internal misalignment and budget hesitation on the buyer's side — not to losing a competitive bake-off. <em>(Verified via Forrester's own press release; the release doesn't disclose the underlying survey sample size, so cite the finding with attribution rather than as an audited statistic.)</em></p>
+
+<p>Ebsta's 2024 benchmark report — built from 4.2 million opportunities across 530 companies, with a stated methodology — found that when a deal slips past its original close date, win rates drop 67%, particularly once the slip exceeds eight weeks; and that spending 50% longer than average in the qualification stage increases the odds of slipping by 120%. Separately, 77% of the slipped deals in that dataset had a key objection surface early in the cycle. <em>(Verified directly from Ebsta's published report; treat as one vendor's book-of-business analysis, not an independent academic study.)</em></p>
+
+<p>Gong has published that reps who complete open action items and follow up promptly close deals 11% faster on average, and that win rates were roughly 50% higher on deals where reps completed all AI-recommended next steps versus those who didn't — though Gong doesn't disclose a sample size or methodology for either figure on the page making the claim, so treat both as directional vendor observations.</p>
+
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:16px 20px;margin:20px 0;border-radius:6px;">
+  <p style="margin:0 0 8px;font-weight:700;color:#e8732b;">Numbers we're not repeating as fact</p>
+  <p style="margin:0 0 8px;">A widely-shared figure claims win rates "plummet by 113%" for deals stuck beyond two months. That's mathematically odd on its face — a rate can't fall by more than 100% — and it comes from a page with no stated sample size, distinct from the properly-sourced 4.2M-deal report cited above. A separate "deals closing within 50 days win ~47% vs. ~20% beyond 50 days" figure is attributed to two different vendors in different secondary sources, a sign it's being passed around without anyone tracing it back to an original study. Neither appears in this post.</p>
+  <p style="margin:0;">The oft-cited "76% response rate" for breakup emails also isn't a study — it's one sales rep's self-reported result from a 2014 experiment, published as personal experience on HubSpot's own blog with no third-party validation or sample size. Use breakup emails as a tactic, not a benchmark you should expect to hit.</p>
+</div>
+
+<div style="background:#f4f7fb;border-left:4px solid #1f3a5f;padding:16px 20px;margin:20px 0;border-radius:6px;">
+  <p style="margin:0;"><strong>On outbound-sourced pipeline specifically:</strong> no vendor study we could find segments stall rates by lead source (outbound vs. inbound). What's defensible is reasoning, not a stat: a cold-email- or LinkedIn-sourced deal usually starts from one replied prospect rather than an assembled buying committee, which plausibly makes it more exposed to Forrester's "no decision" failure mode and to Ebsta's "objection surfaced early" pattern — but that's an inference, not a measured finding, and the post treats it that way <em>(directional)</em>.</p>
+</div>
+
+<h2>Building a Stalled-Deal View in HubSpot</h2>
+<p>The mechanics, in order:</p>
+<ol>
+  <li><strong>Start from a custom report</strong>, filtered to open deals (exclude Closed Won/Lost) where "Time in current stage" exceeds a threshold you set per pipeline stage — a single global number (e.g. "14 days") is a blunt instrument since stages have very different natural durations; a per-stage threshold is more useful.</li>
+  <li><strong>Add "Last activity date" and "Last contacted"</strong> as columns or secondary filters. A deal can look fine on time-in-stage but have gone quiet — no logged call, email, meeting, or note — which "Time in current stage" alone won't surface.</li>
+  <li><strong>Build a formula field</strong> for "days since last activity" if you want a single sortable number rather than eyeballing two date columns — this requires Professional-tier formula fields, since HubSpot has no native "days since engagement" property.</li>
+  <li><strong>Cross-reference with "Is stalled after timestamp"</strong> where it's populated, as a second, owner-relative signal rather than your only one.</li>
+  <li>If you're on the Professional/Enterprise plans that include Deal Score, add it as a supplementary sort — but per HubSpot's own caveat, use it to prioritize which stalled deals to look at first, not as a verdict on which ones are dead.</li>
+</ol>
+<p>Since "Time in current stage" and stage-calculated properties require Professional or Enterprise, and cross-object reporting (deals plus contacts plus companies in one view) is also Professional+, a genuinely useful stalled-deal report is effectively a Professional-tier build even though a basic single-object deals report exists on Starter.</p>
+
+<h2>Automating Stall Alerts and Revival Workflows</h2>
+<p>Once the report exists, the next step is not making a rep check it daily — it's a workflow that watches for the same conditions and pushes a nudge:</p>
+<ul>
+  <li><strong>Enrollment trigger:</strong> deal enters a workflow when "Time in current stage" exceeds your threshold, or when neither "Last activity date" nor "Last contacted" has updated in a set window.</li>
+  <li><strong>Action:</strong> auto-create a follow-up task for the deal owner, and/or send an internal notification (email, or a Slack alert via HubSpot's native Slack integration or a webhook/Zapier connection).</li>
+  <li><strong>Ownership changes:</strong> workflows can re-enroll and alert when a deal's owner changes, which is a usable nudge — but note that HubSpot workflows don't automatically move a deal's existing open tasks to a new owner when reassignment happens, so a manual task audit still matters after any reassignment.</li>
+</ul>
+<p>All of this — enrollment triggers, internal notifications, task creation — sits behind the Professional/Enterprise workflows gate. There is no equivalent on Starter.</p>
+
+<h2>Reviving a Stalled Deal: Tactics That Actually Move Them</h2>
+<p>Once a deal is flagged, HubSpot's job is done — reviving it is a sales-execution problem:</p>
+<ul>
+  <li><strong>Re-qualify before re-pitching.</strong> Given Forrester's finding that most stalls are "no decision" rather than "lost to a competitor," the highest-leverage move is usually re-confirming budget, timeline, and whether a compelling event still exists — not sending a better version of the same pitch.</li>
+  <li><strong>Multithread when the original contact goes quiet.</strong> This is the single most common fix for outbound-sourced deals specifically, since they often start from one replied prospect rather than an assembled buying committee. We cover the mechanics in depth in <a href="/blog/multithreading-deals-hubspot-buying-committees-2026">multithreading deals and buying committees in HubSpot</a> — worth reading in full rather than re-covered here.</li>
+  <li><strong>Send a breakup/close-the-file email as a last resort, not a first move.</strong> It's a legitimate tactic for forcing a yes/no, but don't expect the frequently-cited 76% response rate — that number belongs to one person's anecdote, not your pipeline.</li>
+  <li><strong>Know when to stop.</strong> A deal that doesn't respond to re-qualification or multithreading after a defined number of attempts should be marked Closed Lost rather than left open indefinitely distorting your forecast — and that outcome becomes useful input for <a href="/blog/win-loss-analysis-hubspot-revops-2026">win-loss analysis</a> once it's actually closed, not while it's still technically "open but dead."</li>
+</ul>
+<p>One forecasting consequence worth naming directly: stalled deals that stay open past their close date without being re-qualified or re-dated quietly inflate pipeline coverage math. If you're building forecasts on top of a pipeline full of zombie deals, the coverage ratio looks healthier than it is — see <a href="/blog/sales-forecasting-methods-b2b-2026">sales forecasting methods for B2B teams</a> for how that math should actually work.</p>
+
+<h2>Frequently Asked Questions</h2>
+
+<h3>Does HubSpot have a native "stalled deals" report?</h3>
+<p>Not a single built-in report, but HubSpot provides the properties to build one: "Time in current stage," "Date entered current stage," and a calculated "Is stalled after timestamp" property that flags when a deal has sat 20% longer than that owner's own closed-won average for the stage. You assemble these into a custom report or workflow yourself.</p>
+
+<h3>What HubSpot tier do I need to track time-in-stage?</h3>
+<p>"Time in current stage" and related stage-calculated properties require Sales Hub, Marketing Hub, or Smart CRM Professional or Enterprise. They are not confirmed available on Free or Starter.</p>
+
+<h3>Can HubSpot automatically alert a rep when a deal goes stale?</h3>
+<p>Yes, via workflows (Professional/Enterprise only). You can enroll deals where time-in-stage exceeds a threshold or activity has gone quiet, then trigger an internal notification, a task, or a Slack/email alert.</p>
+
+<h3>Does HubSpot automatically flag deals with no recent activity?</h3>
+<p>There's no single "days since last engagement" field out of the box. You build it from the "Last activity date" and "Last contacted" properties, typically with a formula field (Professional+) or a workflow date-based trigger.</p>
+
+<h3>Is the "76% response rate" breakup-email statistic real?</h3>
+<p>It traces back to one sales rep's self-reported result from a single 2014-era experiment, not a controlled study — the post presenting it offers no sample size or third-party verification. Treat breakup-email response-rate claims as a tactic worth trying, not a proven benchmark.</p>
+
+<h3>What share of B2B deals actually stall before closing?</h3>
+<p>Forrester's own State of Business Buying, 2024 report states that 86% of B2B purchases stall during the buying process, most often from internal misalignment or budget hesitation rather than losing to a competitor — though Forrester's public release doesn't disclose the underlying survey's sample size.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+<p><strong>If your outbound pipeline is full of deals that "still might close" but haven't moved in weeks, that's a process problem, not a HubSpot problem — see how we design <a href="/blog/hubspot-deal-stages-outbound-teams-2026">deal stages built for outbound teams</a>, or <a href="/">talk to our team</a> about auditing your pipeline.</strong></p>
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. Sources cited and verified where noted; unverifiable figures were deliberately excluded. Last updated September 2026.</em></p>

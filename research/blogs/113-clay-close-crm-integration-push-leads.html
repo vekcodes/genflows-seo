@@ -1,0 +1,128 @@
+<!-- TITLE TAG: Clay + Close CRM Integration: Push Leads (2026) -->
+<!-- META: How to connect Clay to Close CRM in 2026: the six native actions, API key setup, dedupe with Lookup Objects, HTTP API for opportunities, and sequence enrolment. -->
+<!-- SLUG: blog/clay-close-crm-integration-push-leads-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+<p style="margin:0 0 10px;color:#e8732b;font-weight:700;letter-spacing:.04em;font-size:13px;">TL;DR</p>
+<ul style="margin:0;padding-left:20px;">
+<li><strong>Clay has a native Close integration with six actions:</strong> Lookup Objects, Create Leads, Update Leads, Create Contact, Update Contact and Subscribe to Sequence.</li>
+<li><strong>Auth is a Close API key</strong> pasted into Clay under Settings &gt; Connections. No OAuth step.</li>
+<li><strong>Close does not stop duplicates for you in this flow.</strong> Run Lookup Objects first and create a lead only when nothing comes back. That is our recommended pattern, not a documented Close feature.</li>
+<li><strong>No native opportunity action.</strong> To create opportunities from Clay you call Close&rsquo;s API through Clay&rsquo;s HTTP API column.</li>
+<li><strong>Close is lead-centric.</strong> A lead is the company; contacts, opportunities and activities hang off it. Map Clay&rsquo;s company row to a lead and its people to contacts.</li>
+<li><strong>Subscribe to Sequence</strong> closes the loop: enrich in Clay, land in Close, enrol straight into a Close sequence.</li>
+</ul>
+</div>
+
+<p>Clay is where outbound data gets built. Close is where a lot of lean outbound teams run the calls, emails and follow-up. The handoff between the two is where lists quietly break: duplicate leads, contacts with no company, and sequences that fire at records that were already being worked.</p>
+
+<p>We already cover the same handoff for <a href="/blog/clay-hubspot-integration-sync-crm-2026">Clay to HubSpot</a>, <a href="/blog/clay-smartlead-integration-push-leads-2026">Clay to Smartlead</a> and <a href="/blog/clay-heyreach-integration-push-leads-linkedin-2026">Clay to HeyReach</a>. This is the Close version, built for teams that live in Close&rsquo;s lead-and-sequence model.</p>
+
+<p><em>Sourcing note: action names and the Close connection steps come from Clay&rsquo;s University docs and Close&rsquo;s integration page; API details from Close&rsquo;s developer docs, read in October 2026. Anything we could not confirm (custom-field support in the native actions, credit cost, plan gating) is marked (directional) or left out.</em></p>
+
+<h2>The Short Answer</h2>
+
+<p>Use the native Clay actions for the standard path: look up the lead, create it if missing, add the contact, optionally enrol the contact in a Close sequence. Reach for the HTTP API column only when you need something the native actions do not list, mainly opportunities and custom fields.</p>
+
+<h2>What the Native Clay Close Integration Does</h2>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;"><th style="padding:10px 12px;">Action</th><th style="padding:10px 12px;">What it does</th><th style="padding:10px 12px;">Use it for</th></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Lookup Objects</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Finds a lead or contact from a query (Clay&rsquo;s visual query builder can build it)</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Dedupe check before any create</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Create Leads</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Creates a new lead (company)</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Net-new accounts</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Update Leads</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Updates an existing lead</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Re-enrichment of known accounts</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Create Contact</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Adds a person to a lead</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Decision makers found in Clay</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Update Contact</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Updates an existing contact</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">New email, title or phone found later</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Subscribe to Sequence</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Enrols a contact in a Close sequence (needs Contact ID and Sequence ID; sender and call-assignment fields optional)</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Hands-off start of outreach</td></tr>
+</table>
+
+<p>Not on the list: an opportunity action. Whether the native actions expose your Close custom fields is not stated in Clay&rsquo;s docs, so test that on a sandbox row before you build around it <em>(directional)</em>.</p>
+
+<h2>Step-by-Step Setup</h2>
+
+<h3>1. Create the connection</h3>
+<p>In Close, generate an API key. In Clay, go to Settings &gt; Connections, click Add Connection, choose Close, paste the key and name the account. Use a dedicated key (for example &ldquo;clay-outbound&rdquo;) so you can revoke it without touching anyone&rsquo;s personal access. Close lists API access on every plan, per its pricing page; see our <a href="/blog/close-crm-pricing-2026">Close CRM pricing breakdown</a> for what else each tier gates.</p>
+
+<h3>2. Finish enrichment before you push</h3>
+<p>Do not write half-built rows into your CRM. Run your <a href="/blog/clay-waterfall-enrichment-setup-step-by-step-2026">waterfall enrichment</a>, verify the email, and add a formula column such as &ldquo;ready to push&rdquo; that is true only when company name, domain and a verified email exist. Clay actions auto-run on new rows by default, so a gating formula is what keeps junk out of Close.</p>
+
+<h3>3. Look up before you create</h3>
+<p>Add Lookup Objects as the first Close step and search for the lead (by company URL or name) or the contact (by email). Then make Create Leads conditional on the lookup returning nothing. We have not found a Close doc describing duplicate prevention on create, so treat this lookup as mandatory, not optional. Our <a href="/blog/crm-data-hygiene-outbound-teams-2026">CRM data hygiene guide</a> covers why duplicates are the most expensive CRM error in outbound.</p>
+
+<h3>4. Create the lead, then the contact</h3>
+<p>Map company name, website and any status you want to set. Then Create Contact against the lead&rsquo;s ID with name, title, verified email and phone. Order matters: the contact needs a lead to belong to.</p>
+
+<h3>5. Optional: enrol in a sequence</h3>
+<p>Subscribe to Sequence takes the Contact ID and the Sequence ID. Build the sequence in Close first (see <a href="/blog/close-crm-workflows-sequences-outbound-2026">Close workflows and sequences</a>), copy its ID, and gate the action on &ldquo;verified email + passed ICP filter&rdquo;. Remember Close Workflows are on Growth and Scale per Close&rsquo;s pricing page; check your own plan covers the sequence feature you need.</p>
+
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:14px 18px;margin:20px 0;border-radius:6px;">
+<p style="margin:0;"><strong>Warning: auto-run.</strong> Because actions run automatically on new rows, a half-finished table can create dozens of leads before you notice. Build with auto-run off, test on five rows, check them in Close, then switch it on.</p>
+</div>
+
+<h2>When You Need the HTTP API Instead</h2>
+
+<p>Close&rsquo;s API creates a lead with <code>POST https://api.close.com/api/v1/lead/</code>. Per Close&rsquo;s developer docs, the body can carry the name, URL, a <code>status_id</code>, addresses, a nested contacts array and custom fields. A few details matter:</p>
+<ul>
+<li><strong>Use <code>status_id</code>, not the status name.</strong> Names can be renamed in Close and break your table.</li>
+<li><strong>Custom fields use the key <code>custom.cf_xxx</code>,</strong> where the ID belongs to that field. The older name-based forms are deprecated. For multi-value fields you must send the full list, because the value is replaced.</li>
+<li><strong>Opportunities, tasks and activities are posted separately,</strong> not nested in the lead call.</li>
+</ul>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;"><th style="padding:10px 12px;">Approach</th><th style="padding:10px 12px;">Setup effort</th><th style="padding:10px 12px;">Covers</th><th style="padding:10px 12px;">Watch out for</th></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Native Clay actions</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Low: API key + field mapping</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Leads, contacts, lookup, sequence enrolment</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No opportunities; custom-field support unconfirmed</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Clay HTTP API column</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Medium: you write the JSON and auth</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Anything in Close&rsquo;s API: opportunities, notes, <code>custom.cf_xxx</code></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">You own dedupe logic and error handling; confirm Clay plan access</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Zapier / n8n / Make</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Medium: extra tool</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Clay webhook to Close, plus reverse triggers</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Extra cost and latency per task <em>(directional)</em></td></tr>
+</table>
+
+<h3>Rate limits</h3>
+<p>Close applies limits per endpoint group and returns a <code>RateLimit</code> header; on a 429 you wait the stated <code>rate_reset</code> seconds. We did not confirm the exact requests-per-second numbers, so for bulk pushes, run Clay in modest batches and watch for 429s rather than assuming headroom.</p>
+
+<h2>Sending Cold Email After the Push</h2>
+
+<p>Close sequences send from inside the CRM, which suits low-to-mid volume with phone in the mix. At scale, most teams keep a dedicated sender; our <a href="/blog/close-crm-cold-email-integration-2026">Close CRM cold email integration guide</a> covers how that connects, and the <a href="/blog/heyreach-close-crm-integration-2026">HeyReach to Close guide</a> covers the LinkedIn side. We have not verified a native reply-sync path from every sender back into Close, so check that before you rely on it <em>(directional)</em>. If you are still choosing a CRM, read <a href="/blog/close-crm-vs-hubspot-outbound-sales-teams-2026">Close vs HubSpot for outbound</a>.</p>
+
+<h2>Closing the Loop: Close Webhooks</h2>
+
+<p>Close can POST JSON events (with the changed fields) to a URL you subscribe, signed with HMAC headers, retrying failures for up to 72 hours. That makes it possible to send status changes back to Clay or an n8n flow. We found no Clay or Close doc describing a ready-made Close-to-Clay setup, so consider this a build-it-yourself pattern <em>(directional)</em>.</p>
+
+<div style="background:#f4f7fb;border-left:4px solid #1f3a5f;padding:14px 18px;margin:20px 0;border-radius:6px;">
+<p style="margin:0;"><strong>Cost check.</strong> Clay plan and credit costs for these actions were not confirmed. One Clay integration page reportedly lists the Create Lead action on its Growth plan and above <em>(directional)</em>. See our <a href="/blog/clay-pricing-honest-review-plans-credits-costs-2026">Clay pricing review</a> and confirm on Clay&rsquo;s live page.</p>
+</div>
+
+<h2>Common Mistakes</h2>
+<ul>
+<li><strong>Skipping Lookup Objects,</strong> then wondering why Close has three copies of the same company.</li>
+<li><strong>Pushing unverified emails,</strong> which drags sender reputation down the moment a Close sequence fires.</li>
+<li><strong>Enrolling before the sequence is tested,</strong> so the first real prospects become your QA.</li>
+<li><strong>Writing to Close with a personal API key,</strong> so a team change breaks the integration.</li>
+<li><strong>Treating a contact as a lead.</strong> In Close the lead is the company; one lead, many contacts.</li>
+</ul>
+
+<p>For more table patterns, see <a href="/blog/clay-advanced-workflows-10-recipes-2026">10 advanced Clay workflow recipes</a>.</p>
+
+<h2>Frequently Asked Questions</h2>
+
+<h3>Does Clay have a native Close integration?</h3>
+<p>Yes. It offers six actions: Lookup Objects, Create Leads, Update Leads, Create Contact, Update Contact and Subscribe to Sequence.</p>
+
+<h3>How do I connect Clay to Close?</h3>
+<p>Generate an API key in Close, then in Clay open Settings &gt; Connections, add Close, paste the key and name the account.</p>
+
+<h3>How do I avoid duplicate leads in Close from Clay?</h3>
+<p>Run a Lookup Objects step first and only create the lead when nothing is found. The Close docs we read do not describe built-in duplicate prevention on create, so this is a pattern you build, not a setting you switch on.</p>
+
+<h3>Can Clay create opportunities in Close?</h3>
+<p>Not with the native actions listed in Clay&rsquo;s docs. Use Clay&rsquo;s HTTP API column to call Close&rsquo;s API, where opportunities are posted separately from the lead.</p>
+
+<h3>How do I fill Close custom fields from Clay?</h3>
+<p>Through the API, use <code>custom.cf_xxx</code> keys on the lead. Clay&rsquo;s docs do not state whether the native actions expose custom fields, so test before you depend on it.</p>
+
+<h3>Do I need a specific Close plan for the integration?</h3>
+<p>Close&rsquo;s pricing page lists API access on all plans. Workflows are on Growth and Scale, so check your plan if you want automation beyond the push itself.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+
+<p><strong>Want this wired up for you?</strong> We build Clay-to-Close pipelines as part of our outbound and RevOps work. Start with the <a href="/blog/close-crm-workflows-sequences-outbound-2026">Close sequences guide</a>, then <a href="/">talk to our team</a>.</p>
+
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. Vendor details were checked in October 2026 and change often; confirm on the vendor pages before building. Last updated October 2026.</em></p>

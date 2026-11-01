@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>GenFlows — Owner SEO Plan (Backlinks, Site Fixes, Research)</title>
+<style>
+  @page { size: A4; margin: 15mm 14mm 16mm; }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: -apple-system, "Helvetica Neue", Arial, sans-serif; color: #1f2937; font-size: 10.3px; line-height: 1.5; margin: 0; }
+  h1 { font-size: 23px; color: #1f3a5f; margin: 0 0 4px; letter-spacing: -.3px; }
+  h2 { font-size: 14.5px; color: #1f3a5f; margin: 22px 0 8px; padding-bottom: 5px; border-bottom: 2px solid #e8732b; }
+  h3 { font-size: 11.8px; color: #1f3a5f; margin: 14px 0 4px; }
+  h4 { font-size: 10.4px; color: #1f3a5f; margin: 10px 0 3px; }
+  p { margin: 0 0 7px; }
+  a { color: #1f3a5f; text-decoration: none; }
+  ul, ol { margin: 4px 0 9px; padding-left: 17px; }
+  li { margin: 2.5px 0; }
+  code { background: #f1f5f9; padding: 1px 4px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 9px; }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0 14px; font-size: 9.2px; }
+  th { background: #1f3a5f; color: #fff; text-align: left; padding: 6px 8px; font-weight: 600; }
+  td { padding: 5px 8px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+  tr:nth-child(even) td { background: #f8fafc; }
+  .cover { border-bottom: 3px solid #e8732b; padding-bottom: 13px; margin-bottom: 6px; }
+  .sub { color: #64748b; font-size: 9.8px; }
+  .tldr { background: #f4f7fb; border-left: 4px solid #e8732b; padding: 11px 15px; border-radius: 5px; margin: 11px 0 16px; }
+  .tag { display: inline-block; font-size: 8px; font-weight: 700; padding: 1px 6px; border-radius: 3px; color: #fff; vertical-align: middle; white-space:nowrap; }
+  .p0 { background: #dc2626; } .p1 { background: #ea580c; } .p2 { background: #16a34a; }
+  .done { background:#0e7490; }
+  .muted { color:#64748b; }
+  .pagebreak { page-break-before: always; }
+  .foot { margin-top: 20px; padding-top: 9px; border-top: 1px solid #e2e8f0; color: #94a3b8; font-size: 8.4px; }
+  .item { border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 13px; margin: 0 0 12px; page-break-inside: avoid; }
+  .item h3 { margin-top: 0; }
+  .lbl { display:inline-block; min-width:74px; font-weight:700; color:#1f3a5f; font-size:9.2px; }
+  .row { margin: 3px 0; font-size: 9.6px; }
+  .ev { background:#fff7ed; border-left:3px solid #e8732b; padding:6px 9px; border-radius:4px; font-size:9.2px; margin:5px 0 6px; }
+  .dod { background:#f0fdf4; border-left:3px solid #16a34a; padding:6px 9px; border-radius:4px; font-size:9.2px; margin:6px 0 2px; }
+  .warn { background:#fef2f2; border-left:3px solid #dc2626; padding:8px 11px; border-radius:4px; font-size:9.6px; margin:10px 0; }
+  .kpi { display:flex; gap:8px; margin:10px 0 14px; }
+  .kpi div { flex:1; border:1px solid #e2e8f0; border-radius:6px; padding:8px 10px; }
+  .kpi .n { font-size:17px; font-weight:700; color:#1f3a5f; line-height:1.2; }
+  .kpi .l { font-size:8.6px; color:#64748b; margin-top:2px; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <h1>GenFlows — Owner SEO Plan</h1>
+  <p class="sub"><strong>The plan at owner level: backlinks, confirming the website is genuinely fixed, measurement and ongoing research.</strong> This is the strategic wrapper around the two existing task lists — it says what we are doing, in what order, who owns it and what "done" looks like. The task-level detail already lives in <em>GenFlows_Website_Tech_Spec_2026-07-27</em> (developer) and <em>GenFlows_Marketing_Actions_2026-07-27</em> (marketing).</p>
+  <p class="sub"><strong>Date:</strong> 29 July 2026 &nbsp;·&nbsp; <strong>Property:</strong> www.genflows.com (HubSpot portal 49399880) &nbsp;·&nbsp; <strong>Source audit:</strong> GenFlows_SEO_AEO_Report_2026-07-21</p>
+</div>
+
+<div class="tldr">
+  <strong>The situation in one paragraph.</strong> Content volume is no longer the problem — roughly 81 posts are live or drafted and on-page hygiene is clean. Three things hold rankings back, and none of them is a writing problem. <strong>(1)</strong> Most posts are too young for Google to have ranked them yet. <strong>(2)</strong> The domain has almost no backlinks, so it cannot outrank established competitors on commercial terms regardless of content quality. <strong>(3)</strong> A set of technical defects — sitemap gaps, duplicated head tags, the Tailwind Play CDN, stale <code>/v3</code> and <code>/v5</code> pages — means part of the library is not even being discovered cleanly. <strong>Backlinks and the technical fixes are the two levers that actually move the needle now.</strong> Everything else in this document exists to support those two.
+</div>
+
+<div class="kpi">
+  <div><div class="n">~81</div><div class="l">posts live / drafted in HubSpot</div></div>
+  <div><div class="n">15–25</div><div class="l">referring domains — 90-day target</div></div>
+  <div><div class="n">3–6 mo</div><div class="l">before link work shows in rankings</div></div>
+  <div><div class="n">5</div><div class="l">workstreams, one owner each</div></div>
+</div>
+
+<h2>The five workstreams</h2>
+<table>
+  <tr><th style="width:34px;">#</th><th>Workstream</th><th style="width:110px;">Owner</th><th style="width:78px;">Effort</th><th style="width:44px;">Prio</th></tr>
+  <tr><td>W1</td><td>Confirm the website is actually fixed</td><td>Developer</td><td>Days, then done</td><td><span class="tag p0">P0</span></td></tr>
+  <tr><td>W2</td><td>Backlinks &amp; digital PR — the real competitive lever</td><td>Owner + team</td><td>High, ongoing</td><td><span class="tag p0">P0</span></td></tr>
+  <tr><td>W3</td><td>Measurement — stop guessing</td><td>Owner / marketing</td><td>Low, then monthly</td><td><span class="tag p0">P0</span></td></tr>
+  <tr><td>W4</td><td>Research — keyword gaps, AEO, competitors, link prospects</td><td>Marketing + automation</td><td>Medium, recurring</td><td><span class="tag p1">P1</span></td></tr>
+  <tr><td>W5</td><td>Content — same cadence, different mix</td><td>Existing batch process</td><td>Medium, ongoing</td><td><span class="tag p1">P1</span></td></tr>
+</table>
+
+<h2>W1 · Confirm the website is actually fixed <span class="tag p0">P0</span></h2>
+<p class="sub"><strong>Owner:</strong> developer, plus whoever controls the HubSpot theme and DNS. This gates everything else.</p>
+
+<div class="ev">Nothing compounds until this is closed. The specification is already written — this workstream is about <strong>verifying it shipped in production</strong>, not re-planning it. Do not mark it done on "we deployed"; mark it done on "the checks pass on the live site."</div>
+
+<div class="item">
+<h3>What has to be true</h3>
+<ol>
+  <li><strong>Sitemap.</strong> Every published post present (18 were missing at audit), sitemap declared in <code>robots.txt</code>, no post frozen at 1970-01-01.</li>
+  <li><strong>Head / theme cleanup.</strong> Duplicated canonical, OG and title tags removed. The Tailwind Play CDN removed — it is a development-only script and a real performance drag. Leftover AMP removed.</li>
+  <li><strong>Stale pages resolved.</strong> <code>/v3</code>, <code>/v5</code> and any other orphan or test URLs 301-redirected, not merely unlinked from navigation.</li>
+  <li><strong>Structured data.</strong> One consolidated JSON-LD graph per blog post, replacing the theme's two competing blocks. Organisation schema on the homepage. FAQPage schema on posts. <code>llms.txt</code> published.</li>
+  <li><strong>Verification pass.</strong> Run the one-command verification set in the tech spec appendix, then run it again seven days later to confirm nothing regressed on the next theme publish.</li>
+</ol>
+<div class="dod"><strong>Definition of done —</strong> every check in the tech spec appendix passes on the live site, Search Console reports no coverage errors, and Core Web Vitals are green on mobile for a representative blog post URL.</div>
+</div>
+
+<h2>W2 · Backlinks &amp; digital PR <span class="tag p0">P0</span></h2>
+<p class="sub"><strong>Owner:</strong> owner / founder, with team support. <strong>Target:</strong> 15–25 quality referring domains in the first 90 days.</p>
+
+<div class="ev">We are targeting commercial head terms where incumbents have years of domain age and hundreds of referring domains. On-page quality does not beat that — links do. Relevance matters far more than volume: one link from a RevOps or GTM newsletter is worth more than fifty directory listings.</div>
+
+<div class="item">
+<h3>Tier 1 · Foundation — first two weeks, free</h3>
+<p class="muted" style="font-size:9.2px;margin:0 0 5px;">Not really link building, but it is the floor everyone else already has.</p>
+<ul>
+  <li><strong>Claim and fully complete:</strong> G2, Clutch, Crunchbase, LinkedIn company page, and the relevant agency directories.</li>
+  <li><strong>Founder and team profiles</strong> pointing at the site: LinkedIn, X, personal site, every podcast and speaker bio.</li>
+  <li><strong>Tool-ecosystem listings — the most overlooked win.</strong> We already display Clay Artisan Solutions Partner, Smartlead Certified Partner and First 100 Partner badges. Ask each partner for a directory listing or partner-page link. Also: n8n community, HubSpot Solutions Directory. These are high-relevance and usually free.</li>
+</ul>
+</div>
+
+<div class="item">
+<h3>Tier 2 · The engine — weeks 3 to 12</h3>
+<ul>
+  <li><strong>Podcast guesting — highest ROI for an agency.</strong> Target RevOps, B2B sales and GTM shows. Two per month. Every appearance gives a show-notes link plus distribution to a buying audience.</li>
+  <li><strong>Original data / benchmark report.</strong> We already have a "B2B Outbound Benchmarks 2026" post. Turn it into a standalone annual report using real numbers from client campaigns. Data is the single most linkable asset type, because other people cite statistics.</li>
+  <li><strong>Guest posts and expert contributions.</strong> Pitch RevOps and sales-tech publications. Two per month.</li>
+  <li><strong>Expert-quote sourcing.</strong> Answer journalist requests in our lane — outbound, deliverability, GTM engineering. Low effort, occasionally lands a high-authority link.</li>
+  <li><strong>Comparison-page outreach.</strong> When a "best cold email tools" or "top GTM agencies" roundup exists and we are absent, pitch inclusion.</li>
+</ul>
+</div>
+
+<div class="item">
+<h3>Tier 3 · Partnerships — ongoing</h3>
+<ul>
+  <li>Co-marketing with complementary, non-competing vendors and agencies — a data provider, a deliverability tool, a CRM consultancy. Joint webinar or joint guide, mutual links.</li>
+  <li>Client case studies published on partner sites, linking back.</li>
+</ul>
+</div>
+
+<div class="warn">
+  <strong>Do not:</strong> buy link packages, use private blog networks, or mass-blast guest-post offers. On a young domain that is a live risk to the whole property, not a theoretical one.
+</div>
+
+<div class="item">
+<h3>How we track it</h3>
+<div class="row"><span class="lbl">The sheet</span> One tracker: target, contact, channel, status, date pitched, live URL, referring domain. Reviewed weekly.</div>
+<div class="row"><span class="lbl">The scoreboard</span> Referring-domain count, checked monthly. That single number is how we judge whether this workstream is happening.</div>
+<div class="row"><span class="lbl">Pipeline rule</span> Keep 30+ live prospects in the sheet at all times, or the weekly slot runs dry and quietly stops.</div>
+</div>
+
+<div class="pagebreak"></div>
+
+<h2>W3 · Measurement <span class="tag p0">P0</span></h2>
+<p class="sub"><strong>Owner:</strong> owner / marketing. Small effort, and it unblocks every query-level decision.</p>
+
+<div class="item">
+<h3>What to put in place</h3>
+<ul>
+  <li><strong>Google Search Console verified</strong> for the domain and the sitemap submitted — then <strong>28 days of impression data collected before drawing any conclusions.</strong> A large part of the audit's guidance is explicitly blocked on this.</li>
+  <li><strong>Bing Webmaster Tools</strong> as well — it feeds ChatGPT's search, so it matters for AI-search visibility.</li>
+  <li><strong>GA4 confirmed firing</strong> on all blog pages, with the de-duplication date noted so historical numbers are read correctly.</li>
+  <li><strong>Backlink monitoring:</strong> one tool only — Ahrefs, Semrush, or the free Search Console links report — checked monthly.</li>
+</ul>
+<div class="dod"><strong>Monthly one-pager —</strong> referring domains, indexed pages, total impressions, top 10 queries, clicks, and demo requests attributed to organic. One page, same six numbers every month, so the trend is visible at a glance.</div>
+</div>
+
+<h2>W4 · Research <span class="tag p1">P1</span></h2>
+<p class="sub"><strong>Owner:</strong> marketing, with the automation doing the heavy pulls. Feeds W2 and W5.</p>
+
+<div class="item">
+<h3>Four recurring research jobs</h3>
+<ol>
+  <li><strong>Keyword and gap research — quarterly.</strong> Pull competitors' ranking keywords, find where they rank and we have nothing, and add those to the planned backlog in <code>blog-tracker.md</code>. Prioritise commercial intent ("X agency", "best X software", "X vs Y") over purely informational terms, because those are what convert.</li>
+  <li><strong>AEO / AI-search research — monthly.</strong> Ask ChatGPT, Perplexity and Google AI Mode the 20 questions our buyers actually ask ("best GTM engineering agency", "how to fix cold email deliverability"). Record whether GenFlows is cited. That citation rate is the AEO metric; FAQ schema and clear question-format headings are how we improve it.</li>
+  <li><strong>Competitor watch — quarterly.</strong> What are the top five competitors publishing, and where are they getting links from? Their backlink profile is our prospect list for W2.</li>
+  <li><strong>Link-prospect research — continuous.</strong> Podcasts, publications, directories and roundups worth pitching. This is what keeps the 30+ prospect pipeline full.</li>
+</ol>
+</div>
+
+<h2>W5 · Content <span class="tag p1">P1</span></h2>
+<p class="sub"><strong>Owner:</strong> the existing batch process — no change to the mechanics, a change to the mix.</p>
+
+<div class="item">
+<h3>What changes</h3>
+<ul>
+  <li><strong>Keep the batch cadence</strong> and keep using <code>blog-tracker.md</code> as the single source of truth to prevent duplicates.</li>
+  <li><strong>Shift from volume to depth.</strong> With 80+ posts, the next win is upgrading the ten posts closest to ranking — positions 11 to 30 in Search Console — rather than publishing ten new ones. Refresh, expand, add FAQ schema, add internal links.</li>
+  <li><strong>Build two or three linkable assets:</strong> the benchmark report, a free ICP or template tool, a calculator. These exist to attract links rather than traffic — they are the bridge between W5 and W2.</li>
+  <li><strong>Internal linking discipline:</strong> every new post links out to three or more existing posts, and gets linked from at least two.</li>
+</ul>
+</div>
+
+<h2>Sequencing</h2>
+<table>
+  <tr><th style="width:96px;">Timeframe</th><th>Focus</th><th style="width:120px;">Success signal</th></tr>
+  <tr><td><strong>Weeks 1–2</strong></td><td>Verify the technical fixes shipped (W1). Search Console, Bing and GA4 confirmed (W3). Tier 1 directory, partner and profile links done (W2).</td><td>Verification set passes; GSC collecting data</td></tr>
+  <tr><td><strong>Weeks 3–6</strong></td><td>Backlink engine on — podcast and guest-post pitching starts. First linkable asset (benchmark report) scoped. Keyword gap research feeds the backlog.</td><td>First 5–8 referring domains live</td></tr>
+  <tr><td><strong>Weeks 7–12</strong></td><td>Steady state: 2 podcasts + 2 guest posts monthly, 5 near-ranking posts refreshed monthly, monthly AEO citation check, monthly one-pager.</td><td>15–25 referring domains; long-tail rankings appear</td></tr>
+  <tr><td><strong>Month 4+</strong></td><td>Review the scoreboard and diagnose. If referring domains grew but rankings did not, the problem is content and search intent. If neither grew, the problem is outreach volume.</td><td>Organic demo requests</td></tr>
+</table>
+
+<h2>What to realistically expect</h2>
+<table>
+  <tr><th style="width:96px;">Period</th><th>What happens</th></tr>
+  <tr><td><strong>Months 1–2</strong></td><td>Almost no ranking movement. Indexing coverage and impressions improve. <strong>This is normal and is not evidence the plan is failing</strong> — it is the ranking-latency window described in the audit.</td></tr>
+  <tr><td><strong>Months 3–4</strong></td><td>Long-tail terms begin ranking. First organic demo requests arrive.</td></tr>
+  <tr><td><strong>Months 6+</strong></td><td>Competitive commercial terms become reachable — <strong>only if</strong> the backlink work was actually done consistently across the whole period.</td></tr>
+</table>
+
+<div class="warn">
+  <strong>The single biggest risk.</strong> Treating backlinks as a project instead of a habit. Content is already systematised and runs itself; link acquisition is not, and it is the part that decides the outcome. Whoever owns W2 needs a protected recurring weekly slot — otherwise it will quietly not happen, and in six months the honest diagnosis will be that the plan was never executed rather than that it did not work.
+</div>
+
+<div class="foot">
+  GenFlows — Owner SEO Plan · 29 July 2026 · Companion documents: GenFlows_SEO_AEO_Report_2026-07-21 (audit), GenFlows_Website_Tech_Spec_2026-07-27 (developer tasks), GenFlows_Marketing_Actions_2026-07-27 (marketing tasks), blog-tracker.md (content source of truth).
+</div>
+
+</body>
+</html>

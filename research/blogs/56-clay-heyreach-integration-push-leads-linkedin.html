@@ -1,0 +1,349 @@
+<!-- TITLE TAG: Clay + HeyReach Integration: Push Leads to LinkedIn -->
+<!-- META: How to push enriched Clay leads into HeyReach LinkedIn campaigns cleanly: the one action, single-brace variables, sender routing and the gates that matter. -->
+<!-- SLUG: blog/clay-heyreach-integration-push-leads-linkedin-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+  <p style="color:#e8732b;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 10px;font-size:13px;">TL;DR</p>
+  <ul style="margin:0;padding-left:20px;">
+    <li style="margin-bottom:8px;"><strong>It's one action, not a sync.</strong> Clay ships a single <strong>Add Lead to Campaign</strong> action for HeyReach. The campaign must already exist, be <em>Active</em>, and have been built on an empty lead list — Clay cannot create campaigns.</li>
+    <li style="margin-bottom:8px;"><strong>HeyReach uses SINGLE braces.</strong> Variables are <code>&#123;first_name&#125;</code>, not <code>&#123;&#123;first_name&#125;&#125;</code>. If you copy a working cold-email setup across, every variable silently fails. This is the single most common Clay&nbsp;→&nbsp;HeyReach bug.</li>
+    <li style="margin-bottom:8px;"><strong>The action returns counts — use them.</strong> Unlike most push actions, this one gives you <em>Added</em>, <em>Updated</em> and <em>Failed</em> lead counts. That's a free reconciliation column. Most people never map it.</li>
+    <li style="margin-bottom:8px;"><strong>A missing variable swaps the whole message.</strong> HeyReach's fallback isn't an inline default — it's an entire backup message. Half-enriched rows don't produce a hole in your copy, they quietly send generic copy instead.</li>
+    <li style="margin-bottom:0;"><strong>Your exclude list is locked at launch.</strong> HeyReach documents the exclude list as a draft-only setting — you cannot change it once the campaign is active. Suppression is a pre-launch decision, not a fix.</li>
+  </ul>
+</div>
+
+<p>The enrichment is never the hard part. The hard part is the handoff — the moment a row leaves Clay and becomes a real connection request sent from a real LinkedIn account that you cannot un-send. Email gives you a bounce and a shrug. LinkedIn gives you a permanent record on a profile your client owns, and a restriction risk if you do it carelessly at volume.</p>
+
+<p>This is the Clay&nbsp;→&nbsp;HeyReach handoff done properly: exactly what the integration does, the syntax difference that breaks copied email workflows, how sender routing actually behaves across a fleet of accounts, and the four places where the two vendors' own documentation disagrees — so you can set those options deliberately rather than discover them in production.</p>
+
+<p><em>Sourcing note: the actions, inputs, outputs, variable syntax, character limits, exclusion behaviour and pricing below are VERIFIED against Clay's and HeyReach's own documentation and pricing page as retrieved 4 August 2026. Where their docs contradict each other, or where a behaviour genuinely isn't documented, we say so plainly instead of picking the version that reads better. We have not invented credit costs, rate limits or plan gates for anything the docs leave blank — and there are several. GenFlows runs LinkedIn DM automation as a service, which is why we know where the sharp edges are.</em></p>
+
+<h2>The Short Answer</h2>
+<p>Build the HeyReach campaign first on an empty lead list, write the sequence, and inventory every variable it uses. In Clay, add the native <strong>Add Lead to Campaign</strong> action, map First name, Last name and the personal LinkedIn URL, and name every custom field so it matches the HeyReach variable <em>exactly</em> — single braces, alphanumerics and underscores only. Gate the push column so it only runs when the LinkedIn URL is present and every variable in your copy is non-empty and within LinkedIn's character limit. Then map the action's Failed count into its own column and watch it. That gate plus that one output column is the difference between a clean handoff and 400 generic connection requests sent from your client's account.</p>
+
+<h2>What the Integration Actually Is (And Isn't)</h2>
+<p>Connect it in Clay with <strong>Add enrichment → search "HeyReach" → Integrations → + Add account</strong>, pasting the API key from <strong>Integrations → HeyReach API</strong> in your HeyReach account. What you get is deliberately small — one action:</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+    <th style="padding:10px 12px;">Field</th>
+    <th style="padding:10px 12px;">Required?</th>
+    <th style="padding:10px 12px;">Notes that matter</th>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Campaign ID</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Picked from a dropdown of your HeyReach campaigns. The campaign must exist and be <strong>Active</strong></td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>First name / Last name</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Clean these in Clay. LinkedIn display names carry credentials, emoji and job titles</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Professional URL</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">The personal LinkedIn profile URL. This is the identity key for the whole system — there is no email-style verification step</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>LinkedIn account</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Optional</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Assigns the lead to a specific sender. The lever that matters most at agency scale — see below</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Location, company name, current position, email, summary</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Optional</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Standard fields. Push them anyway — they make the HeyReach inbox usable for whoever handles replies</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Custom fields</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Optional</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Your personalisation. Names must be an <strong>exact match</strong> for the HeyReach variable, alphanumerics and underscores only</td>
+  </tr>
+</table>
+
+<p>Three constraints follow from that, and all three catch people out:</p>
+<ul>
+  <li style="margin-bottom:6px;"><strong>The campaign must pre-exist — and be built a specific way.</strong> Clay's docs are explicit that you must create an active campaign in HeyReach first, and that the campaign needs to have been created with <strong>Create empty list</strong> so that it is designated as a lead list. A campaign built around an already-populated list is not a valid destination for a push.</li>
+  <li style="margin-bottom:6px;"><strong>Clay cannot create campaigns.</strong> Sequence, senders, schedule and limits are all HeyReach-side decisions. If a push fails, verify the campaign exists and is active before debugging anything else.</li>
+  <li style="margin-bottom:0;"><strong>Leads land in the campaign <em>and</em> its list.</strong> HeyReach's own documentation confirms that everything pushed from Clay is automatically added to the campaign's lead list too. That list is what you'll later reuse as an exclusion list — so name it deliberately today.</li>
+</ul>
+
+<div style="background:#f4f7fb;border-left:4px solid #1f3a5f;padding:16px 20px;margin:22px 0;border-radius:6px;">
+  <p style="margin:0;"><strong>Worth knowing:</strong> "campaigns can't be created programmatically" is a limit of the <em>Clay integration</em>, not of HeyReach. HeyReach's own public API documents a campaign-create endpoint plus separate endpoints for updating the sequence, sender accounts and schedule. So if you genuinely need campaign creation inside an automated flow, the path is Clay's HTTP API action (or <a href="/blog/clay-n8n-integration-automate-gtm-workflow-2026">n8n as the orchestrator</a>) against HeyReach's API — not the native action. Most teams don't need this. Knowing it exists stops you from architecting around a limit that isn't there.</p>
+</div>
+
+<p>If the enrichment side isn't solid yet, start with <a href="/blog/clay-waterfall-enrichment-setup-step-by-step-2026">waterfall enrichment setup</a> and the <a href="/blog/clay-workflow-automation-gtm-engineering-playbook">Clay workflow playbook</a>. This post assumes enrichment works and only the handoff is at stake.</p>
+
+<h2>The Bug That Breaks Almost Every First Attempt: Single Braces</h2>
+<p>This is the most valuable paragraph here, so it goes early. <strong>HeyReach personalisation variables use single curly braces.</strong> Its documentation shows the pattern as <code>&#123;variable_name&#125;</code>, with examples like <code>&#123;FIRST_NAME&#125;</code>, <code>&#123;AI_Icebreaker_1&#125;</code> and <code>&#123;websiteSummary&#125;</code>.</p>
+<p>Nearly every cold-email tool — and therefore nearly every Clay table your team has already built — uses <strong>double</strong> braces: <code>&#123;&#123;first_name&#125;&#125;</code>. If you clone a working email table, swap the push action for HeyReach and reuse the copy, the variables will not resolve. You will not get an error. You will get sends.</p>
+
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:16px 20px;margin:22px 0;border-radius:6px;">
+  <p style="margin:0 0 8px;"><strong>Four naming rules that silently break personalisation:</strong></p>
+  <ul style="margin:0;padding-left:20px;">
+    <li style="margin-bottom:6px;"><strong>Single braces only.</strong> <code>&#123;icebreaker&#125;</code> resolves. <code>&#123;&#123;icebreaker&#125;&#125;</code> does not.</li>
+    <li style="margin-bottom:6px;"><strong>Exact match, case for case.</strong> Both vendors' docs stress this independently. HeyReach's Clay guide puts "EXACT MATCH" in capitals. <code>&#123;Icebreaker&#125;</code> and <code>&#123;icebreaker&#125;</code> are different variables.</li>
+    <li style="margin-bottom:6px;"><strong>Alphanumerics, hyphens and underscores only.</strong> No spaces, no other punctuation inside the braces. Clay's own docs restrict custom field names to alphanumerics and underscores — so intersect the two rule sets and just use <code>snake_case</code>.</li>
+    <li style="margin-bottom:0;"><strong>The variable must exist in the HeyReach sequence first.</strong> Write the copy, then build the Clay columns to match it — never the reverse.</li>
+  </ul>
+</div>
+
+<p>One piece of folklore to discard: you'll find third-party guides showing an inline fallback syntax along the lines of <code>&#123;&#123;FirstName | there&#125;&#125;</code> for HeyReach. We could not find that syntax anywhere in HeyReach's own documentation, and it contradicts the single-brace pattern its docs do show <em>(directional — treat any inline-default syntax as unverified until you see it in HeyReach's UI)</em>. What HeyReach documents instead is materially different, and it's the next section.</p>
+
+<h2>The Fallback Is a Whole Message, Not a Default Value</h2>
+<p>In a cold email tool, a missing variable leaves a hole: "Hi , saw the launch." HeyReach works differently, and the difference changes how you should gate.</p>
+<p>HeyReach documents a <strong>fallback message</strong> — described in its own help centre as a backup message that is sent if a personalisation variable does not load correctly. It's a separate field in the interface holding alternative copy, not an inline default inside the braces.</p>
+<p>The consequence is subtle and worth sitting with. A half-enriched row doesn't produce visibly broken copy that someone will notice and complain about. It produces a <em>plausible generic message</em>, sent from your client's account, to a prospect you spent credits enriching. Nothing looks wrong. Your reply rate just quietly drops, and the postmortem blames the copy.</p>
+<p>So the fallback is a seatbelt, not a strategy. Write a genuinely decent one — assume a meaningful share of leads will receive it — but do the real work in Clay:</p>
+<ol>
+  <li style="margin-bottom:6px;"><strong>Build one "ready to send" boolean column.</strong> TRUE only when the LinkedIn URL is present <em>and</em> every variable your copy uses is non-empty. One column you can reason about beats ten scattered conditions.</li>
+  <li style="margin-bottom:6px;"><strong>Set the push column's "Only run if" to that column.</strong> Clay's conditional runs handle AND/OR/NOT, and there's a plain-language builder if you'd rather describe the rule than write it.</li>
+  <li style="margin-bottom:6px;"><strong>Turn table-level auto-run off while you build</strong> and test on five to ten rows. Clay recommends exactly this to avoid burning credits on accidental runs — and it's what stops rows pushing before Claygent has finished writing the first line. Turn auto-update back on once the gate is proven.</li>
+  <li style="margin-bottom:0;"><strong>Add a length check.</strong> The one nobody adds — see below.</li>
+</ol>
+
+<h2>Length-Gate Your Icebreakers (The Check Nobody Builds)</h2>
+<p>LinkedIn connection request notes are hard-capped, and HeyReach documents the split plainly: <strong>up to 300 characters on Premium accounts, up to 200 on non-Premium</strong>. That is dramatically less room than an email first line, and an LLM asked for "a one-sentence personalised opener" will cheerfully return 340 characters.</p>
+<p>Two things follow. First, tell the model the budget in the prompt <em>and</em> verify the output — a formula column that flags any icebreaker over your ceiling, wired into the ready-to-send gate. Second, know which accounts in your fleet are Premium, because the same copy that fits from a Sales Navigator seat may not fit from a bare account. If you're planning capacity across a fleet, our guides to <a href="/blog/linkedin-sales-navigator-outbound-setup-guide-2026">Sales Navigator for outbound</a> and <a href="/blog/linkedin-message-templates-connection-requests-dm-2026">connection-request and DM templates</a> cover the copy side in depth.</p>
+
+<h2>Sender Routing: The Field That Matters at Agency Scale</h2>
+<p>The <strong>LinkedIn account</strong> field on the Clay action is optional, and that optionality is where agency workflows get interesting. Set it, and you decide which sender approaches which prospect. Leave it blank, and HeyReach handles distribution across the campaign's assigned accounts.</p>
+<p>Set it deliberately when:</p>
+<ul>
+  <li style="margin-bottom:6px;"><strong>Geography or language matters.</strong> A DACH prospect approached by the German-speaking account outperforms round-robin.</li>
+  <li style="margin-bottom:6px;"><strong>Seniority matters.</strong> Founder-level prospects get the founder's account; the rest get the SDR fleet.</li>
+  <li style="margin-bottom:6px;"><strong>You're protecting a specific account.</strong> New or freshly warmed accounts should receive a deliberately thin slice, not an even share.</li>
+  <li style="margin-bottom:0;"><strong>Existing relationships exist.</strong> If one account is already a first-degree connection with a prospect, route to that account and change the sequence — don't send a connection request to someone you're already connected to.</li>
+</ul>
+<p>Two caveats, stated honestly. HeyReach's exact distribution algorithm when the field is blank is not something we found documented — treat "it spreads evenly" as an assumption to verify in your own campaign stats rather than a fact <em>(directional)</em>. And per-account daily volume is governed by HeyReach's campaign settings <em>and</em> by LinkedIn's own platform behaviour, which are not the same thing. We covered that distinction, and what's actually enforced versus community-observed, in <a href="/blog/linkedin-outreach-limits-account-safety-2026">LinkedIn outreach limits and account safety</a>. Read that before you scale sender count.</p>
+
+<h2>Use the Output Counts — This Integration Actually Gives You Some</h2>
+<p>Most push actions are write-only: you fire data at a tool and hope. Clay's HeyReach action returns three outputs — <strong>Added Leads Count</strong>, <strong>Updated Leads Count</strong> and <strong>Failed Leads Count</strong> — and in our experience almost nobody maps them.</p>
+<p>Map all three. Then:</p>
+<ul>
+  <li style="margin-bottom:6px;"><strong>Failed count &gt; 0</strong> is your alarm. Filter that view daily during a launch. The usual culprits are a malformed or stale LinkedIn URL, a missing required name field, or a campaign that isn't active.</li>
+  <li style="margin-bottom:6px;"><strong>Updated rather than Added</strong> means HeyReach recognised the lead. That's your duplicate signal, and it's useful — it tells you your source lists overlap before that shows up as two senders approaching the same person.</li>
+  <li style="margin-bottom:0;"><strong>Added of zero across a whole batch</strong> usually means everyone was already in the campaign. HeyReach's docs describe exactly this: duplicates are blocked from entering a campaign twice, and if every lead already exists, zero leads are added.</li>
+</ul>
+<p>This is the same discipline we apply to CRM writes — see <a href="/blog/crm-data-hygiene-outbound-teams-2026">CRM data hygiene for outbound teams</a> and <a href="/blog/clay-hubspot-integration-sync-crm-2026">Clay + HubSpot sync</a>. A push you cannot verify is not a pipeline, it's a hope.</p>
+
+<h2>Suppression: Decide Before You Launch, Because It Locks</h2>
+<p>Here is the constraint that most surprises people coming from email. HeyReach documents the exclude list as available <strong>only while the campaign is in draft</strong> — once the campaign is activated, the exclusion list cannot be modified.</p>
+<p>Think about what that means operationally. There is no equivalent of adding a domain to a global suppression list mid-flight. If a client says "don't touch these 40 accounts" after launch, your options are pausing, cloning or managing it lead by lead — not editing the exclusion.</p>
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:16px 20px;margin:22px 0;border-radius:6px;">
+  <p style="margin:0 0 8px;"><strong>Two documented traps in exclusions:</strong></p>
+  <ul style="margin:0;padding-left:20px;">
+    <li style="margin-bottom:6px;"><strong>Don't use a freshly imported CSV as your exclude list.</strong> HeyReach's help centre explicitly warns against this and recommends running a new list through a campaign first so the data matches properly. A suppression list that silently fails to match is worse than none, because you'll trust it.</li>
+    <li style="margin-bottom:0;"><strong>Finished campaigns wake up.</strong> HeyReach's documentation notes that finished campaigns automatically reactivate when new leads arrive via the API. A Clay table still pointed at last quarter's "completed" campaign can restart it without anyone touching HeyReach. Audit your table's campaign target whenever you retire a campaign.</li>
+  </ul>
+</div>
+<p>HeyReach's campaign-launch flow also offers broader exclusion filters — excluding leads already contacted by other campaigns, and excluding first-degree connections, at either selected-account or organisation-wide scope. Worth noting for accuracy: its dedicated exclude-list help article documents only the exclude-list dropdown, while these wider filters appear in the campaign-launch documentation. We'd treat the exact scope wording of each filter as something to confirm in your own workspace at launch <em>(directional — two official pages describe different option sets)</em>. Also add leads to a running campaign, then <strong>pause and resume it</strong>; HeyReach advises this to make sure new leads are picked up properly.</p>
+
+<h2>The Workflow, Step by Step</h2>
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+    <th style="padding:10px 12px;">#</th>
+    <th style="padding:10px 12px;">Step</th>
+    <th style="padding:10px 12px;">Rule that makes it safe</th>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">1</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Create the campaign in HeyReach on an <strong>empty lead list</strong>; add senders, sequence, schedule</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Non-negotiable. Clay cannot create campaigns, and the list must be a designated lead list</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">2</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Set the exclude list and exclusion filters <strong>now</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Draft-only setting. You cannot change it after activation</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">3</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Write the sequence, then list every variable it uses — single braces, snake_case</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">This list is the contract. Nothing gets pushed that isn't on it</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">4</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Write a genuinely usable fallback message</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Assume real prospects will receive it, because they will</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">5</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">In Clay: get the API key from Integrations → HeyReach API, connect the account</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">One key per HeyReach workspace — keep client workspaces separate</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">6</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Clean names and normalise the LinkedIn URL in their own columns</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">The URL is the identity key. Garbage in, failed push out</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">7</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Build the <strong>ready to send</strong> boolean: URL present + all variables non-empty + icebreaker within 200/300 chars</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">The single most valuable column in the table</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">8</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Add <strong>Add Lead to Campaign</strong>; map fields and custom fields; set "Only run if" to step 7</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Custom field names must match the sequence variables exactly</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">9</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Optionally set the LinkedIn account per lead for deliberate sender routing</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Language, seniority, account age, existing connections</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">10</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Map Added / Updated / <strong>Failed</strong> counts into visible columns</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Your only reconciliation. Filter on Failed &gt; 0 daily during launch</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">11</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Test on 5–10 rows with auto-run OFF; inspect the leads inside HeyReach before scaling</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Check the variables rendered — don't just check the lead arrived</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">12</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Enable auto-update for ongoing pushes; pause/resume the campaign after bulk adds</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Signal-triggered tables become continuous campaigns this way</td>
+  </tr>
+</table>
+
+<h2>Why This Beats a CSV Upload</h2>
+<p>HeyReach supports several ways in — existing lead lists, CSV import, transferring qualified leads between campaigns, adding individuals from the inbox, and the API or integrations like Clay. CSV works. It just doesn't compound.</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+    <th style="padding:10px 12px;">&nbsp;</th>
+    <th style="padding:10px 12px;">CSV import</th>
+    <th style="padding:10px 12px;">Native Clay action</th>
+    <th style="padding:10px 12px;">HeyReach API direct</th>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Setup effort</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Lowest</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Low — one action, one API key</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Highest — you own auth and payloads</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Continuous / triggered</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No — manual every time</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes, with auto-update</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Per-lead gating</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No — you gate by filtering the file</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes — conditional run per row</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes, if you build it</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Sender routing per lead</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes — optional account field</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Push confirmation</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">UI summary at import time</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Added / Updated / Failed counts per row</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Full response handling</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Can create campaigns</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes — documented create endpoint</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Best for</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">One-off lists you've already cleaned</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Signal-triggered, always-on outbound</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Productised agency workflows</td>
+  </tr>
+</table>
+
+<p>The real argument for the native action is that it turns a list into a system. Once the gate holds, anything that lands in the Clay table — an <a href="/blog/signal-based-prospecting-complete-playbook-2026">intent signal</a>, a new hire at a target account, a website visitor — becomes a routed, personalised LinkedIn touch without anyone exporting anything.</p>
+
+<h2>Sequencing LinkedIn Against a Live Cold Email Campaign</h2>
+<p>Most teams running this integration are also emailing the same people, and this is where a clean handoff turns into a mess. Two independent systems, two identity keys — email address in one, LinkedIn URL in the other — and no shared suppression between them.</p>
+<p>Three rules we hold to:</p>
+<ul>
+  <li style="margin-bottom:6px;"><strong>Clay is the source of truth for who is being touched, not the sending tools.</strong> Keep one row per person with columns recording what's been pushed where. Neither HeyReach nor your email tool can see the other.</li>
+  <li style="margin-bottom:6px;"><strong>Stagger, don't stack.</strong> A connection request and a cold email landing the same morning reads as a campaign, not a person. Sequence the channels deliberately — the <a href="/blog/linkedin-outreach-cold-email-the-gtm-engineers-multi-channel-sales-playbook">multi-channel playbook</a> covers the cadence, and <a href="/blog/cold-email-vs-linkedin-outreach-b2b-2026">cold email vs LinkedIn</a> covers which channel to lead with by segment.</li>
+  <li style="margin-bottom:0;"><strong>A reply anywhere stops everything everywhere.</strong> This is manual work across two tools. Own it, or it will embarrass you — a prospect who replied on LinkedIn yesterday should not get email step four tomorrow. Our <a href="/blog/how-to-handle-cold-email-replies-objection-handling-2026">reply-handling guide</a> and notes on <a href="/blog/lead-routing-speed-to-lead-2026">routing and speed-to-lead</a> both apply here.</li>
+</ul>
+
+<h2>What HeyReach Costs (Retrieved 4 August 2026)</h2>
+<p>Pricing matters here because the sender-account model, not the software, is what determines cost at scale. From HeyReach's own pricing page today:</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+    <th style="padding:10px 12px;">Plan</th>
+    <th style="padding:10px 12px;">Monthly</th>
+    <th style="padding:10px 12px;">Annual (per month)</th>
+    <th style="padding:10px 12px;">Senders</th>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Growth</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">$79 per sender</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">$63 per sender</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Priced per sender — scales linearly</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Agency</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">$999</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">$799</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">25 included; whitelabel branding</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Unlimited</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">$2,999</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">$2,399</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Unlimited; multi-client branding as a $500 add-on</td>
+  </tr>
+</table>
+
+<p>Two observations. First, <strong>API access and workspaces are listed on every tier</strong> — so this integration isn't gated behind the agency plan, which is unusual and genuinely useful if you're a single team testing the pattern. Second, the crossover: at $79 per sender, Growth reaches the Agency plan's $999 at around 13 senders, which is roughly where the 25-sender bundle starts paying for itself. We reached the same breakeven independently in our <a href="/blog/best-linkedin-automation-tools-heyreach-expandi-comparison-2026">LinkedIn automation tools comparison</a>.</p>
+
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:16px 20px;margin:22px 0;border-radius:6px;">
+  <p style="margin:0;"><strong>Ignore the pricing aggregators.</strong> Several third-party "HeyReach pricing 2026" pages currently list a $59 Growth sender price and a $1,999 Unlimited tier. Those figures do not match HeyReach's own pricing page as we retrieved it on 4 August 2026 ($79 and $2,999 respectively). Pricing pages change and ours will age too — check the vendor's page, not a comparison site, and note the date you checked. On the Clay side of the bill, our <a href="/blog/clay-pricing-honest-review-plans-credits-costs-2026">honest Clay pricing review</a> covers what's actually knowable about credits.</p>
+</div>
+
+<h2>What the Docs Don't Tell You</h2>
+<p>Three genuine blanks, stated as blanks rather than filled with plausible numbers:</p>
+<ul>
+  <li style="margin-bottom:6px;"><strong>No credit cost is published for the Clay action.</strong> Clay's HeyReach documentation states no credit cost and no plan gate. We're not going to invent one.</li>
+  <li style="margin-bottom:6px;"><strong>Per-request lead caps and API rate limits are not something we could verify from a primary page.</strong> HeyReach's public API reference is a Postman collection, and figures circulating on third-party sites (a leads-per-request cap, a requests-per-minute ceiling) did not appear on the HeyReach pages we could read. Don't architect around a number you found on an aggregator. The one hard figure we did verify from HeyReach's campaign API documentation is that its sender-account array accepts 1–100 accounts.</li>
+  <li style="margin-bottom:0;"><strong>Stale LinkedIn URL behaviour isn't documented.</strong> People change vanity URLs and profiles get restricted. Whether a redirected URL resolves or fails is not stated anywhere we found — which is exactly why the Failed count column matters. Measure it in your own account rather than trusting a guide, including this one.</li>
+</ul>
+<div style="background:#f4f7fb;border-left:4px solid #1f3a5f;padding:16px 20px;margin:22px 0;border-radius:6px;">
+  <p style="margin:0;"><strong>The honest compliance note:</strong> no third-party LinkedIn automation tool is sanctioned by LinkedIn's terms of service — HeyReach included, and every competitor equally. That's a business risk you accept knowingly, not a detail to discover after an account restriction. The practical mitigations are conservative per-account volumes, genuine personalisation, and never concentrating a client's entire pipeline in one profile. We go through what's actually enforced versus merely rumoured in <a href="/blog/linkedin-outreach-limits-account-safety-2026">LinkedIn outreach limits and account safety</a>.</p>
+</div>
+
+<h2>Frequently Asked Questions</h2>
+
+<h3>Does Clay have a native HeyReach integration?</h3>
+<p>Yes. Clay offers a single native action, <strong>Add Lead to Campaign</strong>, connected with an API key from Integrations → HeyReach API in your HeyReach account. It requires Campaign ID, first name, last name and the personal LinkedIn profile URL, and it returns Added, Updated and Failed lead counts. HeyReach lists API access on all of its paid tiers, so the integration isn't restricted to the agency plan.</p>
+
+<h3>Why aren't my Clay variables working in HeyReach?</h3>
+<p>Almost always the brace style. HeyReach uses <strong>single</strong> curly braces — <code>&#123;first_name&#125;</code> — while most cold email tools use double braces. Copying a working email setup across is the single most common cause. After that, check for case mismatches (names must match exactly), spaces or punctuation inside the braces, and whether the variable exists in the HeyReach sequence at all. Clay restricts custom field names to alphanumerics and underscores, so snake_case is the safe choice.</p>
+
+<h3>Can Clay create a HeyReach campaign automatically?</h3>
+<p>No. Clay's documentation is explicit that campaigns cannot be created from within Clay — the campaign must already exist, be Active, and have been created on an empty lead list. HeyReach's own public API does document a campaign-create endpoint, so campaign creation is possible via Clay's HTTP API action or an orchestrator like n8n. It just isn't part of the native integration.</p>
+
+<h3>What happens if a personalisation variable is empty when HeyReach sends?</h3>
+<p>HeyReach documents a fallback message: a backup message sent when a personalisation variable does not load correctly. That's different from most email tools, where a blank variable leaves a visible hole in otherwise-personalised copy. The practical risk is that a half-enriched lead receives plausible generic copy and nobody notices — so gate the push in Clay on every variable being non-empty, and write a fallback you'd genuinely be happy to send.</p>
+
+<h3>How long can a LinkedIn connection request note be?</h3>
+<p>HeyReach documents up to 300 characters for Premium accounts and up to 200 characters for non-Premium accounts. That is much tighter than an email first line, so add a length-check column in Clay that flags any AI-generated icebreaker exceeding your ceiling, and remember the limit differs across the sender accounts in your fleet.</p>
+
+<h3>Can I add leads to a HeyReach campaign that's already running?</h3>
+<p>Yes. HeyReach supports adding leads to campaigns with ongoing, paused or finished status, and advises pausing and resuming the campaign once leads are added so they're picked up properly. Duplicates are blocked from entering the same campaign twice — if every lead already exists, zero are added. One warning: HeyReach's documentation notes that finished campaigns reactivate automatically when new leads arrive via the API, so audit which campaign your Clay table targets before retiring a campaign.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+
+<p><strong>Running LinkedIn and cold email as one system is where most of the value is — and where most of the mess is.</strong> If you'd rather not maintain the gates, the sender routing and the cross-channel suppression yourself, that's the work we do: read the <a href="/blog/best-linkedin-automation-tools-heyreach-expandi-comparison-2026">LinkedIn automation tools comparison</a> to pick your stack, or <a href="/">talk to our team</a> about running it for you.</p>
+
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. Integration mechanics, variable syntax, character limits, exclusion behaviour and pricing verified against Clay's and HeyReach's own documentation and pricing page. Last updated August 2026.</em></p>

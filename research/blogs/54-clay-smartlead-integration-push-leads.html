@@ -1,0 +1,292 @@
+<!-- TITLE TAG: Clay + Smartlead Integration: Push Leads In Cleanly -->
+<!-- META: How to push enriched Clay leads into Smartlead campaigns without blank variables, duplicates or half-enriched rows: the six actions, gating and field map. -->
+<!-- SLUG: blog/clay-smartlead-integration-push-leads-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+  <p style="color:#e8732b;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 10px;font-size:13px;">TL;DR</p>
+  <ul style="margin:0;padding-left:20px;">
+    <li style="margin-bottom:8px;"><strong>It's six discrete actions, not a sync.</strong> Clay ships Add, Lookup lead, Lookup status, Update, Update category and Remove — and every one of them requires a campaign that already exists in Smartlead. Clay cannot create campaigns.</li>
+    <li style="margin-bottom:8px;"><strong>An empty variable does not stop the send.</strong> Smartlead documents that a blank value simply doesn't populate — the email goes out with a hole in it. Gating in Clay is the only real defence.</li>
+    <li style="margin-bottom:8px;"><strong>Clay's table-level auto-run is ON by default</strong>, so rows push the moment they land — before enrichment settles. Turn it off while building, then gate the push column with one "ready to send" condition.</li>
+    <li style="margin-bottom:8px;"><strong>The Add action tells you nothing.</strong> Clay's docs state it returns no output fields, so cross-campaign duplicates are skipped silently. Add a Lookup status column or you are flying blind.</li>
+    <li style="margin-bottom:0;"><strong>Four dedupe layers protect you</strong> — same-campaign (never overridable), cross-campaign, global block list and unsubscribes. Leave the override settings alone unless you mean it.</li>
+  </ul>
+</div>
+
+<p>Clay's enrichment is the easy part. The part that quietly wrecks campaigns is the handoff: a lead lands in Smartlead before Claygent finished writing the first line, the send goes out with a blank where the company name should be, and the prospect receives an email that reads like a broken mail merge. One bad push does more damage to a domain's reputation than a week of good copy repairs.</p>
+
+<p>This is the handoff done properly — what the integration actually does, the gate that prevents half-enriched sends, a field map with per-field rules, and the places where Clay's and Smartlead's own documentation contradict each other so you can set those options deliberately instead of by accident.</p>
+
+<p><em>Sourcing note: the actions, API mechanics, limits, dedupe rules and variable syntax here are VERIFIED against Clay's and Smartlead's own documentation as of July 2026. Where the two vendors' docs disagree — or where a behaviour genuinely isn't documented — we say so explicitly rather than picking the version that reads better. We have not invented credit costs, plan gates or rate figures for anything the docs leave blank. GenFlows is both a Clay and a Smartlead partner, which is why we know where the sharp edges are.</em></p>
+
+<h2>The Short Answer</h2>
+<p>Build the Smartlead campaign first, inventory every variable your copy uses, then in Clay add the native Smartlead "Add lead to campaign" action and gate it with a single conditional-run formula that is true only when the email is verified and every one of those variables is non-empty. Map your personalisation into custom fields whose keys match the template variables exactly, case for case. Add a Lookup column before the push to catch duplicates and a Lookup-status column after it to confirm the lead actually entered the sequence. That gate and those two lookups are the whole difference between a clean handoff and a mail-merge disaster.</p>
+
+<h2>What the Integration Actually Is (And Isn't)</h2>
+<p>Connect it in Clay with <strong>Add enrichment → search "Smartlead" → Integrations → Select Smartlead account → + Add account</strong>, pasting the API key from your Smartlead profile settings. What you get is six separate actions, each of which you add as its own column:</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+    <th style="padding:10px 12px;">Action</th>
+    <th style="padding:10px 12px;">What it does</th>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Add lead to campaign</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Adds a new lead to an existing campaign. <strong>Returns no output fields</strong> — you cannot see what happened</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Lookup lead in campaign</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Fetches by email. Returns Smartlead's internal <code>Id</code>, custom fields, <code>Is Unsubscribed</code>, and <code>Lead Campaign Data</code> — every campaign the lead is currently in</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Lookup lead status in campaign</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Returns campaign steps, emails sent, and status such as <code>IN_PROGRESS</code></td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Update lead in campaign</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Updates an existing lead. Requires <code>Lead ID</code></td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Update lead category</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Sets a category label. Requires Campaign ID, Lead ID and Category ID</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Remove lead from campaign</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Deletes the lead from the campaign</td>
+  </tr>
+</table>
+
+<p>Three constraints follow from that list, and all three catch people out:</p>
+<ul>
+  <li style="margin-bottom:6px;"><strong>Campaigns must pre-exist.</strong> Clay's docs are explicit: all Smartlead actions require a campaign set up in Smartlead, and campaigns cannot be created from Clay. If a push fails, check that the campaign exists and is active before you debug anything else.</li>
+  <li style="margin-bottom:6px;"><strong>Writes are one-way.</strong> There is no bidirectional sync object. The lookup actions read data back into Clay, which is how you build a verification loop — but nothing reconciles automatically.</li>
+  <li style="margin-bottom:0;"><strong>Update requires a lookup first.</strong> The <code>Lead ID</code> those actions want is Smartlead's internal identifier, <em>not</em> your Clay row ID. Run <strong>Lookup lead in campaign</strong> and map its <code>Id</code> output across.</li>
+</ul>
+<div style="background:#f4f7fb;border-left:4px solid #1f3a5f;padding:16px 20px;margin:22px 0;border-radius:6px;">
+  <p style="margin:0;"><strong>One myth to kill:</strong> this handoff is not "a webhook," whatever third-party guides tell you. Clay's webhooks are <strong>inbound only</strong> — they receive data into Clay. Pushing out is either the native Smartlead action or Clay's HTTP API action with method POST. Smartlead's own webhooks are event notifications coming <em>out</em> of Smartlead (replies, bounces), not a lead-ingest endpoint.</p>
+</div>
+<p>If you're new to Clay's enrichment side, start with <a href="/blog/clay-waterfall-enrichment-setup-step-by-step-2026">waterfall enrichment setup</a> and the <a href="/blog/clay-workflow-automation-gtm-engineering-playbook">Clay workflow playbook</a>. This post assumes the enrichment already works and only the handoff is at stake.</p>
+
+<h2>The Failure That Costs Real Money: Blank Variables Still Send</h2>
+<p>This is the single most important paragraph here. Smartlead's documentation states plainly that if a row has a blank cell for a variable, <strong>that value will not populate in the email</strong> — and there is no documented setting anywhere that holds back a send because a variable is missing. Your "Hi &#123;&#123;first_name&#125;&#125;, saw the &#123;&#123;company_name&#125;&#125; launch" becomes "Hi , saw the launch" and it goes out at scale.</p>
+<p>You have exactly two defences, and you want both:</p>
+<ol>
+  <li style="margin-bottom:6px;"><strong>In Clay:</strong> a conditional run that refuses to push an incomplete row (next section).</li>
+  <li style="margin-bottom:0;"><strong>In Smartlead:</strong> conditional blocks in the copy, so a missing value degrades gracefully instead of leaving a hole.</li>
+</ol>
+<p>Smartlead calls its conditional feature "Liquid Syntax," but every documented example is Handlebars-shaped:</p>
+<ul>
+  <li style="margin-bottom:6px;"><code>&#123;&#123;#if first_name&#125;&#125; Hey &#123;&#123;first_name&#125;&#125;, &#123;&#123;else&#125;&#125; Hey there, &#123;&#123;/if&#125;&#125;</code></li>
+  <li style="margin-bottom:6px;"><code>&#123;&#123;#if position '==' "founder"&#125;&#125; As the founder of the business... &#123;&#123;/if&#125;&#125;</code></li>
+  <li style="margin-bottom:0;"><code>&#123;&#123;#if google_review 'gte' 4&#125;&#125; Congrats on the reviews... &#123;&#123;/if&#125;&#125;</code></li>
+</ul>
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:16px 20px;margin:22px 0;border-radius:6px;">
+  <p style="margin:0 0 8px;"><strong>Three syntax traps that silently break personalisation:</strong></p>
+  <ul style="margin:0;padding-left:20px;">
+    <li style="margin-bottom:6px;"><strong>Operators must be single-quoted.</strong> Use <code>'=='</code>, not <code>==</code>. Smartlead documents this explicitly.</li>
+    <li style="margin-bottom:6px;"><strong>There is no <code>| default:</code> filter.</strong> Despite the "Liquid" label, real Liquid's <code>&#123;&#123; var | default: "there" &#125;&#125;</code> appears nowhere in Smartlead's docs. Use <code>#if / else</code> instead.</li>
+    <li style="margin-bottom:0;"><strong>Two delimiter styles coexist.</strong> Lead and custom variables use braces. Sender variables use percent signs — <code>%signature%</code>, <code>%sender-name%</code>, <code>%sender-firstname%</code>, <code>%sender-domain%</code>, <code>%sender-mailbox%</code>. Writing <code>&#123;&#123;signature&#125;&#125;</code> produces nothing.</li>
+  </ul>
+</div>
+<p>Variable names are <strong>case-sensitive</strong>, and Smartlead also generates a few at send time that you should never push from Clay: <code>&#123;&#123;sl_time_of_day&#125;&#125;</code>, <code>&#123;&#123;sl_day_of_week&#125;&#125;</code> and <code>&#123;&#123;sl_date&#125;&#125;</code> for relative dates. One more genuine gap worth knowing: only <code>first_name</code>, <code>company_name</code> and <code>phone_number</code> have template variable names confirmed in Smartlead's docs. For <code>location</code>, <code>website</code>, <code>linkedin_profile</code> and <code>company_url</code>, no doc we could find confirms the variable name — so if you intend to use those <em>in copy</em>, push them as explicitly named custom fields you control rather than trusting an undocumented standard name.</p>
+
+<h2>The Gate: Stop Clay Pushing Half-Enriched Rows</h2>
+<p>Clay's table-level auto-run is the master switch and it is <strong>enabled by default</strong> — the product is designed to enrich as soon as data arrives. Wire a table to a live campaign without gating and rows will push while enrichment is still running. That is the mechanism behind almost every "why did my lead get an empty first line" report.</p>
+<p>Clay's own best practices for this integration say the same three things: qualify before adding, use conditional runs, and look up before updating. Concretely:</p>
+<ol>
+  <li style="margin-bottom:6px;"><strong>While building, turn table-level auto-run OFF</strong> and test on 5–10 rows. Clay recommends exactly this to avoid burning credits on accidental runs.</li>
+  <li style="margin-bottom:6px;"><strong>Leave "Keep existing results" checked</strong> so only errored, empty or new cells run automatically — cells with data won't re-run and overwrite themselves.</li>
+  <li style="margin-bottom:6px;"><strong>Build one "ready to send" column</strong> — a formula that is TRUE only when the email is verified <em>and</em> every variable from your copy inventory is non-empty. One boolean you can reason about beats ten scattered conditions.</li>
+  <li style="margin-bottom:0;"><strong>Set the push column's "Only run if" to that column.</strong> Clay's conditional runs support AND/OR/NOT and a plain-language "Use AI" builder if you'd rather describe the rule than write it.</li>
+</ol>
+<p>Two more Clay-side levers worth knowing: <strong>filtered views</strong> only enrich the rows you're viewing, which is a crude but effective conditional; and on scheduled sources, <strong>Update Existing Rows</strong> set to "Net New" only runs enrichments on newly added records, which Clay describes as the more cost-efficient setting. On credits generally, Clay's docs do not state whether re-running a column charges again or whether a null result is billed — the only nearby signal is that re-running all rows is described as higher credit usage. We're not going to invent a rule; see our <a href="/blog/clay-pricing-honest-review-plans-credits-costs-2026">honest Clay pricing review</a> for what is actually knowable about credits.</p>
+
+<h2>The Workflow, Step by Step</h2>
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+    <th style="padding:10px 12px;">#</th>
+    <th style="padding:10px 12px;">Step</th>
+    <th style="padding:10px 12px;">Rule that makes it safe</th>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">1</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Build the campaign in Smartlead — sequence, senders, schedule, daily cap, stop-on-reply</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Non-negotiable: Clay cannot create campaigns</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">2</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Write the copy, then list every variable it uses</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">This list is the contract. Nothing gets pushed that isn't on it</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">3</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Wrap every non-guaranteed variable in an <code>#if / else</code> block</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Blank renders as nothing and still sends — this is your in-platform net</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">4</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Connect Smartlead in Clay with an API key</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Agencies: use a per-client key, not one master key</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">5</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Turn table auto-run OFF; keep "Keep existing results" on</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Stops pushes firing mid-enrichment while you build</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">6</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Enable auto-dedupe on the <strong>email</strong> column</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">It ignores blank cells and cells over 200 characters — dedupe the raw email, never a concatenated key</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">7</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Add the "ready to send" gate column</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Verified email AND all copy variables present</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">8</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Add <strong>Lookup lead in campaign</strong>; read <code>Lead Campaign Data</code> and <code>Is Unsubscribed</code></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">The only way to <em>see</em> a cross-campaign collision before pushing</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">9</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Add <strong>Add lead to campaign</strong>; map standard fields and custom fields</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Custom-field keys must match template variables exactly, case included</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">10</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Set that column's "Only run if" to the gate</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Without this, flipping auto-run back on fires everything</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">11</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Decide the duplicate and bounce-list settings explicitly</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">See the contradictions section — do not leave these to defaults you haven't read</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">12</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Test 5–10 rows, then send a real test email and read every variable slot</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Catches blanks before volume does</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">13</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Add <strong>Lookup lead status in campaign</strong> as a reconciliation column</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Rows whose sent-count never moves were silently skipped</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">14</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Turn auto-run ON; enable auto-update on the push column if you want trigger-based sending</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Go-live switch, once the gate is proven</td>
+  </tr>
+</table>
+
+<h2>Field Map, With Write Rules</h2>
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+    <th style="padding:10px 12px;">Clay column</th>
+    <th style="padding:10px 12px;">Smartlead field</th>
+    <th style="padding:10px 12px;">Rule / when empty</th>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Verified work email</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><code>email</code></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Required.</strong> Gate on it — and note blank emails are invisible to Clay's auto-dedupe</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">First name, normalised</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><code>first_name</code></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Use an <code>#if / else</code> fallback in copy. Never push a placeholder like "there" — you lose the ability to tell missing from real</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Company name, cleaned</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><code>company_name</code></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Strip Inc/Ltd/LLC first. Gate on it if the subject line uses it — legal suffixes are the most visible automation tell</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Job title</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><code>custom_fields.job_title</code></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Key must match the template variable exactly, case-sensitive</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">First line / hook (Claygent)</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><code>custom_fields.&lt;your key&gt;</code></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Highest-risk field.</strong> Gate on non-empty AND a minimum length, and wrap it in <code>#if</code> with a generic else branch</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Trigger / signal</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><code>custom_fields.&lt;your key&gt;</code></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Wrap the <em>whole sentence</em> in <code>#if</code> so it disappears cleanly rather than half-rendering</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Personal website</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><code>website</code></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Docs disagree:</strong> Clay calls this the lead's personal website, Smartlead's API calls it the company website. Pick a meaning, document it, don't use it in copy</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">ICP score / qualification flag</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Not pushed</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Use as the gate only — internal scores don't belong in a lead record</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Smartlead <code>Id</code> from Lookup</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><code>lead_id</code></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Required for Update and Remove. Not your Clay row ID</td>
+  </tr>
+</table>
+<p>Clean inputs matter more than clever gating: see <a href="/blog/best-email-verification-tools-2026">email verification tools</a> for the verified-email step and <a href="/blog/ai-cold-email-personalization-2026">AI cold email personalisation</a> for writing hooks that survive a fallback.</p>
+
+<h2>Deduplication: Four Layers</h2>
+<p>Smartlead applies four checks on import, and understanding them stops you double-emailing prospects:</p>
+<ol>
+  <li style="margin-bottom:6px;"><strong>Within the same campaign</strong> — duplicate emails are <em>always</em> skipped. Not overridable.</li>
+  <li style="margin-bottom:6px;"><strong>Across campaigns</strong> — controlled by the setting Clay surfaces as "Allow Duplicate Leads Across Campaigns?", which by default blocks them.</li>
+  <li style="margin-bottom:6px;"><strong>Global block list</strong> — blocks an address or an entire domain, applies <em>across all campaigns in the account</em>, and is automatically excluded from future imports. It can be activated mid-campaign.</li>
+  <li style="margin-bottom:0;"><strong>Unsubscribes</strong> — previously unsubscribed leads are skipped.</li>
+</ol>
+<p>Two things to know about that. First, re-pushing the same lead to the same campaign does not create a duplicate — it is skipped — but Smartlead's docs <strong>do not state whether the skipped push updates the lead's custom fields or discards them</strong>. So when you want to refresh data, use Lookup then Update rather than re-Add. (Smartlead does promise a clean merge for CSV re-uploads into an active campaign, but nothing equivalent is documented for the API path — don't assume it transfers.)</p>
+<p>Second, the "global" block list is <strong>client-scopable</strong> for agencies, which is both a feature and a hazard: scope it per client deliberately, or you risk one client's suppression list leaking into another's targeting. Keep the block list fed from opt-outs, competitors and bounces — the same discipline as <a href="/blog/crm-data-hygiene-outbound-teams-2026">CRM data hygiene</a>.</p>
+
+<h2>Where the Docs Disagree — Set These Explicitly</h2>
+<p>Four places where we could not give you a single confident answer, because the vendors themselves don't:</p>
+<ul>
+  <li style="margin-bottom:6px;"><strong>Community bounce list defaults are opposite.</strong> Clay's UI says leads <em>will</em> be added even if they're on Smartlead's community bounce list by default; Smartlead's API says the equivalent flag defaults to <em>checking</em> that list, and advises leaving all such overrides off. Set it deliberately in whichever interface you're using and verify with a test lead.</li>
+  <li style="margin-bottom:6px;"><strong>Custom-field limits are documented three ways</strong> — the API reference says a maximum of 200 key-value pairs per lead, the CSV help article says up to 40, and the core concepts page says unlimited. Design for well under 40 and you satisfy all three.</li>
+  <li style="margin-bottom:6px;"><strong>Clay's plan gate for this integration is unclear.</strong> The integration and HTTP API doc pages leave the plan field blank while the marketplace listing shows a higher-tier badge. Check the badge in-app rather than trusting any blog, including this one.</li>
+  <li style="margin-bottom:0;"><strong>Send timezone is campaign-level, not per lead.</strong> The schedule carries the timezone, days and hours; no per-lead timezone field is documented. Sending in each prospect's local morning means splitting into per-timezone campaigns.</li>
+</ul>
+
+<h2>When to Drop to the Raw API</h2>
+<p>The native action is right for most teams. Swap it for Clay's HTTP API action when you need what the native path hides:</p>
+<ul>
+  <li style="margin-bottom:6px;"><strong>Error detail.</strong> <code>POST /api/v1/campaigns/{campaign_id}/leads</code> returns <code>added_count</code>, <code>skipped_count</code> and <code>skipped_leads[]</code> with a reason per lead — the diagnostic the native action simply doesn't give you.</li>
+  <li style="margin-bottom:6px;"><strong>Batching.</strong> Up to 400 leads per request, versus one API call per row.</li>
+  <li style="margin-bottom:0;"><strong>Explicit suppression control.</strong> The <code>settings</code> flags for block list, unsubscribes, cross-campaign duplicates and community bounces all default to off, and Smartlead advises keeping them that way unless you have a specific reason.</li>
+</ul>
+<p>Mind the rate limits, which are per API key across all endpoints combined: 60 requests a minute and 1,000 an hour on Standard, 120 and 3,000 on Pro, with burst allowances of 10 and 20 per second. Throttle client-side at around 80% of your ceiling, and back off on a 429 using the <code>retry_after</code> value. Clay's HTTP API action has its own request-limit control for exactly this. One security note: Clay warns that credentials typed into the Headers field are visible in plain text to anyone with table access — so scope keys per client and treat table access as credential access.</p>
+<p>If your pipework is getting elaborate, <a href="/blog/clay-n8n-integration-automate-gtm-workflow-2026">Clay + n8n</a> covers routing this through an orchestration layer instead, and <a href="/blog/clay-hubspot-integration-sync-crm-2026">Clay + HubSpot</a> covers the CRM side of the same handoff.</p>
+
+<h2>Frequently Asked Questions</h2>
+
+<h3>Does Clay have a native Smartlead integration, or do I need the API?</h3>
+<p>Native. Clay ships six Smartlead actions — Add lead to campaign, Lookup lead in campaign, Lookup lead status in campaign, Update lead in campaign, Update lead category, and Remove lead from campaign — authenticated with your Smartlead API key. You only drop to Clay's HTTP API action when you need something the native action doesn't expose, such as per-lead skip reasons or batched uploads of up to 400 leads.</p>
+
+<h3>If I push the same lead twice, does Smartlead send two emails?</h3>
+<p>No. Within a single campaign, duplicate emails are always skipped and that rule cannot be overridden. Across campaigns it is controlled by the setting Clay labels "Allow Duplicate Leads Across Campaigns?", which defaults to blocking duplicates. What Smartlead's documentation does not say is whether a skipped re-push updates the lead's custom fields, so use Lookup lead in campaign followed by Update lead in campaign when you want to refresh data.</p>
+
+<h3>What happens if a personalisation variable is empty when the email sends?</h3>
+<p>It renders as nothing and the email still goes out — Smartlead's docs state that a blank value will not populate in the email, and there is no documented setting that holds back a send on a missing variable. Your two defences are a Clay conditional run that refuses to push incomplete rows, and conditional if/else blocks in the copy so a missing value degrades into generic wording instead of a gap.</p>
+
+<h3>How do I stop Clay pushing half-enriched leads?</h3>
+<p>Clay's table-level auto-run is on by default, so rows push as they arrive. Turn it off while building, test on five to ten rows, then gate the Smartlead column with a single "Only run if" condition that is true only when the email is verified and every variable your copy uses is non-empty. Clay's own best practice for this integration says the same: qualify before adding and use conditional runs.</p>
+
+<h3>What are Smartlead's API limits for adding leads?</h3>
+<p>A maximum of 400 leads per request to the add-leads endpoint. Rate limits are per API key across all endpoints combined: 60 requests per minute and 1,000 per hour on Standard, 120 per minute and 3,000 per hour on Pro, with burst allowances of 10 and 20 requests per second respectively, and custom limits on Enterprise. A 429 response returns a retry_after value, and Smartlead recommends exponential backoff plus throttling at about 80% of your ceiling.</p>
+
+<h3>How many custom fields can I push per lead?</h3>
+<p>It depends which Smartlead page you read, which is worth knowing before you design around it. The API reference states a maximum of 200 key-value pairs per lead, the CSV mapping help article says up to 40 per lead, and the core concepts page says unlimited. Those three official pages are mutually inconsistent, so design for well under 40 and you are safe under all of them.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+
+<p><strong>Wiring Clay into a sending stack that has to work every day? Pair this with <a href="/blog/clay-waterfall-enrichment-setup-step-by-step-2026">waterfall enrichment</a> and <a href="/blog/cold-email-deliverability-monitoring-2026">deliverability monitoring</a> — or <a href="/">talk to our team</a> and we'll build the Clay-to-Smartlead pipeline with the gating already in place.</strong></p>
+
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. We are a Clay Artisan Solutions Partner and a Smartlead Certified Partner, and we run this pipeline daily for client campaigns. Actions, limits, dedupe rules and variable syntax are verified against Clay's and Smartlead's documentation as of July 2026; where their docs contradict each other we have said so rather than guessing. Last updated July 2026.</em></p>

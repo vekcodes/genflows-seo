@@ -1,0 +1,184 @@
+<!-- TITLE TAG: Close CRM vs Pipedrive for Outbound Teams (2026) -->
+<!-- META: Close CRM vs Pipedrive for B2B outbound in 2026: native dialer vs marketplace apps, lead vs deal data model, sequences, pricing gaps and cold email fit. -->
+<!-- SLUG: blog/close-crm-vs-pipedrive-outbound-sales-teams-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+<p style="margin:0 0 10px;color:#e8732b;font-weight:700;letter-spacing:.04em;font-size:13px;">TL;DR</p>
+<ul style="margin:0;padding-left:20px;">
+<li><strong>Close is built around the lead; Pipedrive is built around the deal.</strong> For outbound, where you contact many people at a company long before any deal exists, that data-model difference decides more than any feature row.</li>
+<li><strong>Close has a native dialer; Pipedrive does not.</strong> Pipedrive&rsquo;s own help center says it &ldquo;doesn&rsquo;t have a built-in calling integration&rdquo; and points to Marketplace apps (Aircall, Kixie, JustCall, CloudTalk and others). Close ships calling and SMS on every plan, a power dialer from Growth and a predictive dialer on Scale.</li>
+<li><strong>Both have sequences, but they enrol different things.</strong> Close Workflows run email, SMS and task steps against leads and contacts. Pipedrive Sequences are email-and-task flows into which you enrol <em>deals</em>.</li>
+<li><strong>Pipedrive&rsquo;s sticker price looks lower, but we cannot print it.</strong> Pipedrive&rsquo;s pricing page blocked our automated check, so this post gives you Close&rsquo;s verified numbers and tells you exactly what to confirm on Pipedrive&rsquo;s live page instead of quoting stale third-party figures.</li>
+<li><strong>Neither sends LinkedIn messages or replaces a cold email sender.</strong> At volume you still run Smartlead or Instantly for sending and HeyReach for LinkedIn, with the CRM as the system of record.</li>
+<li><strong>The rule of thumb:</strong> phone-and-email prospecting teams pick Close; teams running a visual, longer-cycle deal pipeline with lighter outbound pick Pipedrive.</li>
+</ul>
+</div>
+
+<p>Most &ldquo;Close vs Pipedrive&rdquo; articles are written for a generic small-business buyer: pipeline views, pretty dashboards, price per seat. Outbound teams have a different question. When SDRs are working 200 accounts a week across cold email, LinkedIn and phone, which CRM holds that activity in a shape you can actually run and report on?</p>
+
+<p>We build and operate outbound stacks on both <a href="/blog/close-crm-vs-hubspot-outbound-sales-teams-2026">Close and HubSpot</a>, and we have compared the wider field in our <a href="/blog/best-crm-b2b-outbound-hubspot-salesforce-pipedrive-attio-2026">HubSpot, Salesforce, Pipedrive and Attio roundup</a>. Close was not in that roundup, which is why this head-to-head exists.</p>
+
+<p><em>Sourcing note: Close details were read on Close&rsquo;s pricing and help pages; Pipedrive details on Pipedrive&rsquo;s own help center and product pages in October 2026. Pipedrive&rsquo;s pricing page returned a block to our automated fetch, so Pipedrive prices and tier gating are deliberately not quoted as fact. Anything from third-party sources or our own judgement is marked (directional). Vendor pricing moves &mdash; reconfirm before you buy.</em></p>
+
+<h2>The Short Answer</h2>
+
+<p><strong>Choose Close</strong> if outbound is your core motion and the phone is part of it. You get a native power dialer, native SMS, email and task automation and a lead-centric record where a company and its contacts live together. The trade-off is that the useful outbound features (Workflows, power dialer, bulk email) start at the Growth tier, not the cheapest one.</p>
+
+<p><strong>Choose Pipedrive</strong> if your revenue motion is a visual deal pipeline with longer, relationship-led cycles and outbound is one input among several. Expect to assemble calling and SMS from Marketplace apps, and to treat deals, not leads, as the unit that moves through sequences.</p>
+
+<p>If you send cold email at scale, neither CRM is your sender. See the cold-email section below.</p>
+
+<h2>The Data Model: Lead-Centric vs Deal-Centric</h2>
+
+<p>In Close, a <strong>Lead</strong> is usually a company, with one or more <strong>Contacts</strong> under it and <strong>Opportunities</strong> attached to the lead. Smart Views can be built on leads or on contacts. That structure matches how outbound actually works: you research an account, add three or four stakeholders, contact them across channels, and only later create an opportunity if someone engages. (See our guide to <a href="/blog/close-crm-smart-views-outbound-2026">Close Smart Views for outbound</a>.)</p>
+
+<p>Pipedrive organises work around <strong>Deals</strong>, with Persons and Organizations as supporting records and a separate Leads inbox as a pre-deal holding area (its API exposes deals, persons, organizations and leads as separate objects). That model is excellent when each opportunity is a card moving across a pipeline. It is less natural when you have 4,000 contacted prospects and 60 live opportunities, because most of your activity has no deal to hang on. <em>(Directional: this is our assessment of fit, not a vendor claim.)</em></p>
+
+<div style="background:#f4f7fb;border-left:4px solid #1f3a5f;padding:14px 18px;margin:20px 0;border-radius:6px;"><strong>Why this matters in practice:</strong> in Close, &ldquo;who at this account did we contact, on which channel, and what happened?&rdquo; is answered on one lead page. In a deal-centric CRM you either create a deal for every prospect (which pollutes pipeline reporting) or keep prospect activity in the leads inbox and reconcile later.</div>
+
+<h2>Calling and SMS</h2>
+
+<p>This is the widest gap between the two.</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;">
+<th style="padding:10px 12px;"></th><th style="padding:10px 12px;">Close</th><th style="padding:10px 12px;">Pipedrive</th>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Native calling</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes, on every plan</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No built-in calling integration; use a Marketplace calling app (Pipedrive help center)</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Power dialer</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Growth and above</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Via partner apps (e.g. Kixie, JustCall, Aircall) <em>(directional &mdash; partner features vary)</em></td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Predictive dialer</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Scale</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Via partner apps <em>(directional)</em></td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Native SMS</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes, on every plan</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Via partner apps (Kixie, Aircall and JustCall list SMS)</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Call cost</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Telephony passed through; Close states most outbound calls are about $0.02/min and numbers from about $1/month</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Billed by whichever calling app you pick, on top of Pipedrive seats</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Mobile calling</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes; iOS and Android apps can place and log calls</td>
+</tr>
+</table>
+
+<p>For a team that dials, this changes the arithmetic. A Close seat includes the dialer; a Pipedrive seat plus a calling app is two subscriptions to reconcile, two vendors to troubleshoot and two places where call data can go missing. We cover Close&rsquo;s dialing model in depth in our <a href="/blog/close-crm-power-dialer-outbound-calling-2026">Close power dialer guide</a>.</p>
+
+<h2>Email and Sequences</h2>
+
+<p><strong>Close</strong> runs automation through <a href="/blog/close-crm-workflows-sequences-outbound-2026">Workflows</a> (Growth and above): multi-step cadences that mix email, SMS and tasks, with bulk email and configurable sending limits on the same tiers. A contact can only receive a given sequence once.</p>
+
+<p><strong>Pipedrive</strong> has Sequences, part of its Pulse prospecting suite: a drag-and-drop canvas of emails and activities with delays (including skipping weekends), enrolment one at a time or in bulk, and progress tracking. The important detail from Pipedrive&rsquo;s own product page is that you <strong>enrol deals</strong> into sequences. Separately, Campaigns by Pipedrive is a paid add-on aimed at email marketing to subscriber lists, not 1:1 outbound cadences.</p>
+
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:14px 18px;margin:20px 0;border-radius:6px;"><strong>Plan gating to verify:</strong> we could not confirm from Pipedrive&rsquo;s pricing page which tier includes Sequences, and Close&rsquo;s pricing page does not list &ldquo;Sequences&rdquo; as a separate line item. Check both live pricing pages for the exact tier before you commit.</div>
+
+<h2>Pricing: What Is Verified and What Is Not</h2>
+
+<p>Close lists four plans. The two numbers per plan on its pricing page are an annual and a monthly rate; the lower one is the annual-billing rate.</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;">
+<th style="padding:10px 12px;">Close plan</th><th style="padding:10px 12px;">Annual / monthly per user</th><th style="padding:10px 12px;">What you get for outbound</th>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Solo</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">$9 / $19</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">1 user, up to 10,000 leads</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Essentials</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">$35 / $49</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Unlimited users and leads, calling and SMS, open tracking. No Workflows, power dialer or bulk email.</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Growth</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">$99 / $109</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Workflows, power dialer, bulk email, sending limits, 10 connected email accounts, 90-day recording retention</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Scale</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">$139 / $149</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Predictive dialer, live call coaching, custom graphs and objects, unlimited recording retention</td>
+</tr>
+</table>
+
+<p>For a full breakdown see our <a href="/blog/close-crm-pricing-2026">Close CRM pricing guide</a>. API access is included on every Close plan.</p>
+
+<p><strong>Pipedrive:</strong> its pricing page blocked our automated check and the third-party figures we found disagree with each other (Pipedrive also prices regionally). So we are not printing a number. What we can say with reasonable confidence <em>(directional)</em>: Pipedrive&rsquo;s entry tiers are cheaper per seat than Close Growth, monthly billing costs noticeably more than annual, and Lite does not include automations. The honest comparison is therefore <strong>like-for-like at outbound capability</strong>, not entry price to entry price:</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;">
+<th style="padding:10px 12px;">Cost line</th><th style="padding:10px 12px;">Close</th><th style="padding:10px 12px;">Pipedrive</th>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Seat with automation</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Growth tier</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">The tier that includes automations and Sequences (confirm on live page)</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Calling / dialer</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Included; usage pass-through only</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Separate calling app subscription</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">SMS</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Included; usage pass-through</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Separate app or add-on</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Email marketing</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Not the use case</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Campaigns add-on, billed per company, scaling with subscribers</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Onboarding fee</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Not listed on pricing page</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Not listed in what we reviewed (confirm at purchase)</td>
+</tr>
+</table>
+
+<p>When you add a dialer and SMS to the Pipedrive side, the per-seat gap shrinks and can reverse for phone-heavy teams. Run that sum with your own rep count before deciding.</p>
+
+<h2>Automation, Views and Reporting</h2>
+
+<ul>
+<li><strong>Saved views:</strong> Close Smart Views are saved, filterable lists of leads or contacts that also drive bulk email and call queues. Pipedrive relies on filters and its pipeline views.</li>
+<li><strong>Automation:</strong> both have workflow automation; in Close it starts on Growth, in Pipedrive on a mid-tier plan <em>(directional)</em>.</li>
+<li><strong>Reporting:</strong> Close adds workflow and email-template performance on Growth and Explorer-style custom graphs on Scale. Pipedrive&rsquo;s strength is deal and pipeline reporting. Neither natively reports on LinkedIn activity, so you need the integration work below either way.</li>
+<li><strong>AI:</strong> Close includes monthly AI credits per user and an AI caller/assistant called Chloe, with AI email rewrite on Growth and above. Pipedrive&rsquo;s AI Sales Assistant surfaces stalled deals and next best actions. Both are evolving fast; judge them in a trial, not on a feature page.</li>
+</ul>
+
+<h2>Cold Email, LinkedIn and Integrations</h2>
+
+<p>Whichever CRM you pick, a serious outbound programme sends cold email from dedicated infrastructure (Smartlead or Instantly on warmed secondary domains) and LinkedIn from a tool like HeyReach. Sending 2,000 cold emails a day from a CRM mailbox is how primary domains get burned. The CRM&rsquo;s job is to be the record of who was contacted, what they replied and what happens next.</p>
+
+<ul>
+<li><strong>Close:</strong> open API on every plan. We have documented how to connect <a href="/blog/close-crm-cold-email-integration-2026">cold email tools to Close</a> and <a href="/blog/heyreach-close-crm-integration-2026">HeyReach to Close</a>; expect a middleware layer (Zapier, Make, Relay or n8n) rather than a native connector for several tools <em>(directional)</em>.</li>
+<li><strong>Pipedrive:</strong> a large Marketplace and a documented API. We did not verify native connectors for Smartlead, Instantly or HeyReach; check each vendor&rsquo;s CRM integration list before assuming.</li>
+</ul>
+
+<div style="background:#f4f7fb;border-left:4px solid #1f3a5f;padding:14px 18px;margin:20px 0;border-radius:6px;">If your sending stack is already wired to HubSpot, that may outweigh both options. Our <a href="/blog/smartlead-hubspot-integration-2026">Smartlead and HubSpot integration guide</a> shows what native sync looks like.</div>
+
+<h2>Which One Should You Pick?</h2>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;">
+<th style="padding:10px 12px;">Your situation</th><th style="padding:10px 12px;">Better fit</th><th style="padding:10px 12px;">Why</th>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">SDR team dialing and emailing daily, 3&ndash;50 reps</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Close</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Native dialer, SMS and lead-centric records in one tool</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Cold email at scale, CRM is the record only</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Either</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Decide on seat cost, API and the integrations your sender supports</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Longer, relationship-led sales with a visual pipeline</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Pipedrive</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Deal-centric pipeline is the natural unit</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Outbound feeds a marketing team and one shared CRM</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Neither; test HubSpot</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">See our <a href="/blog/close-crm-vs-hubspot-outbound-sales-teams-2026">Close vs HubSpot comparison</a></td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Heavy reliance on LinkedIn automation</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Either, with middleware</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Neither sends LinkedIn natively</td>
+</tr>
+</table>
+
+<h2>Frequently Asked Questions</h2>
+<h3>Is Close or Pipedrive better for outbound sales?</h3>
+<p>For phone-and-email prospecting, Close is usually the better fit because calling, SMS, workflows and a lead-centric record are built in. Pipedrive suits a deal-pipeline-led motion with lighter outbound volume and fits best when you are comfortable adding calling apps.</p>
+<h3>Does Pipedrive have a built-in dialer?</h3>
+<p>No. Pipedrive&rsquo;s help center says it does not have a built-in calling integration and directs users to Marketplace calling apps such as Aircall, Kixie, JustCall and CloudTalk. Its mobile apps can place and log calls.</p>
+<h3>Does Close have a native power dialer?</h3>
+<p>Yes. Calling and SMS are native on every Close plan, the power dialer is available from the Growth plan and the predictive dialer on Scale. Telephony usage is billed separately at pass-through rates.</p>
+<h3>Can Pipedrive run outbound email sequences?</h3>
+<p>Yes. Pipedrive Sequences let you build email and activity flows with delays and enrol deals individually or in bulk. The Campaigns add-on is a separate email-marketing tool. Confirm which plan includes Sequences on Pipedrive&rsquo;s live pricing page.</p>
+<h3>Should I send cold email from my CRM?</h3>
+<p>Not at volume. Use a dedicated sender such as Smartlead or Instantly on separate, warmed domains, and sync replies and activity back into the CRM. Using CRM mailboxes for high-volume cold sending puts your primary domain&rsquo;s reputation at risk.</p>
+<h3>What does lead-centric mean for outbound teams?</h3>
+<p>In Close a lead is typically a company with its contacts beneath it, so you can track outreach before any deal exists. In a deal-centric CRM, activity tends to attach to deals or people, which makes account-level prospecting harder to see and report on.</p>
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+<p><strong>Want your CRM, cold email and LinkedIn outreach wired into one reporting loop? Start with our <a href="/blog/close-crm-vs-hubspot-outbound-sales-teams-2026">Close vs HubSpot comparison</a>, or <a href="/">talk to our team</a>.</strong></p>
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. Last updated October 2026.</em></p>

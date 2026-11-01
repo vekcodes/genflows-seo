@@ -1,0 +1,117 @@
+<!-- TITLE TAG: Sales Navigator HubSpot Integration: Plans & Limits (2026) -->
+<!-- META: How the LinkedIn Sales Navigator HubSpot integration works in 2026: required plans, what CRM Sync does and doesn't do, known gaps, and safer ways to add leads. -->
+<!-- SLUG: blog/linkedin-sales-navigator-hubspot-integration-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+<p style="margin:0 0 10px;color:#e8732b;font-weight:700;text-transform:uppercase;letter-spacing:.04em;font-size:13px;">TL;DR</p>
+<ul style="margin:0;padding-left:20px;">
+<li><strong>HubSpot CRM Sync is an Advanced Plus feature.</strong> LinkedIn&rsquo;s help center says the CRM integration is only available to Sales Navigator Advanced Plus users. Core and Advanced do not include it.</li>
+<li><strong>It matches and enriches. It is not a lead importer.</strong> Sales Navigator leads are matched to existing HubSpot contacts, and creating a contact needs an email address. Bulk &ldquo;push my saved list into HubSpot&rdquo; is not documented.</li>
+<li><strong>Activity write-back is described by LinkedIn but disputed by third parties.</strong> Test with one rep before you promise your team that InMails and messages will appear on the HubSpot timeline <em>(directional)</em>.</li>
+<li><strong>Advanced Plus is quote-only.</strong> LinkedIn shows Core and Advanced prices but asks you to request a demo for Advanced Plus.</li>
+<li><strong>For lists, use a compliant data route.</strong> Enrich through a data provider or Clay into HubSpot instead of scraping Sales Navigator.</li>
+</ul>
+</div>
+
+<p>Sales Navigator is where many outbound teams find and filter prospects. HubSpot is where deals, owners and reports live. The question is how the two should connect, and whether the official integration is worth its price.</p>
+
+<p>This guide covers the plan gate, what the sync does, where the documentation goes quiet, and what to do instead when it does not fit. For the Sales Navigator side on its own, see our <a href="/blog/linkedin-sales-navigator-outbound-setup-guide-2026">Sales Navigator outbound setup guide</a> and <a href="/blog/linkedin-sales-navigator-pricing-2026">pricing breakdown</a>.</p>
+
+<p><em>Sourcing note: plan gating and prices come from LinkedIn&rsquo;s help center and compare-plans page, read in October 2026. LinkedIn&rsquo;s long HubSpot enablement guide could not be read in full, so details taken from it are marked (directional). Where nothing is documented, we say so.</em></p>
+
+<h2>The Short Answer</h2>
+
+<p>If your team already pays for Advanced Plus and runs HubSpot Sales Hub Professional or higher, turn on CRM Sync. It gives reps LinkedIn context inside HubSpot and helps match leads to existing contacts. If you are on Core or Advanced, the integration is not available to you, and you are better served by a data-provider route into HubSpot. Treat it as a rep-productivity feature, not a lead-sourcing pipeline.</p>
+
+<h2>Which Plans Include It</h2>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;"><th style="padding:10px 12px;">Item</th><th style="padding:10px 12px;">What LinkedIn says</th></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Sales Navigator plan</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Advanced Plus only (help center)</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">HubSpot plan</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Sales Hub Professional or higher (directional, from LinkedIn&rsquo;s enablement guide)</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Admin rights</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Needed in both Sales Navigator and HubSpot (directional)</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Core price</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">US$119.99 per month, US$1,079.88 billed annually</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Advanced price</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">US$159.99 per month, US$1,799.88 billed annually</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Advanced Plus price</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Not shown; request a demo. Depends on team size, CRM integration and onboarding</td></tr>
+</table>
+
+<p>LinkedIn notes these prices are estimates and may exclude tax or discounts. One third-party vendor claims Advanced Plus needs 10 or more seats <em>(directional; LinkedIn&rsquo;s compare-plans page does not state a minimum)</em>. Ask your LinkedIn rep before budgeting. Check the HubSpot side against our <a href="/blog/hubspot-sales-hub-pricing-2026">Sales Hub pricing guide</a>.</p>
+
+<h2>What CRM Sync Does</h2>
+
+<p>From LinkedIn&rsquo;s material, the integration has three jobs:</p>
+
+<ul>
+<li><strong>Matching.</strong> Sales Navigator leads are matched to HubSpot contacts automatically, using name, contact details and location <em>(directional)</em>. If there is no match, a rep can search for one or create a HubSpot contact from Sales Navigator, which needs an email address.</li>
+<li><strong>Context in both directions.</strong> Embedded Profiles put a Sales Navigator panel inside HubSpot. LinkedIn recommends installing it before CRM Sync <em>(directional)</em>. Lead IQ in the HubSpot integration needs CRM Sync to be connected.</li>
+<li><strong>Activity write-back.</strong> LinkedIn describes InMails, messages, calls, notes and Smart Link views writing to matched contact records, with account-level write-back limited to notes. Admins switch it on, and each user must authenticate with HubSpot <em>(directional)</em>.</li>
+</ul>
+
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:16px 20px;margin:20px 0;border-radius:6px;">
+<p style="margin:0;"><strong>Conflicting claims.</strong> A competing vendor says the native integration does not import contacts, does not sync automatically, does not log messages or invitations, and does not enrich contacts. LinkedIn&rsquo;s own guide describes write-back. We could not settle this from documentation. Pilot with one rep and check a test contact&rsquo;s HubSpot timeline before rolling out.</p>
+</div>
+
+<h2>Setup Notes</h2>
+
+<ol>
+<li><strong>Confirm the plan and HubSpot tier</strong> before anything else. Wrong plan is the most likely reason you cannot find the option.</li>
+<li><strong>Install Embedded Profiles first</strong> if you want the panel inside HubSpot <em>(directional)</em>. The HubSpot marketplace app is listed as &ldquo;LinkedIn Data Sync&rdquo;; we could not verify its tier requirements.</li>
+<li><strong>Disconnect HubSpot from Campaign Manager if it is connected</strong>, finish the Sales Navigator sync, then reconnect it. LinkedIn suggests testing in a sandbox first <em>(directional)</em>.</li>
+<li><strong>Have each rep authenticate with HubSpot.</strong> Write-back is per user, so a rep who skips this step logs nothing.</li>
+<li><strong>Test on one contact.</strong> Send a message, then check the HubSpot record.</li>
+</ol>
+
+<p>LinkedIn&rsquo;s help page links a troubleshooting guide only for Salesforce, not HubSpot. Expect to rely on your LinkedIn account team for HubSpot-specific issues.</p>
+
+<h2>What Is Not Documented</h2>
+
+<ul>
+<li>Field-level mapping and sync frequency.</li>
+<li>Bulk import of saved leads or lists into HubSpot.</li>
+<li>Match-rate limits and how duplicates are handled.</li>
+<li>Whether ownership changes in HubSpot unsave leads in Sales Navigator. LinkedIn&rsquo;s Dynamics guide says they do not <em>(directional for HubSpot)</em>.</li>
+</ul>
+
+<h2>Native Sync vs the Alternatives</h2>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;"><th style="padding:10px 12px;">Option</th><th style="padding:10px 12px;">Best for</th><th style="padding:10px 12px;">Lists into HubSpot</th><th style="padding:10px 12px;">Main risk</th></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Native CRM Sync (Advanced Plus)</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Rep context and matching</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Not documented</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Cost, quote-only plan</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Third-party HubSpot&ndash;LinkedIn tools</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Capturing profiles to contacts</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes, per vendor (directional)</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Terms and account risk</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Data provider or Clay into HubSpot</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Building outbound lists at scale</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Data quality, consent rules</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Manual CSV</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">One-off lists</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Time, stale data</td></tr>
+</table>
+
+<h2>How We Would Wire It for Outbound</h2>
+
+<p>Use Sales Navigator for what it is good at: research and account filtering. Build the contact list through a data provider and push it into HubSpot with <a href="/blog/clay-hubspot-integration-sync-crm-2026">Clay&rsquo;s HubSpot integration</a>, with dedupe and a source property. Send LinkedIn touches through a dedicated tool and log them through the <a href="/blog/heyreach-hubspot-integration-2026">HeyReach HubSpot integration</a>. Our guide to <a href="/blog/sync-cold-email-linkedin-data-hubspot-2026">syncing cold email and LinkedIn data into HubSpot</a> covers the data model, and <a href="/blog/crm-data-hygiene-outbound-teams-2026">CRM data hygiene</a> covers keeping it clean.</p>
+
+<div style="background:#f4f7fb;border-left:4px solid #1f3a5f;padding:16px 20px;margin:20px 0;border-radius:6px;">
+<p style="margin:0;"><strong>Mind the terms.</strong> Browser-extension scrapers that pull Sales Navigator results into a CSV can breach LinkedIn&rsquo;s terms and put the account at risk. We did not review LinkedIn&rsquo;s User Agreement for this article, so read it yourself. See <a href="/blog/linkedin-outreach-limits-account-safety-2026">LinkedIn outreach limits</a> and the <a href="/blog/linkedin-account-restricted-recovery-playbook-2026">restriction recovery playbook</a>.</p>
+</div>
+
+<h2>Frequently Asked Questions</h2>
+
+<h3>Which Sales Navigator plan includes the HubSpot integration?</h3>
+<p>Advanced Plus. LinkedIn&rsquo;s help center states the CRM integration is only available to Advanced Plus users, so Core and Advanced seats cannot use it.</p>
+
+<h3>Which HubSpot plan do I need?</h3>
+<p>LinkedIn&rsquo;s enablement guide lists Sales Hub Professional or higher, plus admin rights in both tools <em>(directional; confirm with LinkedIn before buying)</em>.</p>
+
+<h3>Does Sales Navigator log InMails and messages to HubSpot?</h3>
+<p>LinkedIn describes write-back of InMails, messages, calls, notes and Smart Link views to matched contacts, but a competing vendor disputes that the integration logs messages <em>(directional)</em>. Test with one rep first.</p>
+
+<h3>Can I push Sales Navigator leads into HubSpot with it?</h3>
+<p>Bulk lead import is not documented. The integration matches leads to existing contacts, and creating a contact from Sales Navigator requires an email address.</p>
+
+<h3>How much does Advanced Plus cost?</h3>
+<p>LinkedIn does not publish it; you request a demo. For reference, LinkedIn shows Core at US$119.99 per month and Advanced at US$159.99 per month, as estimates that may exclude tax.</p>
+
+<h3>Is it safe to scrape Sales Navigator into HubSpot?</h3>
+<p>Scraping tools can breach LinkedIn&rsquo;s terms and risk your account. A data-provider or Clay route into HubSpot avoids touching your Sales Navigator session. Review LinkedIn&rsquo;s User Agreement for the current rules.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+
+<p><strong>Want LinkedIn and HubSpot wired into one outbound system?</strong> Start with our <a href="/blog/sync-cold-email-linkedin-data-hubspot-2026">guide to syncing outbound data into HubSpot</a>, or <a href="/">talk to our team</a>.</p>
+
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. Prices and plan rules come from LinkedIn&rsquo;s public pages and change often. Last updated October 2026.</em></p>

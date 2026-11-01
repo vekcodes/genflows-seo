@@ -1,0 +1,122 @@
+<!-- TITLE TAG: Clay + Instantly Integration: Push Leads (2026) -->
+<!-- META: Connect Clay to Instantly in 2026: the native Add Lead to Campaign action, v2 API key, dedupe flags, and the API route for AI first lines and custom variables. -->
+<!-- SLUG: blog/clay-instantly-integration-push-leads-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+<p style="margin:0 0 10px;color:#e8732b;font-weight:700;letter-spacing:.04em;font-size:13px;">TL;DR</p>
+<ul style="margin:0;padding-left:20px;">
+<li><strong>Clay has a native Instantly integration with three actions:</strong> Find Leads, Verify Email and Add Lead to Campaign.</li>
+<li><strong>Use an Instantly API v2 key.</strong> Clay&rsquo;s docs say v1 is being sunset.</li>
+<li><strong>The native Add Lead action is thin.</strong> Clay&rsquo;s University page lists three inputs: Campaign ID, email and a skip-if-in-workspace checkbox.</li>
+<li><strong>For AI first lines and custom variables, use Clay&rsquo;s HTTP API column</strong> against <code>POST /api/v2/leads</code>, which accepts <code>custom_variables</code> and a <code>personalization</code> string.</li>
+<li><strong>Clay cannot create the campaign.</strong> Build and test it in Instantly first, then paste its campaign ID into Clay.</li>
+<li><strong>Verify and dedupe before the push,</strong> not after. Bad rows in a live campaign cost you sender reputation.</li>
+</ul>
+</div>
+
+<p>Clay builds the list and the personalization. Instantly does the sending. Between them sits one small step that decides whether your campaign launches clean or burns a fresh domain: how rows get from a Clay table into an Instantly campaign.</p>
+
+<p>We have already covered the <a href="/blog/clay-smartlead-integration-push-leads-2026">Clay to Smartlead handoff</a>. This is the Instantly version, including the part most guides skip: the native action only passes the basics, so personalization needs a different route.</p>
+
+<p><em>Sourcing note: action names, inputs and auth come from Clay&rsquo;s University docs and Instantly&rsquo;s developer docs, read in October 2026. Clay&rsquo;s action catalog page and its University page disagree on which fields the native action maps, so we treat extra field mapping as unconfirmed and mark it (directional).</em></p>
+
+<h2>The Short Answer</h2>
+
+<p>If you only need to drop verified emails into a running campaign, use the native Add Lead to Campaign action. If your campaign uses AI-written first lines or other per-lead variables, call Instantly&rsquo;s API from Clay&rsquo;s HTTP API column so those values travel with the lead. Either way, create the campaign in Instantly first.</p>
+
+<h2>What the Native Integration Does</h2>
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;"><th style="padding:10px 12px;">Action</th><th style="padding:10px 12px;">What it does</th><th style="padding:10px 12px;">Inputs per Clay&rsquo;s docs</th></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Find Leads</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Searches Instantly&rsquo;s lead database</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Search filters</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Verify Email</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Verifies an email address</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Email</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Add Lead to Campaign</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Adds a lead to an existing campaign</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Campaign ID, email, optional &ldquo;Skip if Lead is in Workspace&rdquo;</td></tr>
+</table>
+<p>Clay&rsquo;s catalog page for the action also lists name and company fields and reportedly gates it to the Launch plan and above, using your own Instantly account <em>(directional)</em>. Credit cost is not listed, so check <a href="/blog/clay-pricing-honest-review-plans-credits-costs-2026">Clay&rsquo;s current pricing</a> before you scale.</p>
+
+<h2>Setup, Step by Step</h2>
+
+<h3>1. Build the campaign in Instantly first</h3>
+<p>The action needs an existing Campaign ID, and Clay offers no create-campaign action. Write the sequence, attach sending accounts, and leave it ready to receive leads. If you are still deciding on mailbox counts, see <a href="/blog/how-many-domains-mailboxes-cold-email-2026">how many domains and mailboxes cold email needs</a>.</p>
+
+<h3>2. Connect with a v2 API key</h3>
+<p>In Clay, add the Instantly enrichment, choose + Add account and paste an Instantly <strong>v2</strong> API key. Per Clay&rsquo;s docs, v1 is being sunset. If you already have older Find Leads or Add Lead columns, create a new column rather than duplicating the old one.</p>
+
+<h3>3. Verify before you push</h3>
+<p>Do not let unverified addresses reach a live campaign. Run your <a href="/blog/clay-waterfall-enrichment-setup-step-by-step-2026">waterfall enrichment</a>, then a verification step (see <a href="/blog/best-email-verification-tools-2026">email verification tools compared</a>), and add a formula column that is true only when the email is verified and the row passed your ICP filter. Use it in the action&rsquo;s &ldquo;Only run if&rdquo; setting.</p>
+
+<h3>4. Turn on the dedupe checkbox</h3>
+<p>Tick &ldquo;Skip if Lead is in Workspace&rdquo;. It skips leads already sitting in any campaign in your workspace, which protects you from emailing the same person from two campaigns.</p>
+
+<h3>5. Test on five rows</h3>
+<p>Auto-update runs on new rows. Build with it off, push five rows, check them in Instantly, then switch it on.</p>
+
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:14px 18px;margin:20px 0;border-radius:6px;">
+<p style="margin:0;"><strong>Warning:</strong> a campaign that is active while Clay pushes will start sending to the first rows immediately. Keep it paused until the test rows look right.</p>
+</div>
+
+<h2>Passing AI First Lines and Custom Variables</h2>
+
+<p>Instantly&rsquo;s create-lead endpoint, <code>POST /api/v2/leads</code> with Bearer auth, accepts <code>email</code>, <code>first_name</code>, <code>last_name</code>, <code>company_name</code>, <code>website</code>, <code>job_title</code>, <code>phone</code>, a <code>campaign</code> UUID, a <code>personalization</code> string and a <code>custom_variables</code> object. Three details save debugging time:</p>
+<ul>
+<li><strong>The field is <code>campaign</code>, not <code>campaign_id</code>,</strong> and when it is set, <code>email</code> is required.</li>
+<li><strong>Custom variable values must be string, number, boolean or null.</strong> No nested objects or arrays, so flatten anything you build in Clay.</li>
+<li><strong>Unknown fields are rejected,</strong> so a typo in a key fails the request rather than being ignored.</li>
+</ul>
+
+<p>The API also has three skip flags, <code>skip_if_in_workspace</code>, <code>skip_if_in_campaign</code> and <code>skip_if_in_list</code>, and a <code>verify_leads_on_import</code> option. Instantly says the campaign is updated with the custom variables you send. Some third-party notes claim variables must already exist on the campaign, so test one row and confirm the variable renders in the email preview before you push a list <em>(directional)</em>. Check Instantly&rsquo;s help center for the exact variable syntax in your sequence.</p>
+
+<p>For how to generate the first line itself without it reading as obvious AI, see our <a href="/blog/ai-cold-email-personalization-2026">AI cold email personalization guide</a>.</p>
+
+<h2>Comparing the Four Routes</h2>
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;"><th style="padding:10px 12px;">Method</th><th style="padding:10px 12px;">Personalization</th><th style="padding:10px 12px;">Dedupe</th><th style="padding:10px 12px;">Setup</th><th style="padding:10px 12px;">Watch out for</th></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Native Clay action</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Email-focused; extra field mapping unconfirmed <em>(directional)</em></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">One checkbox: skip if in workspace</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Easiest</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Needs an existing campaign; v2 API key; reportedly Launch+ plan</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Clay HTTP API column</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Full: <code>custom_variables</code> and <code>personalization</code></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Three skip flags (workspace, campaign, list)</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Medium: you write the JSON</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">You own errors and retries; confirm Clay plan access</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>CSV export / import</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Any column can become a variable</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Instantly import options</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Manual</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Fine for a one-off, bad for ongoing flow</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Zapier / n8n / Make</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Depends on the tool</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Depends on the tool</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Medium: extra tool</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Extra cost and latency <em>(directional)</em></td></tr>
+</table>
+
+<h2>Limits, Cost and Plan Gating</h2>
+<ul>
+<li><strong>Rate limits:</strong> Instantly&rsquo;s changelog reportedly raised API limits to about 100 requests per second and 6,000 per minute in March 2026 <em>(directional; seen as a snippet)</em>. Push in modest batches regardless.</li>
+<li><strong>Instantly plans:</strong> the pricing page shows Growth, Hypergrowth and Light Speed with different uploaded-contact and monthly-email caps. The page lists an &ldquo;API, webhooks, and integrations&rdquo; row but its per-plan marks did not render for us, so confirm API access on your plan. Our <a href="/blog/instantly-pricing-2026">Instantly pricing breakdown</a> has the plan detail.</li>
+<li><strong>Contact caps matter:</strong> pushing more leads than your plan&rsquo;s uploaded-contact limit allows is a common surprise, so size the push to the plan.</li>
+</ul>
+
+<h2>Closing the Loop With Your CRM</h2>
+<p>Instantly holds the reply, but your CRM should hold the pipeline. We did not verify Instantly&rsquo;s webhook event names, so confirm them in Instantly&rsquo;s docs before building a reply sync. For the CRM side, see <a href="/blog/sync-cold-email-linkedin-data-hubspot-2026">syncing cold email and LinkedIn data into HubSpot</a>, and if you are still choosing a sender, read <a href="/blog/smartlead-vs-instantly-2026">Smartlead vs Instantly</a> or <a href="/blog/instantly-vs-lemlist-cold-email-2026">Instantly vs lemlist</a>.</p>
+
+<h2>Common Mistakes</h2>
+<ul>
+<li><strong>Pushing before verifying.</strong> Bounces on a new domain damage reputation fast; monitor with our <a href="/blog/cold-email-deliverability-monitoring-2026">deliverability monitoring guide</a>.</li>
+<li><strong>Using a v1 key.</strong> It is being sunset and will break the column.</li>
+<li><strong>Pasting the wrong ID.</strong> Campaign ID is not the campaign name; copy it from Instantly.</li>
+<li><strong>Sending nested JSON in custom variables.</strong> Flatten it first.</li>
+<li><strong>Letting auto-update run on a half-built table.</strong></li>
+</ul>
+
+<h2>Frequently Asked Questions</h2>
+
+<h3>Does Clay have a native Instantly integration?</h3>
+<p>Yes. Clay offers three Instantly actions: Find Leads, Verify Email and Add Lead to Campaign.</p>
+
+<h3>Which Instantly API key should I use with Clay?</h3>
+<p>Use a version 2 key. Clay&rsquo;s docs say the v1 API is being sunset.</p>
+
+<h3>Can Clay create an Instantly campaign?</h3>
+<p>No. The Add Lead to Campaign action needs an existing Campaign ID, and Clay&rsquo;s docs list no create-campaign action. Build the campaign in Instantly first.</p>
+
+<h3>How do I avoid duplicate leads between campaigns?</h3>
+<p>Tick &ldquo;Skip if Lead is in Workspace&rdquo; in the native action. Through the API you can instead use <code>skip_if_in_campaign</code>, <code>skip_if_in_list</code> or <code>skip_if_in_workspace</code>.</p>
+
+<h3>How do I pass an AI-written first line from Clay to Instantly?</h3>
+<p>Use Clay&rsquo;s HTTP API column to call <code>POST /api/v2/leads</code> and send the line as <code>personalization</code> or inside <code>custom_variables</code>, then reference it in your Instantly sequence. Test one row first to confirm it renders.</p>
+
+<h3>Are there rate limits when pushing from Clay to Instantly?</h3>
+<p>Yes. Instantly&rsquo;s changelog reportedly puts the limit near 6,000 requests per minute, but that came from a secondary snippet, so push in moderate batches and watch for errors.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+
+<p><strong>Want this built and tuned for you?</strong> We run Clay-to-Instantly pipelines as part of our cold email and outbound work. Compare options in our <a href="/blog/best-cold-email-software-smartlead-instantly-lemlist-apollo-2026">cold email software guide</a>, then <a href="/">talk to our team</a>.</p>
+
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. Vendor details were checked in October 2026 and change often; confirm on the vendor pages before building. Last updated October 2026.</em></p>

@@ -1,0 +1,187 @@
+<!-- TITLE TAG: Sales Velocity Formula: How to Calculate It in HubSpot -->
+<!-- META: The B2B sales velocity formula, why online benchmarks disagree by 10x, and how to calculate it correctly in HubSpot (it isn't a native report). -->
+<!-- SLUG: blog/b2b-sales-velocity-formula-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+<p style="margin:0 0 8px;color:#e8732b;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;font-size:13px;">TL;DR</p>
+<ul style="margin:0;padding-left:20px;">
+<li style="margin-bottom:6px;"><strong>Sales velocity</strong> = (Qualified Opportunities × Win Rate × Average Deal Value) ÷ Sales Cycle Length (days) — a speed-of-revenue metric, not a growth metric.</li>
+<li style="margin-bottom:6px;"><strong>HubSpot has no native "Sales Velocity" report.</strong> Its "Deal Velocity" report only measures average time per pipeline stage — it isn't the same number and can't be dropped into the formula.</li>
+<li style="margin-bottom:6px;"><strong>Published $/day benchmarks disagree by more than 10x</strong> across sources with no consistent methodology — treat any single "average sales velocity" figure you find online with real skepticism.</li>
+<li style="margin-bottom:6px;">The biggest calculation error is <strong>counting every pipeline deal as a "qualified opportunity"</strong> — HubSpot's deal creation and lifecycle-stage mechanics make this easy to get wrong.</li>
+<li><strong>Each of the four variables maps to a specific outbound or RevOps lever</strong> — lead routing speed, ICP tightening, deal-stage discipline, and no-show reduction all move this number.</li>
+</ul>
+</div>
+
+<p>Search "sales velocity formula" and you'll land on a CRM vendor's calculator widget, a recycled definition, and a benchmark number that doesn't match the benchmark number on the next site you open. <em>Where a claim below is single-sourced, vendor-reported, or unverifiable against a primary source, it's flagged as directional rather than stated as settled fact.</em></p>
+
+<h2>The Short Answer</h2>
+<p>Sales velocity measures how fast qualified pipeline turns into closed revenue:</p>
+<div style="background:#f4f7fb;border-left:4px solid #1f3a5f;padding:18px 22px;margin:18px 0;border-radius:6px;">
+<p style="margin:0;font-size:17px;"><strong>Sales Velocity = (Qualified Opportunities × Win Rate × Average Deal Value) ÷ Sales Cycle Length (days)</strong></p>
+</div>
+<p>The output is a dollars-per-day number: how much revenue your pipeline is generating, on average, for every day it's in motion. It's not a growth metric on its own — a team can post a high velocity number while closing low-margin deals that don't help the business — but it's a useful diagnostic for finding <em>where</em> a slowdown is coming from, because it forces you to separate four things that usually get lumped together as "pipeline is slow."</p>
+
+<h2>Where This Formula Actually Comes From</h2>
+<p>Most posts on this topic open with a confident origin story — usually tracing it to operations research or naming a specific book. We couldn't verify a single documented inventor. The formula is consistent across every current source, including <a href="https://blog.hubspot.com/sales/sales-velocity" target="_blank" rel="noopener">HubSpot's own explanation</a>, but the "who first wrote this down" claim doesn't hold up under a source check <em>(directional)</em>. The honest framing: it's an industry-standard heuristic that spread through SaaS and RevOps circles over the past decade, not a discovered law with a named author.</p>
+
+<h2>What It Isn't: HubSpot's "Deal Velocity" Report</h2>
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:18px 22px;margin:18px 0;border-radius:6px;">
+<p style="margin:0;"><strong>Trap:</strong> HubSpot's Sales Analytics tools (Sales Hub Professional/Enterprise) include a report literally called <strong>"Deal Velocity."</strong> It measures the average time a deal spends in each pipeline stage — a stage-duration diagnostic. It is <strong>not</strong> the four-variable revenue-per-day formula above, and it can't be substituted for it. If a report or dashboard in your portal is labeled "velocity," check what it's actually measuring before you quote a number from it.</p>
+</div>
+<p>Sales velocity, as covered in this post, has no out-of-the-box HubSpot report. You have to build it.</p>
+
+<h2>How to Calculate It in HubSpot</h2>
+<p>All four inputs live in your deal data, but none of them arrive pre-qualified for the formula. Build it in the Custom Report Builder:</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;">
+<th style="padding:10px 12px;">Variable</th>
+<th style="padding:10px 12px;">HubSpot source</th>
+<th style="padding:10px 12px;">Watch out for</th>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Qualified opportunities</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Deal count filtered to a genuinely qualified stage (not raw deal count or lifecycle stage)</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">A deal can be created — and get an "Opportunity" lifecycle stage applied to its associated contact — the moment it's added, before anyone has actually qualified it <em>(directional — HubSpot Community discussion describes this behavior; HubSpot's own docs don't spell it out explicitly)</em></td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Win rate</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Closed Won ÷ (Closed Won + Closed Lost) over the period</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Decide once whether disqualified/unqualified deals count as losses, and apply it consistently</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Average deal value</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Deal <code>amount</code> property, averaged over Closed Won deals in the period</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">One enterprise deal can skew an average badly — consider reporting median alongside it</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;">Sales cycle length</td>
+<td style="padding:10px 12px;">Custom formula field: <code>DATE_DIFF([Close Date], [Create Date], "days")</code></td>
+<td style="padding:10px 12px;">Calendar days vs. business days changes the denominator — pick one and label it in the report</td>
+</tr>
+</table>
+
+<p>Once those four numbers exist as report outputs, the formula is a single calculation on top of them — but there's no button that produces the finished figure automatically.</p>
+
+<h2>Why the Benchmarks You'll Find Online Don't Agree</h2>
+<p>Search around for "average sales velocity" and you'll find numbers ranging from roughly $580/day to nearly $13,000/day, depending which site you land on <em>(directional — every one of these figures traces to a different, mostly undisclosed methodology)</em>:</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;">
+<th style="padding:10px 12px;">Claimed figure</th>
+<th style="padding:10px 12px;">Basis</th>
+<th style="padding:10px 12px;">Why it's shaky</th>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">$687–$12,945/day across 5 tiers</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">A private research firm's blended client/database/third-party data</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Opaque blended methodology; the tier progression is unusually smooth for real-world data</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">$8,219/day average</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Cited "across 939 B2B companies," no named source</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Could not be traced to a primary study</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;">$583/day average</td>
+<td style="padding:10px 12px;">Vaguely attributed to a blend of older third-party reports</td>
+<td style="padding:10px 12px;">Multiple secondary sources merged into one figure with no direct quote traceable</td>
+</tr>
+</table>
+
+<p>The one benchmark in this space that <em>does</em> hold up: a 2025 GTM benchmarks report from Ebsta and Pavilion, built on 655,000 opportunities and roughly $48B in analyzed pipeline, put average B2B win rate at <strong>19%, down from 29% the year before</strong>. That's a real sample size with a named, checkable source — worth using as a directional reference point for win rate specifically, though it says nothing about the other three variables or about your own business <em>(directional — treat as one data point, not a target)</em>.</p>
+
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:18px 22px;margin:18px 0;border-radius:6px;">
+<p style="margin:0;"><strong>The practical takeaway:</strong> don't benchmark your sales velocity against an internet number — benchmark it against your own trend. A velocity that's climbing quarter over quarter tells you something real about your pipeline; a velocity that matches or misses a stranger's average tells you nothing, because you don't know what went into their number.</p>
+</div>
+
+<h2>Common Mistakes When Calculating Sales Velocity</h2>
+<ul style="padding-left:20px;">
+<li style="margin-bottom:8px;"><strong>Counting every open deal as an "opportunity."</strong> This is the single biggest source of inflated, misleading velocity numbers — see the HubSpot trap above.</li>
+<li style="margin-bottom:8px;"><strong>Confusing HubSpot's native Deal Velocity report with the full formula.</strong> One measures stage duration; the other measures revenue per day.</li>
+<li style="margin-bottom:8px;"><strong>Mixing calendar days and business days</strong> for cycle length without picking one and being consistent.</li>
+<li style="margin-bottom:8px;"><strong>Using average instead of median deal value</strong> when a handful of large deals skew the distribution.</li>
+<li style="margin-bottom:8px;"><strong>Inconsistent treatment of closed-lost deals</strong> in the cycle-length calculation — some teams include them, some don't, and the two approaches aren't comparable.</li>
+<li><strong>Treating a high velocity number as automatically good.</strong> Velocity measures speed, not margin — a team can post an impressive number by closing fast, low-value, low-fit deals that hurt retention later.</li>
+</ul>
+
+<h2>How to Improve Each Variable</h2>
+<p>Because the formula separates pipeline into four parts, "improve sales velocity" isn't one initiative — it's four different diagnoses with four different fixes:</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;">
+<th style="padding:10px 12px;">Variable</th>
+<th style="padding:10px 12px;">Lever</th>
+<th style="padding:10px 12px;">Where it shows up</th>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Qualified opportunities</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Tighter ICP targeting in outbound so fewer poor-fit deals enter the pipeline at all</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Cold email / LinkedIn list-building and targeting</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Qualified opportunities</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Faster lead routing so interested replies reach a rep before they cool off</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">HubSpot workflow automation</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Win rate</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Explicit exit criteria per deal stage, so "advanced" deals are actually qualified</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">HubSpot pipeline design</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Win rate</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Faster first response to inbound replies and booked meetings</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Outbound SDR process</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Average deal value</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Shifting outbound targeting upmarket or adding attach/expansion motions</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">RevOps + outbound targeting</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;">Sales cycle length</td>
+<td style="padding:10px 12px;">Automated, templatized follow-up cadences instead of ad hoc rep follow-up</td>
+<td style="padding:10px 12px;">RevOps sequencing</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;">Sales cycle length</td>
+<td style="padding:10px 12px;">Confirmation cadences that cut down rebooked meetings after no-shows</td>
+<td style="padding:10px 12px;">Outbound appointment-setting / RevOps</td>
+</tr>
+</table>
+
+<p>A note on the "speed to lead" statistics that circulate around this topic: the widely repeated claim that responding within 5 minutes makes a lead 21x more likely to qualify is usually attributed to "an MIT study." That attribution doesn't check out — the research behind these speed-to-lead numbers traces to a Kellogg School-affiliated study published via Harvard Business Review, not MIT <em>(directional — the underlying finding that fast response improves qualification odds is well-supported directionally; the specific "21x" multiplier and "MIT" label are not)</em>. Use the general point, not the specific number — see our breakdown of <a href="/blog/lead-routing-speed-to-lead-2026">lead routing and speed-to-lead</a> for the mechanics of fixing this in HubSpot.</p>
+
+<p>Two of the other levers in the table above get their own deeper treatment elsewhere on this blog: tightening the top of the funnel starts with a documented <a href="/blog/icp-definition-template-b2b-framework-2026">ICP definition</a>, and a large share of "cycle length" problems trace back to <a href="/blog/sales-meeting-no-shows-show-rate-playbook-2026">meetings that don't show up in the first place</a>.</p>
+
+<div style="background:#f4f7fb;border-left:4px solid #1f3a5f;padding:18px 22px;margin:18px 0;border-radius:6px;">
+<p style="margin:0;"><strong>A pattern worth naming:</strong> several numbers that circulate in sales-velocity content — a "Forrester" benchmark tying a specific stat to meetings without a written next step, and a "study of 847 companies" behind win-rate-by-deal-size bands — could not be traced to any verifiable primary source during research for this post. Treat any sales stat with a suspiciously precise number and a vague or unfamiliar attribution with real skepticism before repeating it.</p>
+</div>
+
+<h2>Frequently Asked Questions</h2>
+
+<h3>What is a good sales velocity?</h3>
+<p>There's no universal benchmark. Published figures for "average sales velocity" range from under $700/day to over $12,000/day depending on company size and methodology, and none of the widely cited numbers share a consistent, disclosed methodology. Cross-company comparisons aren't meaningful — track your own velocity trend over time instead.</p>
+
+<h3>How do you calculate sales velocity in HubSpot?</h3>
+<p>HubSpot doesn't have a native "sales velocity" report. Build it in the Custom Report Builder using the deal <code>amount</code> property, a custom <code>DATE_DIFF</code> formula field between create date and close date, and a filtered count of deals that reached a genuinely qualified stage — then apply the formula manually. HubSpot's native "Deal Velocity" report only measures average time per pipeline stage, which is a different metric.</p>
+
+<h3>Sales velocity vs. sales cycle length — what's the difference?</h3>
+<p>Sales cycle length is one input to the formula — the denominator. Sales velocity is the full output, combining opportunity count, win rate, and deal value against that cycle length. A shorter cycle alone doesn't mean higher velocity if opportunity quality or win rate drops at the same time.</p>
+
+<h3>How do you increase sales velocity?</h3>
+<p>Improve any of the four inputs: bring in more <em>qualified</em> (not just more) opportunities through tighter ICP targeting and faster lead routing, raise win rate through deal-stage discipline and faster response times, increase average deal value through upmarket targeting, or shorten cycle length through faster follow-up and fewer no-shows.</p>
+
+<h3>What counts as a "qualified" opportunity in the formula?</h3>
+<p>A deal that has passed real qualification criteria — budget, authority, need, and timeline, or your team's equivalent framework — not merely a deal record that exists in the pipeline. In HubSpot specifically, don't rely on raw deal count or lifecycle stage alone, since a deal can be marked as an opportunity simply by being created, before anyone has actually qualified it.</p>
+
+<h3>What's a common mistake when calculating sales velocity?</h3>
+<p>Counting unqualified deals as opportunities, mixing calendar days and business days for cycle length within the same report, and using average rather than median deal value when a small number of large deals skew the number.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+
+<p><strong>If your sales velocity has stalled, the fix is almost never "sell harder" — it's finding which of the four variables actually moved.</strong> See how deal-stage discipline factors in in our guide to <a href="/blog/hubspot-deal-stages-outbound-teams-2026">HubSpot deal stages for outbound teams</a>, check your inputs against our <a href="/blog/revops-dashboard-metrics-how-to-build-2026">RevOps dashboard metrics guide</a>, or <a href="/">talk to our team</a> about auditing your pipeline.</p>
+
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. We build and run outbound and RevOps systems for B2B companies — cold email, LinkedIn outreach, and HubSpot pipeline design. Last updated August 2026.</em></p>

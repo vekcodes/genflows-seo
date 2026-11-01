@@ -1,0 +1,138 @@
+<!-- TITLE TAG: How to Set Up SPF, DKIM & DMARC for Cold Email (2026): A Step-by-Step Guide -->
+<!-- META: A practitioner's step-by-step guide to email authentication for cold outreach in 2026 — real DNS record examples, the SPF 10-lookup trap, the p=none→quarantine→reject rollout, and exactly what Google, Yahoo & Microsoft now require of bulk senders. -->
+<!-- SLUG: blog/cold-email-spf-dkim-dmarc-setup-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+  <strong style="display:block;text-transform:uppercase;letter-spacing:.04em;font-size:13px;color:#e8732b;margin-bottom:8px;">TL;DR</strong>
+  <ul style="margin:0;padding-left:20px;">
+    <li><strong>SPF, DKIM, and DMARC are three DNS records that together prove your mail is really from you.</strong> Since February 2024, Google and Yahoo require all three from anyone sending 5,000+ emails a day — and Microsoft began <em>rejecting</em> non-compliant bulk mail to Outlook.com in May 2025.</li>
+    <li><strong>SPF</strong> lists who's allowed to send for your domain, <strong>DKIM</strong> cryptographically signs each message, and <strong>DMARC</strong> ties them to the address the recipient actually sees (<em>alignment</em>) and tells inboxes what to do on failure.</li>
+    <li><strong>Set all three up on a separate sending domain, not your main brand domain.</strong> Cold outreach carries reputation risk you don't want anywhere near your primary domain.</li>
+    <li><strong>The #1 silent killer is SPF's 10-DNS-lookup limit.</strong> Chain too many tools and SPF fails for <em>every</em> email you send. You also can't have two SPF records on one domain.</li>
+    <li><strong>For cold email, <code>p=none</code> is usually the right DMARC policy</strong> — it satisfies the requirement while you monitor reports. Roll toward <code>quarantine</code>/<code>reject</code> only after your reports are clean.</li>
+  </ul>
+</div>
+
+<p>Every guide to <a href="/blog/cold-email-infrastructure-deliverability">cold email infrastructure</a> tells you that authentication matters, and the <a href="/blog/cold-email-deliverability-in-2025-how-gtm-engineers-avoid-spam-filters-and-land-in-inbox">deliverability</a> posts explain <em>why</em> the mailbox providers care. Almost none of them show you the actual DNS records. This is the missing walkthrough: what SPF, DKIM, and DMARC each do, the exact records to publish, the traps that silently break them, and how to satisfy the 2024–2026 rules from Google, Yahoo, and Microsoft without torching your domain reputation in the process.</p>
+
+<h2>The Three Records, in Plain English</h2>
+<p>Email was designed in an era of trust, so by default anyone can put <em>your</em> address in the "From" field. Authentication is the layer that closes that hole. Three records do three different jobs:</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <thead>
+    <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+      <th style="padding:10px 12px;">Record</th><th style="padding:10px 12px;">Question it answers</th><th style="padding:10px 12px;">How it works</th><th style="padding:10px 12px;">DNS record</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;"><strong>SPF</strong></td><td style="padding:10px 12px;">Is this server allowed to send for my domain?</td><td style="padding:10px 12px;">Lists authorized sending IPs/services; checked against the envelope Return-Path</td><td style="padding:10px 12px;"><code>TXT</code> on the root domain</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;"><strong>DKIM</strong></td><td style="padding:10px 12px;">Was this message altered, and is it really signed by me?</td><td style="padding:10px 12px;">Private key signs the message; receivers verify with your public key</td><td style="padding:10px 12px;"><code>TXT</code> at <code>selector._domainkey</code></td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;"><strong>DMARC</strong></td><td style="padding:10px 12px;">Do SPF/DKIM match the visible From address — and what happens if not?</td><td style="padding:10px 12px;">Enforces <em>alignment</em>, sets a failure policy, and requests reports</td><td style="padding:10px 12px;"><code>TXT</code> at <code>_dmarc</code></td></tr>
+  </tbody>
+</table>
+
+<p>The key concept most people miss is DMARC <strong>alignment</strong>. It isn't enough for SPF or DKIM to <em>pass</em> — the domain they authenticate has to match the domain the human reads in the From header. DMARC passes when <strong>at least one</strong> of SPF or DKIM both passes <em>and</em> aligns. That "at least one" is why you don't strictly need both to be perfect, but you absolutely want both configured. (The underlying standards are RFC 7208 for SPF, RFC 6376 for DKIM, and RFC 7489 for DMARC, if you like reading specs.)</p>
+
+<h2>Step 1 — Set Up SPF</h2>
+<p>SPF is a single TXT record on your sending domain listing everything allowed to send on its behalf. A minimal record for a domain sending through Google Workspace looks like this:</p>
+<pre style="background:#0f172a;color:#e2e8f0;padding:14px 16px;border-radius:6px;overflow-x:auto;font-size:14px;"><code>v=spf1 include:_spf.google.com ~all</code></pre>
+<p>The pieces: <code>include:</code> pulls in an authorized service's own SPF, and the closing <code>all</code> mechanism decides what to do with everything else — <code>~all</code> is a <strong>softfail</strong> (recommended while you're setting things up), <code>-all</code> is a <strong>hardfail</strong> (strict). Add an <code>include:</code> for every legitimate sender: your mailbox provider, your <a href="/blog/best-cold-email-software-smartlead-instantly-lemlist-apollo-2026">sending tool</a>, any transactional service.</p>
+
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:14px 20px;margin:20px 0;border-radius:6px;">
+  <strong>The two SPF rules that break the most campaigns:</strong>
+  <ul style="margin:8px 0 0;padding-left:20px;">
+    <li><strong>Only one SPF record per domain.</strong> Two <code>v=spf1</code> TXT records = SPF fails outright. Merge them into one.</li>
+    <li><strong>The 10-DNS-lookup limit (RFC 7208).</strong> SPF evaluation is capped at 10 DNS-querying mechanisms. Every <code>include</code>, <code>a</code>, <code>mx</code>, and <code>redirect</code> counts, and each <code>include</code> can pull in more. Blow past 10 and you get a <code>PermError</code> — which fails SPF for <em>every</em> message you send, not just some. Fix it by removing unused vendors and consolidating includes; use "SPF flattening" (replacing includes with resolved IPs) only as a last resort, because flattened records need manual updates whenever a provider's IPs change.</li>
+  </ul>
+</div>
+
+<h2>Step 2 — Set Up DKIM</h2>
+<p>DKIM adds a cryptographic signature to every outgoing message. Your sending platform holds a private key and signs the mail; you publish the matching <strong>public key</strong> in DNS so receivers can verify it. The record lives at a host built from a <strong>selector</strong>:</p>
+<pre style="background:#0f172a;color:#e2e8f0;padding:14px 16px;border-radius:6px;overflow-x:auto;font-size:14px;"><code>Host:  google._domainkey        (selector varies by provider)
+Type:  TXT
+Value: v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKB...</code></pre>
+<p>You almost never write this by hand — your mailbox provider or sending tool generates the key and gives you the exact record to paste. Two things to get right:</p>
+<ul>
+  <li><strong>Use a 2048-bit key.</strong> It's the 2026 default and satisfies Google/Yahoo requirements; 1024-bit is legacy.</li>
+  <li><strong>Watch the chunking.</strong> A 2048-bit key is longer than a single DNS TXT string allows (255 characters), so it's split into multiple quoted strings. Most DNS hosts handle this automatically, but if you paste it wrong the signature fails silently — mail sends, DKIM just never verifies. <em>(The chunking requirement is a DNS-spec detail; the "silent failure" framing is widely reported by tooling vendors — directional but consistent.)</em></li>
+</ul>
+
+<h2>Step 3 — Set Up DMARC (and Pick the Right Policy)</h2>
+<p>DMARC ties it all together. Publish a TXT record at <code>_dmarc.yourdomain.com</code>:</p>
+<pre style="background:#0f172a;color:#e2e8f0;padding:14px 16px;border-radius:6px;overflow-x:auto;font-size:14px;"><code>v=DMARC1; p=none; rua=mailto:dmarc@yourdomain.com; pct=100; adkim=r; aspf=r</code></pre>
+<p>The tags that matter: <code>p=</code> is the policy (<code>none</code>, <code>quarantine</code>, or <code>reject</code>), <code>rua=</code> is where aggregate reports get sent (never omit this — it's your only visibility into what's failing), <code>pct=</code> is the percentage of failing mail the policy applies to, and <code>adkim</code>/<code>aspf</code> set alignment strictness (<code>r</code> = relaxed, the sane default; <code>s</code> = strict).</p>
+
+<p><strong>Roll the policy out in stages — never start at <code>reject</code>:</strong></p>
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <thead>
+    <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+      <th style="padding:10px 12px;">Stage</th><th style="padding:10px 12px;">Policy</th><th style="padding:10px 12px;">What happens on failure</th><th style="padding:10px 12px;">When to move on</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;"><strong>1. Monitor</strong></td><td style="padding:10px 12px;"><code>p=none</code></td><td style="padding:10px 12px;">Nothing — mail still delivers; you just collect reports</td><td style="padding:10px 12px;">Once <code>rua</code> reports show all your legit senders passing &amp; aligned</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;"><strong>2. Quarantine</strong></td><td style="padding:10px 12px;"><code>p=quarantine</code></td><td style="padding:10px 12px;">Failing mail goes to spam/junk</td><td style="padding:10px 12px;">After a clean monitoring window (guides suggest ~30–60 days)</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;"><strong>3. Reject</strong></td><td style="padding:10px 12px;"><code>p=reject</code></td><td style="padding:10px 12px;">Failing mail is rejected at SMTP (bounced, never delivered)</td><td style="padding:10px 12px;">Optional for cold email — see below</td></tr>
+  </tbody>
+</table>
+<p><em>Timeline caveat: the 30–60-day figure is vendor guidance for simple setups; enterprises with sprawling mail infrastructure are advised to monitor a full quarter or longer. For a handful of cold-email sending domains you'll converge much faster. Directional.</em></p>
+
+<h2>What Google, Yahoo & Microsoft Actually Require in 2026</h2>
+<p>This is the part that turned authentication from "nice to have" into "you don't send at all without it." The rules are pegged to <strong>bulk senders — anyone sending roughly 5,000+ messages per day</strong> to a provider's users, which most serious cold-email operations cross quickly across their domains.</p>
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <thead>
+    <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+      <th style="padding:10px 12px;">Provider</th><th style="padding:10px 12px;">Since</th><th style="padding:10px 12px;">Requirement</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;"><strong>Google &amp; Yahoo</strong></td><td style="padding:10px 12px;">Feb 1, 2024</td><td style="padding:10px 12px;">SPF + DKIM + DMARC (min <code>p=none</code>), at least one aligned; one-click unsubscribe on marketing mail (RFC 8058, enforced Jun 1, 2024); valid forward + reverse DNS (PTR); spam-complaint rate under <strong>0.3%</strong> (aim for <strong>&lt;0.1%</strong>)</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;"><strong>Microsoft</strong> (Outlook.com/Hotmail)</td><td style="padding:10px 12px;">May 5, 2025</td><td style="padding:10px 12px;">SPF + DKIM + DMARC (min <code>p=none</code>) aligned; non-compliant bulk mail is <em>rejected</em> with a <code>550 5.7.515</code> error, not just junked</td></tr>
+  </tbody>
+</table>
+<p>Note the complaint-rate line — authentication gets you in the door, but the <strong>0.1% target / 0.3% hard limit</strong> on spam complaints is what keeps you there. That's a list-quality and copy problem, not a DNS problem, and it ties directly into <a href="/blog/how-to-build-b2b-cold-email-list-2026">how you build your list</a> and <a href="/blog/cold-email-compliance-guide-gdpr-can-spam-2026">how you stay compliant</a>. <em>(Enforcement has tightened progressively through 2025; exact rejection-cutover dates beyond the ones above are single-sourced — directional.)</em></p>
+
+<h2>Cold-Email-Specific Setup: 5 Things That Are Different</h2>
+<p>Standard authentication guides assume you're protecting a corporate domain. Cold outreach flips several defaults:</p>
+<ul>
+  <li><strong>Authenticate a separate sending domain, never your primary.</strong> Cold email invites spam complaints and the occasional blocklisting; you want that risk isolated on cheap secondary domains (close variants of your brand, redirected to your main site) so your <code>yourcompany.com</code> reputation stays pristine. A common ratio is ~1 domain per 2–3 mailboxes and ~40–50 sends per mailbox per day — <em>vendor rules of thumb, directional</em> — but the principle is firm: spread the load and keep it off the brand domain.</li>
+  <li><strong>Each sending domain gets its own SPF, DKIM, and DMARC.</strong> There's no shortcut here — every domain is authenticated independently.</li>
+  <li><strong><code>p=none</code> is genuinely fine for cold email.</strong> Its main job here is satisfying the "must have a DMARC record" requirement while you monitor. You're not primarily fighting spoofers of a throwaway domain, so aggressive <code>reject</code> buys little and risks bouncing legitimate mail if alignment isn't perfect.</li>
+  <li><strong>Publish MX records.</strong> The domain must be able to <em>receive</em> mail — for mailbox provisioning, bounce handling, and as a basic legitimacy signal.</li>
+  <li><strong>Use your own custom tracking domain.</strong> Sharing your sending tool's default tracking domain means sharing its reputation with every other user. A tracking subdomain on your own sending domain keeps links aligned and reputation yours.</li>
+</ul>
+
+<h2>The Common Mistakes Checklist</h2>
+<p>Before you hit send on a new domain, rule out the usual silent failures:</p>
+<ul>
+  <li>☐ <strong>Two SPF records</strong> on one domain (only one allowed).</li>
+  <li>☐ <strong>SPF over 10 DNS lookups</strong> → PermError → SPF fails for all mail.</li>
+  <li>☐ <strong>DKIM not enabled</strong> in the sending tool, or the selector record pasted incorrectly.</li>
+  <li>☐ <strong>DMARC with no <code>rua=</code></strong> — zero visibility into failures.</li>
+  <li>☐ <strong>Misalignment</strong> — SPF/DKIM pass but authenticate a different domain than the visible From.</li>
+  <li>☐ <strong>Jumping to <code>p=reject</code></strong> before monitoring reports.</li>
+  <li>☐ <strong>Sending cold mail from your primary domain.</strong></li>
+</ul>
+
+<h2>How to Verify Everything Works</h2>
+<p>You never have to guess. Free record checkers — <strong>MXToolbox</strong>, <strong>Google Admin Toolbox</strong>, <strong>dmarcian</strong> (record wizard + DKIM validator + SPF surveyor), and <strong>EasyDMARC</strong> — will look up and validate each record. The fastest end-to-end test: send a message to a Gmail account, open it, and use <strong>"Show original."</strong> Gmail shows you a clean PASS/FAIL for SPF, DKIM, and DMARC plus whether each aligned. If all three say PASS, you're authenticated. Pair this with a run through the <a href="/blog/best-email-warmup-deliverability-tools-2026">warmup and deliverability tools</a> before you scale volume.</p>
+
+<h2>Frequently Asked Questions</h2>
+<h3>Do I really need all three of SPF, DKIM, and DMARC?</h3>
+<p>Yes. Since February 2024, Google and Yahoo require all three from bulk senders (5,000+/day), and Microsoft began rejecting non-compliant bulk mail to Outlook.com in May 2025. Technically DMARC only needs <em>one</em> of SPF or DKIM to pass and align, but you should configure both — it's more resilient, and forwarding can break SPF while DKIM survives it.</p>
+<h3>Should I set this up on my main domain or a separate sending domain?</h3>
+<p>A separate sending domain, always. Cold outreach carries reputation risk — spam complaints, occasional blocklisting — that you don't want anywhere near your primary brand domain. Register close-variant domains, point them at your main site, and authenticate each one independently.</p>
+<h3>What DMARC policy should I use for cold email — none, quarantine, or reject?</h3>
+<p><code>p=none</code> is the right starting point and is usually sufficient for cold email. It satisfies the requirement to have a DMARC record while you monitor <code>rua</code> reports. Only progress to <code>quarantine</code> or <code>reject</code> after reports confirm all your legitimate senders pass and align — and for throwaway sending domains, aggressive enforcement rarely adds value.</p>
+<h3>Why is my SPF record failing with "too many DNS lookups"?</h3>
+<p>SPF is capped at 10 DNS-querying mechanisms (RFC 7208). Each <code>include</code>, <code>a</code>, <code>mx</code>, and <code>redirect</code> counts, and includes can nest more lookups inside them. Exceed 10 and you get a <code>PermError</code>, which fails SPF for every email. Fix it by removing unused senders and consolidating includes; only flatten SPF (resolve includes to raw IPs) as a last resort, since flattened records need manual upkeep.</p>
+<h3>Can I have more than one SPF record?</h3>
+<p>No. A domain may have only one <code>v=spf1</code> TXT record. Two or more cause SPF to fail. If multiple services each told you to "add an SPF record," merge their <code>include:</code> mechanisms into a single record.</p>
+<h3>How do I check that my records are correct?</h3>
+<p>Use a free checker like MXToolbox, dmarcian, EasyDMARC, or Google Admin Toolbox to validate each record's syntax, then send a live test to Gmail and use "Show original" to confirm SPF, DKIM, and DMARC all PASS and align. That end-to-end check catches problems the record-syntax tools can miss.</p>
+<h3>Does authentication alone guarantee I'll land in the inbox?</h3>
+<p>No — it's the entry ticket, not the whole game. Authentication gets you past the door; staying in the inbox depends on list quality, warmup, sending volume, and keeping your spam-complaint rate under the 0.3% hard limit (ideally below 0.1%). Authentication is necessary but not sufficient.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+<p><strong>Don't want to hand-configure DNS across a dozen sending domains?</strong> GenFlows builds and maintains the full cold-email infrastructure — authenticated sending domains, warmup, and deliverability monitoring — so your campaigns land in the inbox instead of the spam folder. <a href="/blog/cold-email-infrastructure-deliverability">See how the infrastructure fits together</a> or <a href="/">talk to our team</a>.</p>
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. Provider requirements and record specifications verified July 2026 against Google, Yahoo, and Microsoft sender guidelines and the relevant RFCs (7208, 6376, 7489); volume ratios, rollout timelines, and single-sourced enforcement dates are flagged directional. This is operational guidance, not legal or security advice. Last updated July 2026.</em></p>

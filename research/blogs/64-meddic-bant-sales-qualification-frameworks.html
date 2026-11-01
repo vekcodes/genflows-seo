@@ -1,0 +1,172 @@
+<!-- TITLE TAG: MEDDIC vs BANT: Which Framework Fits Your Deals? -->
+<!-- META: MEDDIC vs BANT compared for B2B outbound teams — which sales qualification framework fits your deal size, and how to build either into HubSpot's deal stages. -->
+<!-- SLUG: blog/meddic-bant-sales-qualification-frameworks-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+<p style="color:#e8732b;text-transform:uppercase;font-weight:700;font-size:13px;letter-spacing:0.5px;margin:0 0 10px;">TL;DR</p>
+<ul style="margin:0;padding-left:20px;">
+<li style="margin-bottom:8px;"><strong>MEDDIC (or MEDDPICC)</strong> fits complex, multi-stakeholder deals where you need to map the economic buyer, decision process, and champion. <strong>BANT</strong> fits fast, single-decision-maker deals where budget, authority, need, and timeline are the only real questions.</li>
+<li style="margin-bottom:8px;"><strong>Most outbound teams run both</strong> — a BANT-lite filter at the SDR gate, then MEDDIC(C) from SQL onward — rather than picking one framework and dropping the other.</li>
+<li style="margin-bottom:8px;"><strong>HubSpot has no native MEDDIC or BANT object.</strong> You build either framework with custom deal properties and HubSpot's required/conditional stage-gate properties (Sales Hub Professional or Enterprise).</li>
+<li style="margin-bottom:0;"><strong>Ignore the "25–30% higher win rate" stats</strong> that show up on nearly every MEDDIC-vs-BANT post — none of them trace to a real, named study.</li>
+</ul>
+</div>
+
+<p>If you run outbound — cold email, LinkedIn, or both — you eventually hit the same wall: your SDRs are booking meetings, but your AEs are inheriting deals with almost nothing useful attached to them. No confirmed budget. No idea who signs. No sense of what "yes" actually requires. That's a qualification problem, and the fix is picking (or combining) a framework and then actually enforcing it in your CRM, not just teaching it in a training deck.</p>
+
+<p><em>Some of the figures you'll see cited elsewhere in MEDDIC-vs-BANT content — specific win-rate or forecast-accuracy percentages — could not be traced to any named, published study during research for this post. Where that's the case, it's called out explicitly below rather than repeated as fact.</em></p>
+
+<h2>The Short Answer</h2>
+<p>MEDDIC (Metrics, Economic Buyer, Decision Criteria, Decision Process, Identify Pain, Champion) is a continuous qualification discipline built for complex, committee-based B2B deals — it's less a one-time checklist than an ongoing map of who decides, why, and how a deal actually gets signed. BANT (Budget, Authority, Need, Timeline) is a lightweight four-question filter designed for fast, low-complexity deals with one or two decision-makers. Neither framework is "outdated" — they answer different questions. BANT tells you whether a deal is worth working. MEDDIC tells you whether, and how, you're actually going to win it. For most outbound teams selling into mid-market or enterprise accounts, the practical setup is BANT (or a trimmed-down version of it) as the SDR-to-AE handoff gate, and MEDDIC or MEDDPICC running underneath every opportunity from "Qualified" onward.</p>
+
+<h2>What Is BANT?</h2>
+<p>BANT originated at IBM decades ago and is still one of the most widely taught qualification frameworks in SDR onboarding. It asks four questions before a lead becomes a deal:</p>
+<ul>
+<li><strong>Budget</strong> — is money allocated or realistically available for this purchase?</li>
+<li><strong>Authority</strong> — is this person able to approve, or meaningfully influence, the purchase?</li>
+<li><strong>Need</strong> — is there a genuine, specific business need, not just interest?</li>
+<li><strong>Timeline</strong> — when does the buyer intend to buy or implement?</li>
+</ul>
+<p>BANT is a point-in-time filter. It's typically applied once, early, usually by an SDR or BDR before a deal record is even created. That's its strength (fast, cheap, easy to train) and its limit: it doesn't tell you anything about how the buying decision will actually be made once more than one stakeholder is involved.</p>
+
+<h2>What Is MEDDIC (and MEDDPICC)?</h2>
+<p>MEDDIC was developed at PTC in the 1990s and is now maintained and taught primarily through MEDDICC.com and sales methodology firms like Force Management. It's built for deals where a single yes/no from one buyer isn't how the decision actually gets made.</p>
+<ul>
+<li><strong>Metrics</strong> — the quantified business outcome the buyer is measuring success against.</li>
+<li><strong>Economic Buyer</strong> — the person with actual budget authority to approve the deal (not just an enthusiastic user).</li>
+<li><strong>Decision Criteria</strong> — the formal or informal criteria the buying committee will judge vendors against.</li>
+<li><strong>Decision Process</strong> — the steps, stakeholders, and sequence the buyer goes through to reach a decision.</li>
+<li><strong>Identify Pain</strong> — the business pain driving the initiative. MEDDICC.com has reframed this as "Implicate the Pain" in more recent training — making the buyer feel the cost of inaction, not just naming a problem on a discovery call.</li>
+<li><strong>Champion</strong> — an internal advocate with real influence who sells on your behalf when you're not in the room.</li>
+</ul>
+
+<h3>The MEDDPICC additions: Paper Process and Competition</h3>
+<p>Most teams that say "MEDDIC" today are actually running MEDDPICC, which adds two elements the original framework lacked:</p>
+<ul>
+<li><strong>Paper Process</strong> — the legal, security, and procurement steps between a verbal yes and a signed contract. This is where enterprise deals quietly stall for weeks.</li>
+<li><strong>Competition</strong> — the alternative vendors, a DIY build, or "doing nothing," which is very often the real competitor on a deal, not another vendor's logo.</li>
+</ul>
+<p>Treating MEDDIC and MEDDPICC as interchangeable is a common imprecision — worth knowing the distinction even if you use the terms loosely internally.</p>
+
+<h2>Where GPCTBA/C&#38;I and SPICED Fit In</h2>
+<p>Two other frameworks come up often enough to be worth a mention, without forcing a three-way comparison the way some listicles do:</p>
+<p><strong>GPCTBA/C&#38;I</strong> (Goals, Plans, Challenges, Timeline, Budget, Authority, Consequences &#38; Implications) is <em>HubSpot's own</em> inbound qualification framework — built, per HubSpot's own sales methodology content, because BANT felt too vendor-centric and transactional for a consultative, buyer-education-first motion. <em>(directional — this framing is widely repeated across secondary sources and consistent with HubSpot's known inbound sales history, but wasn't confirmed against a single primary HubSpot page during research; worth knowing HubSpot didn't just adopt BANT, it built its own alternative.)</em></p>
+<p><strong>SPICED</strong> (Situation, Pain, Impact, Critical Event, Decision) is a newer framework from Winning by Design, aimed at SaaS and recurring-revenue GTM motions, and designed to be used across sales, marketing, and customer success rather than as a sales-only tool. It's a reasonable option if your outbound team sells subscription software and wants a framework built for that motion specifically, rather than adapted from enterprise or transactional selling.</p>
+
+<h2>MEDDIC vs BANT: Side-by-Side Comparison</h2>
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;">
+<th style="padding:10px 12px;">Dimension</th>
+<th style="padding:10px 12px;">BANT</th>
+<th style="padding:10px 12px;">MEDDIC / MEDDPICC</th>
+<th style="padding:10px 12px;">GPCTBA/C&#38;I</th>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Deal complexity fit</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Low — single-threaded, simple ROI</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">High — multi-stakeholder, committee-based buying</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Medium — consultative, buyer-education heavy</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Typical sales cycle</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Days to a few weeks</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Months — enterprise often 3–12+ months</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Weeks to months</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Who owns it</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">SDRs/BDRs, top-of-funnel</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">AEs (and CS), full deal lifecycle</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">AEs doing consultative discovery</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">CRM / data burden</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Low — four fields, fast to fill</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">High — 6–8 tracked elements, several tied to contact roles</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Medium — more discovery notes than structured fields</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Best-fit deal size <em>(directional)</em></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">SMB, transactional, PLG-adjacent</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Mid-market to enterprise, multi-year contracts</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Inbound-led mid-market</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Champion / political mapping</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">None</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Explicit, first-class element</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Implicit, via stakeholder discovery</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;">Forecasting value</td>
+<td style="padding:10px 12px;">Weak — confirms interest and budget, not process</td>
+<td style="padding:10px 12px;">Strong — decision/paper process map to forecast confidence</td>
+<td style="padding:10px 12px;">Moderate</td>
+</tr>
+</table>
+
+<h2>Which Framework Fits Your Deals?</h2>
+<p>Skip the "MEDDIC is more advanced" framing — it's not a maturity ladder, it's a fit question. Ask three things about your typical deal:</p>
+<ul>
+<li><strong>How many people actually sign off?</strong> One or two, BANT is probably sufficient. Three or more across departments, you need MEDDIC's decision-process and decision-criteria mapping.</li>
+<li><strong>How long is the cycle?</strong> Under a month, the overhead of tracking six-plus MEDDIC elements per deal usually isn't worth it. Multiple months, you need something that survives a champion going quiet for three weeks.</li>
+<li><strong>What kills deals in your pipeline today?</strong> If deals die from "no budget" or "wrong contact," that's a BANT-shaped problem. If they die from "champion left the company" or "legal never signed off," that's exactly what MEDDPICC's Champion and Paper Process elements exist to catch.</li>
+</ul>
+
+<h2>The SDR-to-AE Handoff Model</h2>
+<p>The framing that holds up best across credible sources — including MEDDICC.com's own comparison of MEDDIC to other frameworks — isn't "MEDDIC replaces BANT," it's that the two operate at different stages of the same pipeline:</p>
+<ul>
+<li><strong>Pre-deal / SDR-owned:</strong> a BANT-lite check gates the SDR-to-AE handoff — is there a real need, a plausible budget, and a person with some authority, before a deal record is even created.</li>
+<li><strong>SQL onward / AE-owned:</strong> MEDDIC or MEDDPICC properties become required as the deal moves through later stages — Economic Buyer identified before it can leave Discovery, Decision Process and Paper Process documented before it can leave Proposal, a Champion contact associated before it can enter Contract Sent.</li>
+</ul>
+<p>This also maps cleanly onto <a href="/blog/mql-vs-sql-lead-lifecycle-stages-2026">MQL-to-SQL lifecycle stages</a> if you're already using that terminology — BANT is the MQL-to-SQL filter, MEDDIC is what runs on every SQL after that.</p>
+
+<h2>How to Build MEDDIC (or BANT) Into HubSpot</h2>
+<p>Here's the part most MEDDIC-vs-BANT content skips: <strong>HubSpot has no native MEDDIC or BANT object.</strong> There's no toggle that turns either framework on. Every real implementation is the same three-part pattern — custom properties, required stage-gate properties, and a workflow to cover what the first two can't enforce.</p>
+
+<h3>1. Custom deal properties</h3>
+<p>Create one property per element you're tracking. For MEDDPICC: <code>metrics</code>, <code>decision_criteria</code>, <code>decision_process</code>, <code>paper_process_status</code>, and an <code>identified_pain</code> dropdown (HubSpot's own blog example uses categories like "Costs," "Technical Limitations," "Security"). For BANT: <code>budget_confirmed</code>, <code>authority_level</code>, <code>need_identified</code>, <code>timeline_expected</code>. Use dropdown or numeric-score property types wherever you want the field reportable — free text works for a notes field like Metrics detail, but it's unreportable at scale.</p>
+
+<h3>2. Required stage-gate properties</h3>
+<div style="background:#f4f7fb;border-left:4px solid #1f3a5f;padding:16px 20px;margin:20px 0;border-radius:6px;">
+<p style="margin:0;">HubSpot Sales Hub Professional and Enterprise let admins mark specific properties as <strong>required to advance a deal into a given stage</strong> — the rep gets blocked from saving until the field is filled. This is the actual enforcement mechanism, not a separate "qualification module." Require <code>economic_buyer</code> and <code>decision_process</code> before a deal can enter your "Commit" stage, for example, and reps can no longer skip past it on gut feel. See also <a href="/blog/hubspot-deal-stages-outbound-teams-2026">how to structure deal stages for outbound teams</a> if you haven't set up your pipeline gates yet.</p>
+</div>
+
+<h3>3. Model Champion and Economic Buyer as contact associations, not text fields</h3>
+<p>A common real-world mistake: putting "Economic Buyer Name" as a free-text field on the deal instead of using a Contact association with a role label. That breaks reporting — you can't roll up "how many open deals have a confirmed Economic Buyer contact" from a text field the way you can from an associated, labeled contact record. This overlaps directly with mapping a <a href="/blog/multithreading-deals-hubspot-buying-committees-2026">buying committee in HubSpot</a> — Champion and Economic Buyer are two of the roles you're already multithreading toward.</p>
+
+<h3>What native HubSpot enforcement can't do</h3>
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:16px 20px;margin:20px 0;border-radius:6px;">
+<p style="margin:0;">Required stage properties can't validate a <em>contact association</em> — HubSpot can't natively block a deal from advancing because no contact is tagged "Champion." Teams that need that level of enforcement build a workflow that checks for the association and flags or notifies when it's missing. That's a workaround, not a native capability — don't assume it's built in.</p>
+</div>
+<p>One more concrete reason to bother with any of this: your deal-stage probability weighting feeds HubSpot's forecast tool directly. A deal sitting in "Commit" with no confirmed Economic Buyer or Decision Process is inflating your forecast on paper. Tying MEDDIC completeness to stage-advance requirements is one of the more direct levers for improving <a href="/blog/sales-forecasting-methods-b2b-2026">forecast accuracy</a> without changing anything about how forecasting itself is calculated.</p>
+
+<h2>Don't Trust the Win-Rate Stats</h2>
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:16px 20px;margin:20px 0;border-radius:6px;">
+<p style="margin:0 0 10px;">Nearly every MEDDIC-vs-BANT post repeats some version of "MEDDIC teams see 25–30% higher win rates" or "up to 95% forecast accuracy." None of these traced back to a named, published, or vendor-disclosed study during research for this post — they reference an unlinked "Artemis study" or no source at all, and appear to have been copied from one secondary blog to the next until they read as settled fact. HubSpot's own MEDDPICC case-study numbers are real customer anecdotes, not a controlled comparison against BANT, and shouldn't be generalized into a universal percentage either.</p>
+<p style="margin:0;"><strong>The honest version:</strong> MEDDICC.com and training vendors like Force Management report strong anecdotal customer outcomes, but no independently audited study comparing MEDDIC to BANT win rates was found. Track your own before/after close rate once you implement stage gates — that number will mean more than any borrowed statistic.</p>
+</div>
+
+<h2>Frequently Asked Questions</h2>
+
+<h3>What does MEDDIC stand for?</h3>
+<p>MEDDIC stands for Metrics, Economic Buyer, Decision Criteria, Decision Process, Identify Pain, and Champion. It's a B2B sales qualification framework built for complex, multi-stakeholder deals, originally developed at PTC in the 1990s and now maintained and taught by MEDDICC.com.</p>
+
+<h3>What is the difference between MEDDIC and MEDDPICC?</h3>
+<p>MEDDPICC is MEDDIC plus two additional elements: Paper Process (the legal, security, and procurement steps needed to get from a verbal yes to a signed contract) and Competition (alternative vendors or the option to do nothing). Most enterprise sales teams today are actually running the fuller MEDDPICC version.</p>
+
+<h3>Is BANT outdated?</h3>
+<p>No. BANT (Budget, Authority, Need, Timeline) is still a fast, effective filter for short-cycle, low-complexity, single-decision-maker deals, especially in SMB or high-velocity sales motions. It's the wrong tool for large enterprise deals with buying committees — not an outdated tool in general.</p>
+
+<h3>Can you use MEDDIC and BANT together?</h3>
+<p>Yes, and many outbound organizations do exactly this: SDRs apply a lightweight BANT check before creating an opportunity, then AEs apply MEDDIC or MEDDPICC to that opportunity through the rest of the deal cycle. The two frameworks operate at different pipeline stages rather than competing for the same job.</p>
+
+<h3>Does HubSpot have a built-in MEDDIC feature?</h3>
+<p>No. HubSpot has no native MEDDIC or BANT object. Teams operationalize either framework with custom deal properties for each element, then use HubSpot's required or conditional deal-stage properties (available on Sales Hub Professional and Enterprise) to block a deal from advancing until those fields are completed.</p>
+
+<h3>How do you build MEDDIC into HubSpot?</h3>
+<p>Create a custom deal property for each MEDDIC or MEDDPICC element, then mark the critical ones — like Economic Buyer or Decision Process — as required properties on specific deal stages so reps can't advance a deal without capturing them. Champion and Economic Buyer are best modeled as Contact associations with role labels rather than free-text fields, since native stage-gating can't validate an association and usually needs a supporting workflow.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+<p><strong>Whichever framework you pick, it only works if your pipeline actually enforces it.</strong> If your HubSpot deal stages don't gate on qualification data today, start with <a href="/blog/hubspot-deal-stages-outbound-teams-2026">structuring deal stages for outbound teams</a>, or <a href="/">talk to our team</a> about building the property and workflow setup for you.</p>
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. Framework definitions verified against MEDDICC.com and HubSpot's own documentation; unsourced win-rate statistics circulating elsewhere were checked and excluded. Last updated August 2026.</em></p>

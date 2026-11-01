@@ -1,0 +1,104 @@
+<!-- TITLE TAG: How to Set Up Clay Waterfall Enrichment (Step-by-Step 2026) -->
+<!-- META: Set up Clay waterfall enrichment step by step: provider order, costs, and the exact config we use to push match rates past 90%. -->
+<!-- SLUG: blog/clay-waterfall-enrichment-setup-step-by-step-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+  <strong style="display:block;text-transform:uppercase;letter-spacing:.04em;font-size:13px;color:#e8732b;margin-bottom:8px;">TL;DR</strong>
+  <ul style="margin:0;padding-left:20px;">
+    <li><strong>Waterfall enrichment</strong> queries data providers in sequence and stops at the first valid result — so you pay once per contact instead of once per provider.</li>
+    <li>A single provider rarely clears <strong>60–70% coverage</strong>; a well-ordered 4–5 provider waterfall routinely pushes verified emails past <strong>90%</strong>.</li>
+    <li>Order providers by <strong>cost-to-accuracy</strong>, not brand name: cheap-but-accurate first, premium fallbacks last.</li>
+    <li>Always end the waterfall with an <strong>email verification</strong> step before anything reaches your sequencer.</li>
+    <li>This guide gives you the exact column-by-column build, a recommended provider order, and the mistakes that quietly burn your credits.</li>
+  </ul>
+</div>
+
+<p>If you have spent any time inside <a href="/blog/clay-workflow-automation-gtm-engineering-playbook">Clay</a>, you already know the platform's real superpower is not scraping — it is <strong>waterfall enrichment</strong>. Yet most teams set it up wrong: they bolt on one provider, watch a third of their list come back blank, and conclude "the data is bad." The data is fine. The <em>routing</em> is the problem.</p>
+
+<p>At GenFlows we run waterfall enrichment on every outbound list we touch for e-commerce and B2B clients. This is the exact, repeatable build we use — written for the GTM engineer who wants verified emails, not a vendor pitch. By the end you will have a working waterfall, a sane provider order, and a verification step that keeps junk out of your <a href="/blog/cold-email-infrastructure-deliverability">sending infrastructure</a>.</p>
+
+<h2>What Is Clay Waterfall Enrichment, Really?</h2>
+<p>A "waterfall" runs your enrichment providers <strong>in sequence</strong> rather than all at once. Clay asks provider #1 for the email. If it returns a valid result, the waterfall <em>stops</em> and moves to the next contact. If provider #1 comes back empty, Clay "falls" down to provider #2, then #3, and so on until something hits or the list is exhausted.</p>
+<p>The economic difference is the whole point. Querying five providers in parallel means paying five times for every contact. A waterfall means you pay for provider #1 on the contacts it finds, and only spend on provider #2 for the contacts that <em>failed</em> #1. Same coverage, a fraction of the cost.</p>
+
+<h2>Why Does Single-Provider Enrichment Keep Failing?</h2>
+<p>No data vendor has complete coverage. Each one is strong in different regions, company sizes, and seniority bands. ZoomInfo skews to enterprise North America; some EU-friendly providers win on GDPR-era records; mobile-focused vendors win on direct dials. Bet everything on one and you inherit that one vendor's blind spots.</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <thead>
+    <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+      <th style="padding:10px 12px;">Approach</th>
+      <th style="padding:10px 12px;">Typical verified-email coverage</th>
+      <th style="padding:10px 12px;">Relative cost / contact</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;">Single provider</td><td style="padding:10px 12px;">55–70%</td><td style="padding:10px 12px;">1×</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;">All providers in parallel</td><td style="padding:10px 12px;">88–95%</td><td style="padding:10px 12px;">4–5×</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;"><strong>Waterfall (ordered)</strong></td><td style="padding:10px 12px;"><strong>88–95%</strong></td><td style="padding:10px 12px;"><strong>~1.3–1.6×</strong></td></tr>
+  </tbody>
+</table>
+<p>That last row is why waterfall exists: near-parallel coverage at near-single-provider cost.</p>
+
+<h2>How to Set Up Clay Waterfall Enrichment, Step by Step</h2>
+
+<h3>Step 1 — Start with a clean people table</h3>
+<p>Import or scrape your target contacts into a Clay table. At minimum you want <code>Full Name</code>, <code>Company Domain</code>, and ideally <code>LinkedIn URL</code>. Domain quality matters most — a missing or wrong domain is the single biggest cause of "no match." Normalize domains (strip <code>www</code>, <code>http</code>) before enriching.</p>
+
+<h3>Step 2 — Add your first enrichment column</h3>
+<p>Add a column → choose your <strong>cheapest accurate provider</strong> as the "Find Work Email" source. Map its inputs to your name and domain columns. Run it on a 25-row test slice first — never the full list. Note the hit rate.</p>
+
+<h3>Step 3 — Add the fallback column with a run condition</h3>
+<p>Add a second "Find Work Email" column from a different provider. In its settings, set the <strong>run condition</strong> to only fire when the first column is empty (e.g. <code>Provider 1 Email is empty</code>). This is the mechanic that turns two columns into a waterfall — provider #2 only spends credits on the misses.</p>
+
+<h3>Step 4 — Stack 2–3 more fallbacks</h3>
+<p>Repeat Step 3 for each additional provider, each gated on "all previous columns empty." Three to five total is the sweet spot; beyond that you are paying premium credits to chase a few percent.</p>
+
+<h3>Step 5 — Consolidate into one "Final Email" column</h3>
+<p>Add a formula column that coalesces the results: return the first non-empty email across your provider columns. Now you have one clean field to work with regardless of which provider found it.</p>
+
+<h3>Step 6 — Verify before you trust</h3>
+<p>Add an <strong>email verification</strong> column (e.g. a verifier provider) on top of <code>Final Email</code>. Keep only <code>valid</code> / <code>deliverable</code> results. This single step protects your sender reputation more than any other — catch-alls and risky addresses never reach your sequencer.</p>
+
+<h3>Step 7 — Export only verified rows</h3>
+<p>Filter to <code>verification = valid</code>, then push to your CRM or sequencer via Clay's native integrations or a webhook. If you automate that hand-off, see our companion guide on <a href="/blog/clay-n8n-integration-automate-gtm-workflow-2026">connecting Clay to n8n</a>.</p>
+
+<h2>What Order Should the Providers Go In?</h2>
+<p>Order by <strong>cost-to-accuracy</strong>, not reputation. A practical default we use as a starting point (then tune against your own hit rates):</p>
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <thead>
+    <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+      <th style="padding:10px 12px;">Tier</th><th style="padding:10px 12px;">Role in the waterfall</th><th style="padding:10px 12px;">Why here</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;">1</td><td style="padding:10px 12px;">Cheap, high-volume provider</td><td style="padding:10px 12px;">Clears the easy 55–65% at lowest cost</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;">2</td><td style="padding:10px 12px;">Region/industry specialist</td><td style="padding:10px 12px;">Fills gaps the generalist misses</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;">3</td><td style="padding:10px 12px;">Premium accuracy provider</td><td style="padding:10px 12px;">Expensive, so only runs on the hard remainder</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;">4</td><td style="padding:10px 12px;">Email verifier</td><td style="padding:10px 12px;">Quality gate before export</td></tr>
+  </tbody>
+</table>
+<p>Re-order after your first 500 contacts. Whichever provider has the best hit rate <em>on your ICP</em> earns the top slot — this is data-specific, so let your numbers decide.</p>
+
+<h2>Common Mistakes That Burn Credits</h2>
+<ul>
+  <li><strong>No run conditions.</strong> Without them, every provider fires on every row and you have built an expensive parallel lookup, not a waterfall.</li>
+  <li><strong>Running on the full list first.</strong> Always test on 25 rows, confirm mappings, then scale.</li>
+  <li><strong>Skipping verification.</strong> Unverified emails tank deliverability — see our <a href="/blog/cold-email-deliverability-in-2025-how-gtm-engineers-avoid-spam-filters-and-land-in-inbox">deliverability guide</a>.</li>
+  <li><strong>Dirty domains.</strong> Normalize and validate company domains before enriching; it is the #1 fixable cause of low match rates.</li>
+  <li><strong>Too many tiers.</strong> Five providers is plenty. The sixth rarely pays for itself.</li>
+</ul>
+
+<h2>Frequently Asked Questions</h2>
+<h3>How many providers should a Clay waterfall have?</h3>
+<p>Three to five. Two providers already lift coverage meaningfully; four to five is the point of diminishing returns for most B2B and e-commerce lists.</p>
+<h3>Does waterfall enrichment use more Clay credits?</h3>
+<p>Each enrichment provider has its own credit cost, but run conditions ensure later providers only spend on earlier misses — so total spend is far lower than running providers in parallel for the same coverage.</p>
+<h3>What match rate is "good"?</h3>
+<p>For a clean, well-targeted list, 88–95% verified work emails is achievable. If you are under 75%, the problem is almost always domain quality or provider order, not Clay itself.</p>
+<h3>Can I waterfall phone numbers too?</h3>
+<p>Yes — the same pattern works for mobile/direct dials. Use dial-specialist providers and gate each on the previous column being empty.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+<p><strong>Want this built for you?</strong> GenFlows runs waterfall enrichment, verification, and sequencing as a managed outbound system. <a href="/blog/clay-vs-apollo-vs-zoominfo-outbound-comparison-2026">See how the major data providers compare</a>, or <a href="/">talk to our team</a> about a done-for-you build.</p>
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. Last updated June 2026.</em></p>

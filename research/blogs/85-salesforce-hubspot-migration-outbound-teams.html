@@ -1,0 +1,162 @@
+<!-- TITLE TAG: Salesforce to HubSpot Migration for Outbound Teams (2026) -->
+<!-- META: What breaks when outbound teams move CRM from Salesforce to HubSpot: Lead/Contact model, Campaign Influence, SEP sync gaps, and what transfers. -->
+<!-- SLUG: blog/salesforce-hubspot-migration-outbound-teams-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+<p style="margin:0 0 10px;color:#e8732b;font-weight:700;letter-spacing:.04em;font-size:13px;">TL;DR</p>
+<ul style="margin:0;padding-left:20px;">
+<li><strong>HubSpot has no Lead object.</strong> Salesforce Leads and Contacts both land in the same HubSpot Contact object, matched by email. The Lead/Contact split &mdash; and the conversion event that marks when a prospect became a real opportunity &mdash; has no native home in HubSpot unless you rebuild it as a custom property before go-live.</li>
+<li><strong>Campaign Influence doesn't come with you.</strong> Salesforce's CampaignMember object tracks per-contact status (Sent, Responded, Opted Out) against a Campaign and rolls that into Opportunity attribution. HubSpot's Campaign object is asset-centric, not membership-and-status-centric &mdash; there's no built-in landing spot for that data.</li>
+<li><strong>Outreach and Salesloft were both built Salesforce-first.</strong> Their Salesforce integrations are the deepest, most mature versions of each product. The HubSpot-side integrations sync a narrower, differently-scoped set of objects &mdash; verify current scope against each vendor's own docs rather than assuming parity with your Salesforce setup.</li>
+<li><strong>Historical engagement data mostly doesn't backfill.</strong> HubSpot's native Salesforce activity sync is prospective, not retroactive &mdash; and even going forward, marketing email events only sync within a 30-day window and form submissions within a year. Emails logged via Einstein Activity Capture don't sync to HubSpot at all.</li>
+<li><strong>Sequence and cadence history lives in the SEP, not the CRM.</strong> Neither Salesforce nor HubSpot stores "enrolled in Sequence Y, on Step 3" as a native object. Swapping CRMs doesn't migrate it &mdash; you pull it from Outreach or Salesloft's own export tools, separately.</li>
+<li><strong>Field history has a shelf life.</strong> Standard Salesforce field tracking covers 20 fields per object with an 18-month retention guarantee. If outbound reporting depends on knowing when a field changed &mdash; not just its current value &mdash; that has to be exported before it ages out, not after.</li>
+</ul>
+</div>
+
+<p>Most "Salesforce to HubSpot migration" content is written for whoever owns the CRM generally &mdash; field mapping, import limits, what the onboarding fee covers. That ground is real, and GenFlows already has a full breakdown of it in our <a href="/blog/hubspot-crm-migration-checklist-2026">HubSpot CRM migration checklist</a>. This post is the layer on top of that: what's specific to teams running an active outbound motion &mdash; cold email and LinkedIn sequences through tools like Outreach, Salesloft, Smartlead, Instantly, or HeyReach &mdash; where the thing that breaks isn't the contact record. It's the attribution, the sequence history, and the object model your outbound reporting was quietly built on top of.</p>
+
+<p><em>Sourcing note: every limit and quoted behavior below was checked against Salesforce's or HubSpot's own documentation, or a vendor's own integration listing, in September 2026, and is tagged VERIFIED where independently confirmed or (directional) in-text where it comes from a secondary source, a vendor-interested page, or a primary page we could not re-open to confirm exact wording. Two vendor admin-guide pages (Salesloft's HubSpot integration guide, one Salesforce Help article on lead conversion) render client-side and could not be independently re-verified &mdash; treat those claims as directional and confirm in your own portal before quoting them as fact.</em></p>
+
+<h2>The Short Answer</h2>
+
+<p>A Salesforce-to-HubSpot migration for an outbound team has four places where the CRM swap breaks something specific to how outbound reporting works, none of which show up on a generic import checklist:</p>
+
+<ul>
+<li><strong>The object model changes shape.</strong> Salesforce's Lead/Contact/Account/Opportunity structure, with its own conversion event, becomes a single flat Contact object in HubSpot. Nothing is lost in the sense of missing data &mdash; it's lost in the sense of missing <em>structure</em>.</li>
+<li><strong>Campaign-based attribution doesn't port.</strong> If outbound sequences were tracked to pipeline through Salesforce Campaigns and Campaign Influence, that model has no native HubSpot equivalent and has to be rebuilt, not migrated.</li>
+<li><strong>Your SEP's HubSpot integration is probably thinner than its Salesforce one.</strong> Outreach and Salesloft were both built for Salesforce first. Confirm exactly what syncs &mdash; and what doesn't &mdash; before you assume the HubSpot side behaves the same way.</li>
+<li><strong>Sequence-level history was never in the CRM to begin with.</strong> It lives in the SEP's own database. A CRM migration doesn't touch it either way &mdash; you need a separate export plan if you want to keep it.</li>
+</ul>
+
+<h2>The Object Model Shift: Why "Lead" Disappears in HubSpot</h2>
+
+<p>HubSpot syncs Salesforce Leads and Salesforce Contacts into the same place &mdash; the HubSpot Contact object &mdash; matched by email address, with field values populated per your sync direction and mappings.</p>
+
+<p>That single fact causes a specific, documented breakage: Salesforce Leads carry company name as a plain text field, while Salesforce Contacts reference it through the related Account object. HubSpot's default mapping assumes one shape, so a HubSpot contact matched against a Salesforce Contact (rather than a Lead) can silently fail to populate company name unless the mapping is checked by hand.</p>
+
+<p>The bigger structural issue is the conversion event itself. In Salesforce, converting a Lead creates an Account, a Contact, and optionally an Opportunity, and reattaches the Lead's activity history to those new records &mdash; with one notable exception per Salesforce's own help documentation <em>(directional &mdash; the page renders client-side and we could not re-confirm exact wording; verify before quoting)</em>: activity that originated from a Sales Engagement cadence is not automatically carried over in that reattachment. HubSpot has no equivalent conversion object at all. There's no "this contact was a Lead until March, then converted" event to preserve, because HubSpot never modeled that distinction in the first place.</p>
+
+<div style="background:#f4f7fb;border-left:4px solid #1f3a5f;padding:16px 20px;margin:20px 0;border-radius:6px;">
+<p style="margin:0;"><strong>Practical fix:</strong> before migrating, add a custom HubSpot property &mdash; something like "Originally a Lead" (yes/no) and "Conversion Date" &mdash; and populate it from your Salesforce export. It won't recreate Salesforce's object model, but it preserves the one piece of that history outbound teams actually query against: how long a record sat as an unqualified lead before it became a real opportunity.</p>
+</div>
+
+<h2>Campaign Influence and Outbound Attribution: What Doesn't Come With You</h2>
+
+<p>If your outbound motion attributes pipeline back to specific sequences &mdash; "this Opportunity was influenced by the Q3 Cold Email Campaign" &mdash; that model is almost certainly built on Salesforce's CampaignMember object: a junction record tracking each Lead or Contact's status (Sent, Responded, Opted Out) against a Campaign, rolled up into Campaign Influence on the Opportunity.</p>
+
+<p>HubSpot's Campaign object is built around a different concept entirely &mdash; it groups marketing assets (emails, ads, landing pages) rather than tracking per-contact membership and status against a Deal. There is no native one-to-one landing spot for CampaignMember status data, a gap independently reported across multiple HubSpot Community threads from admins who hit it during their own migrations <em>(directional &mdash; community-reported, not documented in HubSpot's own migration guides)</em>. The workaround some teams use is a Salesforce automation that writes CampaignMember status into a custom field before export, so it syncs as a regular property instead of relying on an object that doesn't exist on the other side.</p>
+
+<p>This matters for a specific reason: multi-touch attribution doesn't recalculate itself in HubSpot from Salesforce history. If you want to keep it, treat Opportunities-with-Contact-Roles-and-Campaign-Influence as a static historical snapshot to export and archive before migration, not as data that will "just be there" after go-live. Going forward, you're choosing between rebuilding attribution inside HubSpot's own model &mdash; native multi-touch revenue attribution is gated to Marketing Hub Enterprise &mdash; or running it through custom properties and workflows. Our <a href="/blog/revenue-attribution-models-b2b-2026">B2B revenue attribution models</a> post covers how to pick between those models once you're on HubSpot; this is the note that the Salesforce version of that model doesn't survive the move.</p>
+
+<h2>Sales Engagement Platform Sync: Outreach and Salesloft Weren't Built HubSpot-First</h2>
+
+<p>Both Outreach and Salesloft shipped their Salesforce integrations first, and both are generally described &mdash; including by their own implementation partners &mdash; as the deeper, more mature version of the product. That matters during a migration because "does my SEP sync X to my CRM" doesn't have the same answer on both sides.</p>
+
+<p>Outreach's own HubSpot Marketplace listing (its "Outreach Data Sync" app) documents bi-directional sync for Accounts↔Companies, Prospects↔Contacts, Opportunities↔Deals, Calls, Tasks, Outbox messages/Email Activities, and Custom Objects &mdash; with an explicit disclaimer: anything not listed as shared data is not part of the sync. Sequences themselves are not listed as a synced object type. One Outreach/HubSpot implementation partner describes the HubSpot-side integration as historically having "thinner custom-object support and slower release of new features" than the Salesforce side <em>(directional &mdash; vendor-interested source; also appears to partially conflict with the current Marketplace listing, which does claim activity-level sync, so treat this as "scope has likely changed over time" rather than a fixed limitation)</em>.</p>
+
+<p>Salesloft's HubSpot integration is documented, per its own marketplace and help content, as syncing Opportunities one-way from HubSpot into Salesloft and Activities one-way from Salesloft into HubSpot &mdash; without custom-field sync or the ability to trigger HubSpot workflows from Salesloft cadence events <em>(directional &mdash; Salesloft's own admin guide renders client-side and could not be independently re-confirmed; verify current scope in your own Salesloft admin panel)</em>. Salesloft also publishes a migration guide for moving between its own two generations of HubSpot integration, which is itself worth knowing: "which version of the connector you're actually running" is a variable to check before you assume any documentation describes your setup.</p>
+
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:16px 20px;margin:20px 0;border-radius:6px;">
+<p style="margin:0;"><strong>Before migration weekend:</strong> open your SEP's current HubSpot-specific integration documentation &mdash; not a Salesforce migration guide, not a generic feature page &mdash; and confirm object-by-object what syncs, in which direction, and whether it's real-time or scheduled. Assuming parity with how it worked in Salesforce is the single most common planning mistake outbound teams make in this migration.</p>
+</div>
+
+<h2>What Happens to Your Historical Engagement Data</h2>
+
+<p>HubSpot's native Salesforce integration runs two separate sync mechanisms: a one-way Timeline Sync (HubSpot → Salesforce) covering form submissions, email sends/opens/clicks, meetings, calls, notes, and tasks, logged into Salesforce as Tasks; and a two-way Activity Sync covering Tasks, Sales emails, Calls, and Meetings. Both are documented directly on HubSpot's knowledge base.</p>
+
+<p>The limitation that matters for a migration specifically: sync is prospective, not retroactive. Marketing email events only sync if they occurred within 30 days of the contact being synced; form submissions only within a year. Years of historical cold-email opens, clicks, and replies logged in Salesforce will not backfill into HubSpot through the native connector &mdash; that requires a separate bulk import, planned and executed on its own. Emails logged through Salesforce's Einstein Activity Capture don't sync to HubSpot at all, under any timeframe.</p>
+
+<p>Sequence and cadence enrollment history &mdash; "this contact was enrolled in Sequence Y, currently on Step 3" &mdash; is a different problem entirely, because it was never stored as a native object in Salesforce or HubSpot to begin with. It lives inside Outreach or Salesloft's own database. Whatever made it into Salesforce did so only as whatever Task or Activity records the SEP chose to write back &mdash; which means migrating your CRM does not migrate this data by itself. If you want to keep it, pull it from the SEP's own reporting or export tools, on its own timeline, independent of the CRM cutover.</p>
+
+<h2>Salesforce Export Gotchas That Bite Outbound Teams Specifically</h2>
+
+<p>A few Salesforce data-retention mechanics are easy to miss because they only matter to teams that report on <em>when</em> something changed, not just what its current value is &mdash; which describes most outbound reporting (time-to-first-reply, days-in-sequence, stage-velocity by campaign).</p>
+
+<ul>
+<li><strong>Field History Tracking</strong> covers 20 fields per object with an 18-month retention guarantee on the standard plan &mdash; confirmed directly on Salesforce's own help page. The paid Field Audit Trail add-on raises the tracked-field limit to 60. If outbound reporting depends on a field-change history older than 18 months, export it before it ages out.</li>
+<li><strong>Formula and roll-up summary fields export as a static snapshot, not live logic.</strong> The calculation itself doesn't transfer &mdash; only the value at export time <em>(directional &mdash; well-established Salesforce platform behavior, corroborated across secondary sources, though we could not locate a single primary Salesforce page stating it in those exact terms for export tooling specifically)</em>. Any outbound scoring or routing formula built this way has to be manually rebuilt as a HubSpot calculated property, not imported.</li>
+<li><strong>CampaignMember status is exportable via Data Loader</strong>, but as covered above, there's no native landing spot for it on the HubSpot side &mdash; extracting it is necessary but not sufficient.</li>
+</ul>
+
+<h2>A Practical Migration Sequence for Outbound Teams</h2>
+
+<p>Layered on top of the generic import process, this is the outbound-specific work, roughly in order:</p>
+
+<ol>
+<li><strong>Export Campaign Influence and CampaignMember data as a static historical snapshot</strong> before touching anything else &mdash; it won't recalculate in HubSpot and won't be recoverable later.</li>
+<li><strong>Pull sequence/cadence enrollment and step history directly from Outreach or Salesloft</strong>, independent of the CRM migration, since neither CRM ever stored it natively.</li>
+<li><strong>Decide your Lead/Contact reconstruction before import</strong> &mdash; add the custom properties (originally-a-lead flag, conversion date) so the distinction exists in HubSpot from day one rather than being reverse-engineered later.</li>
+<li><strong>Bulk-export historical engagement data you want preserved</strong> &mdash; don't rely on the native sync's 30-day/one-year windows to carry it forward.</li>
+<li><strong>Reconfirm your SEP's current HubSpot integration scope directly with the vendor</strong>, object by object, rather than assuming the Salesforce-side behavior carries over.</li>
+<li><strong>Rebuild attribution logic in HubSpot's own model</strong> once records are in, rather than expecting Salesforce's Campaign Influence numbers to reappear.</li>
+</ol>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;">
+<th style="padding:10px 12px;">Salesforce concept</th><th style="padding:10px 12px;">HubSpot equivalent</th><th style="padding:10px 12px;">What's lost or must be rebuilt</th>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Lead (separate object)</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Contact (unified object)</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Lead/Contact distinction; rebuild via Lifecycle Stage + a custom "originally a Lead" property.</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Lead conversion event</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No native equivalent</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No conversion audit trail; add a custom "Conversion Date" property before import.</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Opportunity</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Deal</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Maps cleanly via native/SEP connectors; deal-stage history itself does not backfill (see our <a href="/blog/hubspot-crm-migration-checklist-2026">migration checklist</a>).</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Campaign + CampaignMember status</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Campaign (asset-centric)</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Per-member status tracking; rebuild via custom properties, lists, or a pre-migration export.</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Campaign Influence (multi-touch attribution)</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Marketing Hub Enterprise attribution (different model)</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Historical influence records don't transfer; attribution logic must be rebuilt, not ported.</td>
+</tr>
+<tr style="background:#f8fafc;">
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Field History / Field Audit Trail</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Limited property history</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Long-tail change history (past 18 months) likely lost unless separately exported first.</td>
+</tr>
+<tr>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>SEP Sequence/Cadence history</strong></td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No native object in either CRM</td>
+<td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Lives only in Outreach/Salesloft; pull it from the SEP directly, not from either CRM.</td>
+</tr>
+</table>
+
+<p>Once you're through the migration itself, the ongoing question is which CRM actually fits an outbound motion day to day &mdash; our <a href="/blog/best-crm-b2b-outbound-hubspot-salesforce-pipedrive-attio-2026">CRM comparison for B2B outbound</a> and <a href="/blog/close-crm-vs-hubspot-outbound-sales-teams-2026">Close vs. HubSpot</a> posts cover that decision, and <a href="/blog/hubspot-deal-stages-outbound-teams-2026">HubSpot deal stages for outbound teams</a> covers how to structure the pipeline you land in. If your outbound tools are already pushing data into HubSpot post-migration, <a href="/blog/sync-cold-email-linkedin-data-hubspot-2026">syncing cold email and LinkedIn data into HubSpot</a> covers that layer directly.</p>
+
+<h2>Frequently Asked Questions</h2>
+
+<h3>Does HubSpot have a separate Lead object like Salesforce does?</h3>
+<p>No. HubSpot uses a single unified Contact object &mdash; Salesforce Leads and Salesforce Contacts both sync into HubSpot as Contacts, matched by email address. There's no native "Lead" record type to preserve that distinction after migration; teams that need it typically rebuild it as a custom property.</p>
+
+<h3>What happens to my Salesforce Lead conversion history when I migrate to HubSpot?</h3>
+<p>It isn't natively preserved. Salesforce's conversion process reattaches most activity history to the resulting Account, Contact, and Opportunity records, but HubSpot has no equivalent "conversion event" object to receive it. Most teams add a custom property before migration &mdash; something like a conversion date or an "originally a Lead" flag &mdash; to keep at least the fact and timing of the conversion.</p>
+
+<h3>Will my Salesforce Campaign Influence or outbound attribution data transfer to HubSpot?</h3>
+<p>Not natively. Salesforce's CampaignMember object tracks per-contact membership status against a Campaign and rolls that into Opportunity-level influence; HubSpot's Campaign object is asset-centric, not membership-and-status-centric, and has no built-in equivalent. This attribution layer generally has to be exported as a historical snapshot before migration and rebuilt in HubSpot's own attribution model afterward, not migrated as-is.</p>
+
+<h3>Do Outreach and Salesloft sync the same data to HubSpot as they do to Salesforce?</h3>
+<p>Not necessarily to the same depth. Both platforms were built Salesforce-first, and their Salesforce integrations are generally the deepest, most mature version of the product. Outreach's HubSpot app currently syncs Accounts, Prospects, Opportunities, Calls, Tasks, Email Activities, and Custom Objects, but explicitly states that anything not listed as shared data doesn't sync &mdash; Sequences aren't listed. Confirm current scope directly against each vendor's HubSpot-specific documentation rather than assuming parity with your Salesforce setup.</p>
+
+<h3>Can I migrate my sequence or cadence enrollment history from Salesforce to HubSpot?</h3>
+<p>Not directly, because that history was never stored in Salesforce to begin with &mdash; it lives inside Outreach or Salesloft's own database. What made it into Salesforce is only whatever Task or Activity records the SEP chose to write back. A CRM migration doesn't touch this data either way; you need to export it separately from the SEP itself.</p>
+
+<h3>What outbound-specific Salesforce data is most at risk of being lost in a HubSpot migration?</h3>
+<p>Four things: the Lead/Contact conversion history and distinction, since HubSpot has no Lead object; Campaign Influence and CampaignMember status used to attribute outbound touches to pipeline, since HubSpot's Campaign model is structurally different; historical engagement data, since native Salesforce activity sync is prospective-only and Einstein Activity Capture emails don't sync at all; and any Salesforce formula-field logic used in outbound reporting, since formula fields export only as static snapshots rather than live calculations.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+
+<p><strong>If your outbound motion is moving CRMs, the data you're most likely to lose isn't the contact record &mdash; it's the attribution and history built around it.</strong> Read our <a href="/blog/hubspot-crm-migration-checklist-2026">HubSpot CRM migration checklist</a> for the mechanics of the import itself, or <a href="/">talk to our team</a> about migrating an active cold email and LinkedIn outbound motion into HubSpot without losing the reporting you already depend on.</p>
+
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. We run cold email, LinkedIn outreach, and RevOps/HubSpot builds for B2B teams. Last updated September 2026.</em></p>

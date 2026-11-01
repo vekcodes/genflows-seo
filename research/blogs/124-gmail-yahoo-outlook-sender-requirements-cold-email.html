@@ -1,0 +1,113 @@
+<!-- TITLE TAG: Gmail & Yahoo Sender Rules for Cold Email (2026) -->
+<!-- META: Gmail, Yahoo and Outlook sender requirements for cold email in 2026: who counts as a bulk sender, DMARC, one-click unsubscribe, spam rate and a checklist. -->
+<!-- SLUG: blog/gmail-yahoo-outlook-sender-requirements-cold-email-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+<p style="margin:0 0 10px;color:#e8732b;font-weight:700;text-transform:uppercase;letter-spacing:.04em;font-size:13px;">TL;DR</p>
+<ul style="margin:0;padding-left:20px;">
+<li><strong>The &ldquo;5,000 a day&rdquo; rule is not your safety line.</strong> Google defines a bulk sender as close to 5,000 messages a day to personal Gmail accounts, but its baseline requirements apply to <em>all</em> senders at any volume.</li>
+<li><strong>Every sender needs SPF or DKIM, valid reverse DNS, TLS and a spam rate under 0.30%.</strong> Google recommends staying under 0.10%.</li>
+<li><strong>Bulk senders also need SPF and DKIM together, DMARC (<code>p=none</code> is enough), alignment and one-click unsubscribe</strong> for marketing mail.</li>
+<li><strong>Google said it ramped up enforcement from November 2025.</strong> Yahoo enforces too, and Microsoft's Outlook rules for high-volume senders began in May 2025 <em>(directional on the details)</em>.</li>
+<li><strong>Our advice for cold email: meet the bulk-sender standard anyway.</strong> It costs little, and it is what protects a domain you cannot easily replace.</li>
+</ul>
+</div>
+
+<p>Most cold email teams hear &ldquo;Gmail and Yahoo sender requirements&rdquo; and assume it only concerns newsletters and big marketing platforms. A cold sender running 40 emails a day per mailbox is nowhere near 5,000. But the requirements are written in two layers, and the lower layer applies to you.</p>
+
+<p>This guide separates what is verified in Google's and Yahoo's own documentation from what is inference, and turns it into a checklist you can apply to every sending domain. For the DNS mechanics, pair it with our <a href="/blog/cold-email-spf-dkim-dmarc-setup-2026">SPF, DKIM and DMARC setup guide</a>.</p>
+
+<p><em>Sourcing note: Google and Yahoo details were read from their own sender-guideline and FAQ pages in October 2026. Microsoft's announcement page would not load for us, so Microsoft details come from secondary reporting and are marked (directional). Rules change, so recheck the primary pages before acting. This is operational guidance, not legal advice.</em></p>
+
+<h2>The Short Answer</h2>
+
+<p>Three things matter for a cold sender. First, the baseline for all senders: authenticate with SPF or DKIM, have valid reverse DNS and TLS, format messages correctly and keep your spam complaint rate low. Second, the bulk tier, which adds mandatory DMARC, alignment and one-click unsubscribe once you send around 5,000 messages a day to Gmail from one primary domain. Third, enforcement: both Google and Yahoo can send non-compliant mail to spam or reject it. You should implement the bulk tier regardless of volume, because spam-folder placement is the failure cold email cannot afford.</p>
+
+<h2>Gmail, Yahoo and Outlook Side by Side</h2>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;"><th style="padding:10px 12px;">Requirement</th><th style="padding:10px 12px;">Google (Gmail)</th><th style="padding:10px 12px;">Yahoo</th><th style="padding:10px 12px;">Microsoft (Outlook.com)</th></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Bulk threshold</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Close to 5,000 a day to personal Gmail, per primary domain; permanent once crossed</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No number stated; &ldquo;significant volume&rdquo;</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">More than 5,000 a day <em>(directional)</em></td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>All senders</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">SPF or DKIM, valid PTR, TLS, spam rate under 0.30%, RFC 5322 formatting</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">SPF or DKIM at minimum</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Not confirmed</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Bulk: authentication</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">SPF and DKIM both</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">SPF and DKIM both (1024-bit DKIM key minimum)</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">SPF, DKIM and DMARC <em>(directional)</em></td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Bulk: DMARC</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Required; <code>p=none</code> is enough</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><code>p=none</code> minimum, and it must pass</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Required <em>(directional)</em></td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Alignment</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Required for direct mail (bulk)</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Relaxed alignment accepted</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Not confirmed</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>One-click unsubscribe</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Bulk senders, marketing and promotional mail</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Bulk senders, marketing and subscribed mail</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Not confirmed</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Honor opt-outs</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Within 48 hours (recommended)</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Within 2 days (required)</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Not confirmed</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Spam rate</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Under 0.30%; aim under 0.10%</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Under 0.3% of inbox-delivered mail</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Not confirmed</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>If you fail</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Spam folder or rejection; enforcement ramped up from November 2025</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Spam folder or rejection; List-Unsubscribe enforced from June 2024</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Junk routing from May 2025, rejection later; sources conflict <em>(directional)</em></td></tr>
+</table>
+
+<h2>Who Counts as a Bulk Sender?</h2>
+
+<p>Google says a bulk sender is anyone sending close to 5,000 messages or more to personal Gmail accounts within 24 hours. Mail from the same primary domain counts together, and its own example adds a root domain and a subdomain to reach the total. Once you meet the criteria even once, Google says you are permanently treated as a bulk sender.</p>
+
+<p>Yahoo does the opposite: it declines to give a number and describes bulk senders as those sending a significant volume of mail. Enforcement is assessed at the authenticated domain or From-header domain level.</p>
+
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:14px 18px;margin:18px 0;border-radius:6px;"><strong>Do not treat many small domains as a loophole.</strong> Google's FAQ counts by primary domain, which suggests spreading volume across domains keeps each below 5,000. But that is our inference, not a Google statement, and the baseline requirements and spam-rate limit apply at any volume. Our guide to <a href="/blog/how-many-domains-mailboxes-cold-email-2026">how many domains and mailboxes to use</a> covers sensible sizing.</div>
+
+<h2>What Applies to a Cold Sender at 40 a Day</h2>
+
+<p>Google's documentation says all senders, including Google Workspace users, must meet the requirements when sending to personal Gmail accounts. For a low-volume cold sender that means:</p>
+
+<ul>
+<li><strong>Authentication:</strong> SPF or DKIM at minimum. In practice, set up both.</li>
+<li><strong>Reverse DNS and TLS:</strong> your sending infrastructure or mailbox host normally handles these. Check them rather than assuming.</li>
+<li><strong>Spam rate:</strong> under 0.30% in Postmaster Tools, ideally under 0.10%. With low volume per domain the data may be too sparse to display, which is not the same as being safe.</li>
+<li><strong>Formatting:</strong> valid RFC 5322 headers, and never spoofing a Gmail From address.</li>
+</ul>
+
+<p>The bulk-only items are DMARC, alignment, SPF and DKIM together, and mandatory one-click unsubscribe. Below the threshold they are not formally required by Google, but publishing a <code>p=none</code> DMARC record and aligning your domains costs almost nothing and is what the rest of the industry expects.</p>
+
+<h2>One-Click Unsubscribe and Cold Email</h2>
+
+<p>Google says one-click unsubscribe is required only for marketing and promotional messages, and Yahoo ties its rule to marketing and subscribed mail. Neither page says whether one-to-one cold outreach counts. We treat it as a gray area and add the mechanism anyway, with a visible opt-out line in the body.</p>
+
+<p>The technical standard is RFC 8058: a <code>List-Unsubscribe</code> header with an HTTPS URI, plus a <code>List-Unsubscribe-Post: List-Unsubscribe=One-Click</code> header, both covered by a valid DKIM signature. Yahoo says the RFC 8058 method is highly recommended and a mailto link is acceptable, and that a link in the body alone is not enough. Smartlead and Instantly both document an optional setting for an unsubscribe header <em>(directional: we read vendor snippets, not the full pages)</em>. We could not confirm whether either sends the one-click POST header or signs it with DKIM, so send yourself a test message and inspect the headers. Instantly also notes that some providers may not show the link when they treat a thread as personal correspondence <em>(directional)</em>.</p>
+
+<p>Whatever tool you use, honor opt-outs fast. Yahoo requires two days and Google recommends 48 hours; in practice, suppress immediately. For the legal side, see our <a href="/blog/cold-email-compliance-guide-gdpr-can-spam-2026">cold email compliance guide</a>.</p>
+
+<h2>Enforcement: What Happens If You Do Not Comply</h2>
+
+<p>Google says non-compliant mail might be rejected or delivered to spam, with temporary or permanent error codes. Its documentation lists codes such as 4.7.28 for quota overage, 4.7.31 for a missing DMARC policy and 5.7.26 for unauthenticated mail. It states that from November 2025 it is ramping up enforcement on non-compliant traffic. Vendor blogs describe that step as a move from soft deferrals toward rate-limiting and rejection <em>(directional)</em>.</p>
+
+<p>Yahoo says non-compliant mail may go to spam or be rejected, and that it may defer mail from domains with a high complaint rate. Microsoft announced requirements for senders above 5,000 messages a day, with junk-folder routing from May 5, 2025 and rejection to follow <em>(directional)</em>. One security vendor reported rejections with a 550 5.7.15 error starting that day, which conflicts with the junk-first account, so check Microsoft's own announcement before relying on either.</p>
+
+<p>If you are already seeing bounce codes or deferrals, our guides on <a href="/blog/cold-email-bounce-rate-benchmarks-fixes-2026">cold email bounce rates</a> and <a href="/blog/cold-email-domain-blacklisted-recovery-2026">recovering a blacklisted domain</a> are the next stop.</p>
+
+<h2>A Cold Email Compliance Checklist</h2>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;"><th style="padding:10px 12px;">Step</th><th style="padding:10px 12px;">What to do</th></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>1. Authenticate</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">SPF and DKIM on every sending domain; 2048-bit DKIM where supported</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>2. Publish DMARC</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">At least <code>p=none</code> with a reporting address; confirm SPF or DKIM aligns with the From domain</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>3. Check basics</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Reverse DNS, TLS and valid message formatting</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>4. Add unsubscribe</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">List-Unsubscribe header (RFC 8058 pair, DKIM-signed) plus a visible opt-out line; verify on a test send</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>5. Suppress fast</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Honor opt-outs immediately, across all campaigns</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>6. Protect spam rate</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Verify lists, ramp volume gradually, keep per-mailbox sending modest</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>7. Monitor</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Postmaster Tools per domain; watch for 4.7.x and 5.7.x errors</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>8. Track volume</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Total daily sends per primary domain, subdomains included</td></tr>
+</table>
+
+<p>List quality is the biggest lever on spam rate, so use one of the <a href="/blog/best-email-verification-tools-2026">email verification tools</a> before every send, and set up <a href="/blog/cold-email-deliverability-monitoring-2026">deliverability monitoring</a> so problems show up before a domain is burned. If you rotate mailboxes, see <a href="/blog/cold-email-domain-mailbox-rotation-2026">domain and mailbox rotation</a>.</p>
+
+<h2>Frequently Asked Questions</h2>
+
+<h3>Am I a bulk sender at 40 emails a day per mailbox?</h3>
+<p>Probably not. Google defines bulk as close to 5,000 messages a day to personal Gmail accounts, counted per primary domain. But its requirements for all senders, including authentication, TLS and a spam rate under 0.30%, apply at any volume.</p>
+<h3>Do the 5,000 messages add up across all my domains?</h3>
+<p>Google's FAQ counts mail by primary domain, subdomains included, and does not say it sums across separate domains. Staying under 5,000 per domain is an inference rather than a safe harbor, so do not rely on it.</p>
+<h3>Is DMARC required for cold email?</h3>
+<p>Google and Yahoo require it for bulk senders, and a <code>p=none</code> policy is enough. Below the threshold it is not formally required, but publishing it is free and is the industry baseline. Our <a href="/blog/cold-email-spf-dkim-dmarc-setup-2026">setup guide</a> walks through it.</p>
+<h3>Do I need one-click unsubscribe on cold emails?</h3>
+<p>Google and Yahoo require it for bulk senders sending marketing mail. Neither page classifies one-to-one cold outreach, so it is a gray area. We add a List-Unsubscribe header and a visible opt-out line anyway.</p>
+<h3>What happens if I do not comply?</h3>
+<p>Google says mail might be rejected or delivered to spam, and that it ramped up enforcement from November 2025. Yahoo says spam folder or rejection. Microsoft routes non-compliant high-volume mail to junk, with rejection to follow, although sources disagree on timing <em>(directional)</em>.</p>
+<h3>What spam rate should I aim for?</h3>
+<p>Google treats 0.30% as the limit and recommends staying under 0.10%. Yahoo says under 0.3%. Cold senders should aim well below those numbers, because one burned domain costs more than the extra care.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+
+<p><strong>Want cold email infrastructure that is compliant from day one?</strong> See what that costs in our <a href="/blog/cold-email-agency-pricing-2026">cold email agency pricing guide</a>, or <a href="/">talk to our team</a>.</p>
+
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. Sender requirements were read from public Google and Yahoo pages in October 2026 and can change. Last updated October 2026.</em></p>

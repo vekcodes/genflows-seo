@@ -1,0 +1,261 @@
+<!-- TITLE TAG: Apollo.io Pricing 2026: What You Actually Pay Per Seat -->
+<!-- META: Apollo.io pricing in 2026: verified per-seat rates, the new unified credit model, what a mobile number really costs, and the tier that can actually send. -->
+<!-- SLUG: blog/apollo-io-pricing-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+<p style="margin:0 0 10px;color:#e8732b;font-weight:700;letter-spacing:.04em;font-size:13px;">TL;DR</p>
+<ul style="margin:0;padding-left:20px;">
+<li><strong>Apollo now sells one currency, not four.</strong> Separate email, mobile, export and AI credits have been folded into a single <strong>unified credit</strong>. An email costs <strong>1</strong>. A mobile number costs <strong>8</strong>. A US dialer minute costs <strong>2</strong>&mdash;in Africa it costs <strong>36</strong>.</li>
+<li><strong>Every paid tier costs the same per credit.</strong> Basic <strong>$49</strong>, Professional <strong>$79</strong>, Organization <strong>$119</strong> per seat/month on annual billing &mdash; all three land at roughly <strong>$0.020 per credit</strong>. Upgrading never buys you cheaper data. It buys gates.</li>
+<li><strong>Basic cannot run cold email.</strong> One mailbox per user and 250 sends/day. <strong>Professional is the outbound floor</strong> &mdash; it's where unlimited mailboxes, unlimited sends, 5 SMTP mailboxes and SendGrid/Mailgun appear.</li>
+<li><strong>Credits expire every cycle and never roll over.</strong> Apollo states this three separate ways. Annual plans get all credits upfront, so a slow February cannot fund a busy November.</li>
+<li><strong>The dialer you pictured is an add-on.</strong> Power dialer, parallel dialer, international dialing and local presence live in a <strong>$119/mo-per-team</strong> Advanced Dialer add-on &mdash; not in any tier.</li>
+<li><strong>Mobile numbers are the whole budget.</strong> Professional's entire 48,000-credit annual allowance buys <strong>6,000 mobiles per seat and zero emails</strong>.</li>
+<li><strong>Apollo publishes a 9% bounce rate about itself</strong> while its own deliverability guidance says 8%+ means act fast. Budget for re-verification.</li>
+<li><strong>A realistic 3-seat outbound stack runs ~$5,250&ndash;6,400/year</strong> against that $79 sticker <em>(our model, not a quote)</em>.</li>
+<li><strong>Agencies, read the licence.</strong> Self-serve plans are <em>internal business use only</em> &mdash; reselling data or powering a client-facing product needs a separate agreement.</li>
+</ul>
+</div>
+
+<p>Apollo.io is the most-quoted price in B2B outbound and the least-understood one. Almost every ranking article on the topic tells you Basic is $49 and Professional is $99 and leaves it there. Both of those numbers are real, and putting them in the same sentence is already wrong &mdash; $49 is an annual rate and $99 is a monthly one.</p>
+
+<p>The bigger problem is that the tier price stopped being the interesting number. Apollo has migrated to a <strong>single unified credit</strong>, and in that model your bill is set by <em>what you reveal</em>, not by which box you tick. Two teams on identical Professional seats can differ by 8x in data cost depending on whether they pull mobile numbers. That's the post: the tiers, then the credit arithmetic that actually decides what you pay.</p>
+
+<p><em>All Apollo prices, credit costs, tier gates and contract terms below were read directly off apollo.io/pricing, docs.apollo.io and dated knowledge.apollo.io articles on 7 September 2026. Figures we derived ourselves (effective cost per credit, the stack model) are labelled as ours. Third-party accuracy numbers are labelled directional, and several widely-circulated ones we deliberately refuse to repeat &mdash; there's a section on why.</em></p>
+
+<h2>The Short Answer</h2>
+
+<p>Apollo.io costs <strong>$49, $79 or $119 per seat per month on annual billing</strong> (Basic, Professional, Organization), or <strong>$65 and $99 monthly</strong> for the first two &mdash; Organization is annual-only with a 3-seat minimum. There's a free tier and an unpriced Custom tier.</p>
+
+<p>Each seat comes with a credit allowance &mdash; 30,000, 48,000 and 72,000 per year respectively &mdash; and every action draws on it. All three paid tiers work out to about the same $0.020 per credit, so the tier decision is <strong>not</strong> a price decision. It's a feature-gate decision, and the gate that matters most is that <strong>Basic caps you at one mailbox and 250 emails per day</strong>. If you're sending cold email at volume, Professional is your starting point, not Basic.</p>
+
+<h2>Apollo.io pricing 2026: the four tiers</h2>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;"><th style="padding:10px 12px;">Plan</th><th style="padding:10px 12px;">Annual ($/seat/mo)</th><th style="padding:10px 12px;">Monthly ($/seat/mo)</th><th style="padding:10px 12px;">Credits/seat/yr</th><th style="padding:10px 12px;">Min seats</th><th style="padding:10px 12px;">Effective $/credit</th></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Free</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">$0</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">$0</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">900 (granted monthly, 75/mo)</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">&mdash;</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">&mdash;</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Basic</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>$49</strong> ($588/yr)</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">$65</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">30,000 (upfront)</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">None</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">~$0.0196</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Professional</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>$79</strong> ($948/yr)</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">$99</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">48,000 (upfront)</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">None</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">~$0.0198</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Organization</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>$119</strong> ($1,428/yr)</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Annual only</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">72,000 (upfront)</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>3</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">~$0.0198</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Custom</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Sales-only</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Sales-only</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Negotiated</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">&mdash;</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">&mdash;</td></tr>
+</table>
+
+<p>Prices exclude tax. The effective cost-per-credit column is ours &mdash; annual price divided by included credits &mdash; and it's the single most useful thing on this page, because it shows the tiers are priced almost perfectly linearly. There is no volume discount hiding in the upgrade.</p>
+
+<h3>Apollo's "Save 24%" badge is only true on one plan</h3>
+
+<p>Apollo's pricing page tags every plan with a 24% annual saving. Do the arithmetic on Apollo's own numbers and only Basic clears it: $65 to $49 is <strong>24.6%</strong>, but $99 to $79 is <strong>20.2%</strong> and $149 to $119 is <strong>20.1%</strong>. It's a small thing, but if you're building a business case off the annual discount, use 20% for the tiers you're actually likely to buy.</p>
+
+<h2>The unified credit: one currency, wildly different prices per action</h2>
+
+<p>This is the part that changed, and the part that decides your bill. Apollo used to meter email credits, mobile credits and export credits separately. Now there's one credit, and each action has a conversion rate:</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;"><th style="padding:10px 12px;">Action</th><th style="padding:10px 12px;">Credits</th><th style="padding:10px 12px;">Cost at ~$0.020/credit</th><th style="padding:10px 12px;">Max per Professional seat/year</th></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Verified email address</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">1</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">~$0.02</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">48,000</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Mobile / personal phone number</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>8</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">~$0.16</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>6,000</strong></td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">HQ / corporate phone number</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">0</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Free</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">&mdash;</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">AI power-up / AI research run</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">1</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">~$0.02</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">48,000</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Full record enrichment (email + mobile)</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">up to ~9</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">~$0.18</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">~5,300</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Organization search</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">1 per page (up to 100 results)</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">~$0.02</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">&mdash;</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Waterfall email enrichment</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">1&ndash;4 typical, <strong>20+ possible</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">$0.02&ndash;0.40+</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Varies</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Waterfall phone enrichment</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">8&ndash;25 typical, <strong>45+ possible</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">$0.16&ndash;0.90+</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Varies</td></tr>
+</table>
+
+<p>Read the mobile row twice. <strong>Eight credits per mobile number means Professional's entire annual allowance converts to 6,000 numbers per seat &mdash; about 500 a month &mdash; with nothing left for email.</strong> If your motion is phone-led, Apollo's headline price is not your price and the credit line will dominate your spend. If your motion is email-led, 48,000 emails a seat per year is generous and you will likely never touch the ceiling.</p>
+
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:16px 20px;margin:20px 0;border-radius:6px;">
+<p style="margin:0;"><strong>Waterfall enrichment is where budgets actually die.</strong> Apollo's own docs warn that some waterfall vendors <em>"consume credits per lookup even when no data is found"</em>, and that phone waterfalls can reach 45+ credits &mdash; roughly $0.90 for one record that may return nothing. Tellingly, Apollo's own pricing calculator budgets <strong>2 credits per lead when waterfall is enabled</strong>, versus 1 without: Apollo itself assumes turning waterfall on doubles your per-lead cost. Turn it on deliberately, per list, not as a global default.</p>
+</div>
+
+<h3>Dialer minutes are billed in credits &mdash; and geography changes the price 18x</h3>
+
+<p>Rarely mentioned anywhere and genuinely expensive: Apollo bills <em>talk time</em> in the same unified credits, at a rate that depends on where you're calling.</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;"><th style="padding:10px 12px;">Region dialed</th><th style="padding:10px 12px;">Credits per minute</th><th style="padding:10px 12px;">~Cost per minute</th><th style="padding:10px 12px;">~Cost of a 10-min call</th></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">US / North America</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">2</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">~$0.04</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">~$0.40</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Europe</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">10</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">~$0.20</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">~$2.00</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">APAC</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">10</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">~$0.20</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">~$2.00</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Central / South America</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">14</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">~$0.28</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">~$2.80</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Middle East</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">28</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">~$0.56</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">~$5.60</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Africa</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>36</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">~$0.72</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">~$7.20</td></tr>
+</table>
+
+<p>Two billing mechanics multiply this. Connected calls carry a <strong>30-second minimum and then round up to the next 30-second increment</strong>, so a 35-second call bills as 60 seconds. And <strong>calls that hit voicemail or an answering machine still bill</strong> &mdash; only ring-outs, busy signals, failed and cancelled calls are free. For an SDR team dialing lists with heavy voicemail rates, that is a real and invisible line item. Apollo's own rule of thumb from its knowledge base: roughly <strong>10 minutes of talk time per dollar spent domestically, 3 minutes per dollar with international dialing</strong>.</p>
+
+<h2>Credits expire. All of them. Every cycle.</h2>
+
+<p>Apollo states this three separate ways across its pricing page, its credits explainer and its knowledge base: unused credits don't roll over, they don't carry into the next billing cycle, and they don't survive renewal.</p>
+
+<p>Pair that with how annual plans are granted &mdash; <strong>all credits unlocked upfront</strong> at the start of the annual cycle &mdash; and the failure mode is clear. An annual buyer who runs light in month two cannot bank that capacity for month eleven, and at renewal the counter resets regardless of what's left. Add-on credits bought mid-cycle expire the same way, are <strong>charged in full and never prorated</strong>, and re-bill next cycle.</p>
+
+<div style="background:#f4f7fb;border-left:4px solid #1f3a5f;padding:16px 20px;margin:20px 0;border-radius:6px;">
+<p style="margin:0;"><strong>This is the sharpest contrast with the alternatives.</strong> Clay accumulates unused credits up to 2x your monthly allowance on its self-serve tiers, and Lusha rolls over to a 2x cap on Pro and Premium. Cognism goes further still: once a contact is redeemed, your team keeps using that record for the whole contract, and a credit is only spent again if the person changes jobs. Apollo's hard expiry means <strong>your credit allowance is a use-it-or-lose-it rate limit, not a balance.</strong> Size your plan to your steady-state monthly volume, not your best month. We covered the mechanics of the Clay side of this in our <a href="/blog/clay-pricing-honest-review-plans-credits-costs-2026">Clay pricing breakdown</a>.</p>
+</div>
+
+<h2>Every paid tier costs the same per credit. So what are you buying?</h2>
+
+<p>Given all three paid tiers land within a fraction of a cent of $0.020 per credit, upgrading Apollo is never a data-cost decision. You're buying feature gates. These are the ones that matter for an outbound team:</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;"><th style="padding:10px 12px;">Gate</th><th style="padding:10px 12px;">Free</th><th style="padding:10px 12px;">Basic $49</th><th style="padding:10px 12px;">Professional $79</th><th style="padding:10px 12px;">Organization $119</th></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Daily email sends</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">250</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>250</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Unlimited</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Unlimited</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Mailboxes per user</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">1</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>1</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Unlimited + 5 SMTP</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Unlimited + 15 SMTP</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">SendGrid &amp; Mailgun</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">&#10007;</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">&#10007;</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">&#10003;</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">&#10003;</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Sequences</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">2 per team</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Unlimited</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Unlimited + A/Z testing</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Unlimited + A/Z testing</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Record selection limit</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">25</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">1,000</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">2,500</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">10,000</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Buying intent topics</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">1</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">6 + filters</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">6 + filters</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">12 + filters</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Waterfall + job-change enrichment</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">&#10007;</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">&#10003;</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">&#10003;</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">&#10003;</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Agentic Loops</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">&#10007;</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">&#10007;</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">&#10003;</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">&#10003;</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Automated workflows</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">2/team</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">5/team</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">50/team</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">500/team</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Call recording + AI insight minutes</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">150</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">150</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">4,000</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">8,000</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>SSO, custom permissions, territories</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">&#10007;</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">&#10007;</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">&#10007;</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">&#10003;</td></tr>
+</table>
+
+<h3>Basic is a data seat, not a sending plan</h3>
+
+<p>The two bolded rows are the whole story. <strong>One mailbox per user and 250 sends per day</strong> is not a cold email configuration &mdash; it's a prospecting seat with a sequencer bolted on. Serious outbound runs many mailboxes across several domains precisely so no single inbox carries enough volume to burn, which is the architecture we walk through in <a href="/blog/how-many-domains-mailboxes-cold-email-2026">how many domains and mailboxes you need</a>. You cannot build that on one mailbox.</p>
+
+<p>So if a comparison article tells you Apollo starts at $49 for cold email, it's quoting a plan that structurally can't do the job. <strong>Professional at $79 is the real entry price for outbound</strong>, and the gap from $49 to $79 buys unlimited mailboxes, unlimited sends, 5 SMTP connections and SendGrid/Mailgun support &mdash; not more credits per dollar.</p>
+
+<h3>The record selection limit is a labour cost, not a feature</h3>
+
+<p>Underrated gate. Basic lets you select 1,000 records in one action; Professional 2,500; Organization 10,000. Apollo spells out the consequence itself: at a 25-record limit, saving 10,000 leads means clicking select-and-add <strong>2,000 times</strong>. If someone on your team is doing large list pulls weekly, this row is an hours-per-month decision.</p>
+
+<h3>Organization is an admin and security tier</h3>
+
+<p>Nothing about Organization makes data cheaper. What it adds is <strong>SSO, custom permission profiles, billing and seat-manager roles, custom territories</strong>, 12 intent topics and the option to bring your own LLM API key &mdash; plus a 3-seat annual-only minimum ($4,284/year committed at list price). That's an IT-and-governance purchase. If nobody is asking you for SSO or territory rules, Professional is the ceiling worth paying for.</p>
+
+<h2>The dialer you pictured is a separate line item</h2>
+
+<p>Apollo includes a dialer from Basic upward, and that fact gets quoted as if Apollo replaces a sales phone system. It doesn't, at the tier price. The included dialer is <strong>US-only, single-line</strong>. Everything that makes a dialer worth having for an outbound team &mdash; <strong>power dialer, parallel dialer, international dialing and local presence</strong> &mdash; sits in an <strong>Advanced Dialer add-on at $119/month per team on annual billing</strong> ($149 monthly). There's a second add-on, <strong>Inbound</strong>, at the same price, which lifts website-visitor identification from 100 to 50,000 companies a month and form enrichment from 10 to 5,000.</p>
+
+<p>Both are per-team rather than per-seat, which is unusually favourable at scale &mdash; and both are labelled introductory pricing by Apollo, so treat them as subject to change. Credit consumption still applies on top of the add-on fee. This is the same pattern we found comparing CRMs: the dialer is almost never in the price you're quoted, and it moves the total more than the seat price does. See <a href="/blog/close-crm-vs-hubspot-outbound-sales-teams-2026">Close CRM vs HubSpot</a> for the CRM-side version of that trap.</p>
+
+<h2>Top-up credits: cheap rate, expensive design</h2>
+
+<p>Apollo's add-on credit rate card runs from <strong>$0.025 per credit</strong> at small volumes down to <strong>$0.015 at 250,000 credits</strong>, with $0.020 around the 2,500&ndash;5,000 mark and $0.016 from 20,000 up.</p>
+
+<p>Notice what that means: top-ups cost roughly the same as in-plan credits (~$0.0198). <strong>There is no punitive overage multiplier</strong> &mdash; which is genuinely good design, and worth saying plainly because competitor pricing posts routinely claim Apollo charges $0.20 per overage credit. That's off by a factor of ten against Apollo's own live rate card. Nor will Apollo cut you off mid-cycle; it notifies you instead.</p>
+
+<p>The penalty isn't the rate, it's the <strong>expiry</strong>. An extra 1,000 mobile numbers means 8,000 credits, roughly $128&ndash;144 &mdash; and whatever you don't spend by cycle end is gone. Buy top-ups reactively against a known list, never speculatively.</p>
+
+<h2>What Apollo actually costs a 3-seat outbound team</h2>
+
+<p>Here's the model that matters. Three SDR seats running email plus phone, at list price, annual billing:</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;"><th style="padding:10px 12px;">Line item</th><th style="padding:10px 12px;">Why you need it</th><th style="padding:10px 12px;">Annual cost</th></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Apollo Professional &times; 3 seats</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Basic can't send at volume</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">$2,844</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Advanced Dialer add-on</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Power/parallel dialing, local presence</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">$1,428</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Dedicated sending tool</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Inbox rotation and warmup Apollo doesn't do well</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">~$940</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Third-party email verification</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Re-verify before sending (see below)</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">$39&ndash;1,188</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Total</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">&mdash;</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>~$5,250&ndash;6,400</strong></td></tr>
+</table>
+
+<p><em>This model is ours, not a quote, and it's list price with no negotiation. The sending-tool line uses a mid-tier plan from a dedicated sender; the verification range spans a low-volume bulk verifier to a bundled monthly plan.</em> The point isn't the exact total &mdash; it's that <strong>the seat price is under half of it</strong>. Anyone budgeting Apollo at 3 &times; $79 is budgeting about 45% of the real number. If you want the full bottoms-up version of this exercise for an email programme, we built one in <a href="/blog/cold-email-cost-per-meeting-budget-2026">cold email cost per meeting</a>.</p>
+
+<h2>The bounce math Apollo publishes about itself</h2>
+
+<p>Apollo's data quality is the most contested topic in this category, and almost every number you'll read comes from a company selling an alternative. We don't need those. Apollo's own knowledge base is enough:</p>
+
+<ul>
+<li>Apollo says its verified emails carry a <strong>91% accuracy rate</strong> and an <strong>84% email match rate</strong>, via a seven-step verification process.</li>
+<li>The same knowledge base article states, in Apollo's own words, <strong>"Apollo's 9% bounce rate"</strong>.</li>
+<li>Apollo's deliverability guidance says that if you consistently see a bounce rate of <strong>8% or above</strong>, "cue the alarm bells".</li>
+<li>Apollo's own benchmark article puts a healthy target at <strong>under 2% total bounces and under 1% hard bounces</strong>.</li>
+</ul>
+
+<p>Those four statements can't all be operationally true at once. Apollo's stated accuracy implies a bounce rate roughly four times its own published danger threshold. Apollo also maintains an official <strong>ZeroBounce integration</strong> whose stated purpose is removing invalid leads from your Apollo account &mdash; which is Apollo conceding the re-verification step exists.</p>
+
+<p>None of this makes Apollo bad data; at $0.02 a verified email it's priced well below most single-purpose vendors. It means <strong>you must budget a verification pass between Apollo and your sender</strong>, and the plans start around $39 for bulk credits. Our <a href="/blog/best-email-verification-tools-2026">email verification tool comparison</a> covers the options, and <a href="/blog/cold-email-spf-dkim-dmarc-setup-2026">SPF, DKIM and DMARC setup</a> covers the authentication side that bounces will otherwise punish you for.</p>
+
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:16px 20px;margin:20px 0;border-radius:6px;">
+<p style="margin:0;"><strong>Numbers we refuse to repeat &mdash; including one of our own.</strong> You'll see confident claims that Apollo's accuracy is "~65%", that exported lists bounce at "15&ndash;25%" or "32&ndash;38%", and a widely-copied 900-lead test reporting "19% valid, 60% catch-all". We tried to trace these to a primary study and couldn't &mdash; no disclosed methodology, no sample size, and in every case a publisher selling a competing product. Our own <a href="/blog/how-to-build-b2b-cold-email-list-2026">cold email list building guide</a> currently cites a "~65&ndash;70% real-world" figure against a "~97% vendor claim" from that same circulating pool &mdash; we're flagging both here rather than quietly leaving them, since Apollo's own published accuracy claim is 91%, not 97%. The best-documented third-party datapoint we found was a competitor's disclosed 100-contact test in which 27 Apollo-verified contacts were flagged by a second verifier and 6 of the remainder still hard-bounced &mdash; one mailbox, one author, n=100. Directional at best. Apollo's own 9% figure is both more citable and more damaging.</p>
+</div>
+
+<h2>Contract mechanics that catch teams out</h2>
+
+<p>Apollo's self-serve billing is more restrictive than the checkout flow suggests. All of the following is published:</p>
+
+<ul>
+<li><strong>Mid-term downgrades are honoured immediately but never refunded.</strong> Drop a plan or seats and access changes at once, the lower price starts next cycle, and "refunds will not be processed for downgrades mid-term".</li>
+<li><strong>You can be blocked from adding seats near renewal.</strong> Apollo prevents seat purchases and upgrades close to your renewal date &mdash; the symptom is a "Due Today too low" error, and the fix is waiting for the term to roll.</li>
+<li><strong>Cancellation takes effect at end of term, not on request</strong>, and "only select paid teams have the option for self-serve cancellation". Everyone else, and anyone whose account came through Apollo sales, has to go via support or an account manager. Apollo also warns you may not be able to rejoin at your current price.</li>
+<li><strong>Downgrading to Free costs you all but one seat 10 days later</strong>, and Free plans drop to one seat after 100 days of active use regardless.</li>
+<li><strong>Your billing cycle date cannot be changed.</strong> Apollo's FAQ answers this with a flat no &mdash; worth knowing if you're aligning renewals across a stack.</li>
+<li><strong>Organization requires 3 seats and annual billing</strong>, so the smallest possible Organization commitment is $4,284 at list price.</li>
+</ul>
+
+<div style="background:#f4f7fb;border-left:4px solid #1f3a5f;padding:16px 20px;margin:20px 0;border-radius:6px;">
+<p style="margin:0;"><strong>Agencies and anyone building on top of Apollo: read the licence first.</strong> Apollo states that its self-serve plans are permitted for <em>internal business use only</em>, and that using them to power external products, share data with customers, or resell Apollo data is not allowed under standard terms &mdash; those cases "require a separate agreement with custom pricing and terms". If you're a lead-gen agency planning to run client campaigns off your own Apollo seat, that is a conversation with Apollo's sales team, not a checkout decision. It's also a reason plenty of agencies price data through a different layer entirely; we cover how that shows up in fees in <a href="/blog/cold-email-agency-pricing-2026">cold email agency pricing</a>.</p>
+</div>
+
+<h2>Check these before you buy: where Apollo's own pages disagree</h2>
+
+<p>Apollo is mid-migration between credit systems, and it says so: some features are only available on the new unified system, all new customers are on it, and existing customers may still be on the legacy one. The site hasn't caught up, which produces contradictions you should resolve in your own portal rather than trust:</p>
+
+<ul>
+<li><strong>Legacy "unlimited email" fair-use text is still live</strong> on the pricing page &mdash; caps of 10,000 credits/month for non-paying accounts and a formula-derived annual ceiling for paying ones. No current tier is sold as unlimited. Treat that language as residue.</li>
+<li><strong>"Export credits" are described as current on the pricing page</strong> but as applying "only to certain plans or legacy configurations" in the knowledge base. In the unified system, exports are metered as ordinary credits.</li>
+<li><strong>The pricing page's own structured data still advertises "Basic $49/month", "Professional $99/month" and an "Enterprise Plan"</strong> &mdash; mislabelling the annual rate as monthly and naming a tier the live table calls Organization.</li>
+<li><strong>Trial credits are stated three different ways</strong> on one page (100 credits, 50 credits + 5 mobile, and 50 lead credits per user). The trial itself is 14 days on Basic or Professional; Professional trials exclude mobile numbers.</li>
+<li><strong>API access is described as Custom-plan-only in the pricing FAQ</strong>, but Apollo's developer docs publish per-tier rate limits for Free, Basic, Professional and Organization, and the comparison chart marks the APIs available on all four. The FAQ is stale. Worth knowing: <strong>Basic and Professional have identical API rate limits</strong>, so API throughput is not a reason to upgrade between them.</li>
+<li><strong>Bidirectional CRM sync is described as available "on certain plans"</strong> without naming them, while the comparison chart shows CRM integrations on every tier including Free. Confirm before you commit. And note Apollo connects to <strong>one CRM at a time</strong>, HubSpot offers two different integration modes (full bi-directional CRM vs enrichment-only), and deal and activity sync can lag <strong>up to 24 hours</strong> &mdash; which matters if you're routing on reply speed. We wrote up doing this cleanly in <a href="/blog/clay-hubspot-integration-sync-crm-2026">syncing enrichment data into HubSpot</a>.</li>
+</ul>
+
+<h2>How Apollo prices against the alternatives</h2>
+
+<p>One honest caveat before the table: <strong>we're not publishing headline prices for Clay, ZoomInfo or Cognism.</strong> Clay's own pricing page currently contradicts itself between its plan cards and its FAQ, and ZoomInfo and Cognism don't publish list prices at all. Anyone quoting you a ZoomInfo price is quoting a third-party estimate.</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;"><th style="padding:10px 12px;">Vendor</th><th style="padding:10px 12px;">Priced by</th><th style="padding:10px 12px;">Do credits roll over?</th><th style="padding:10px 12px;">List price published?</th></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Apollo</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Per seat + unified credits</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>No &mdash; hard expiry each cycle</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Clay</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Per workspace + actions/data credits (unlimited seats)</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes, to 2x monthly on self-serve tiers</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes, but self-contradictory</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Lusha</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Per account + credits (seats bundled)</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes, to 2x monthly on Pro/Premium</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">ZoomInfo</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Negotiated contract</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Contract-specific</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>No</strong></td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Cognism</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Negotiated package</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Redeemed contacts stay usable for the contract term</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>No</strong></td></tr>
+</table>
+
+<p>Structurally: <strong>Apollo is the cheapest published per-record price in this group and the least forgiving about unused capacity.</strong> If your volume is steady, that trade is good. If it's lumpy &mdash; agency work, campaign bursts, seasonal pushes &mdash; a rollover model is worth paying more per record for. For the feature-level version of this comparison, see <a href="/blog/clay-vs-apollo-vs-zoominfo-outbound-comparison-2026">Clay vs Apollo vs ZoomInfo</a>.</p>
+
+<h2>How we'd actually buy it</h2>
+
+<p>We build and run outbound systems on this stack, so here's the plain recommendation by motion:</p>
+
+<ul>
+<li><strong>Email-led outbound, any team size:</strong> Professional annual. Use Apollo as the data and intent layer, re-verify before sending, and send from a dedicated tool &mdash; the comparison is in <a href="/blog/smartlead-vs-instantly-2026">Smartlead vs Instantly</a>. Do not buy Basic for this; one mailbox ends the conversation.</li>
+<li><strong>Phone-led outbound:</strong> Professional plus the Advanced Dialer add-on, and model your credit burn before you sign. At 8 credits a mobile and 2&ndash;36 credits a talk-minute, credits, not seats, will be your biggest Apollo line.</li>
+<li><strong>Data only, no sending from Apollo:</strong> Basic annual is genuinely good value at ~$0.020 a record, as long as you accept the 1,000-record selection limit and no Agentic Loops.</li>
+<li><strong>You need SSO or territory governance:</strong> Organization, and accept the 3-seat annual floor. Otherwise it's a $40/seat/month premium for admin features you won't turn on.</li>
+<li><strong>Lumpy or agency volume:</strong> think hard. The hard credit expiry is a poor fit for burst workloads, and the internal-use-only licence may rule out the plan you were about to buy.</li>
+</ul>
+
+<p>And whichever you pick, put the credit conversion rates somewhere your team can see them. The single most expensive habit we see is reps revealing mobile numbers by reflex on lists that were only ever going to be emailed &mdash; an 8x cost multiplier applied to records that never needed it.</p>
+
+<h2>Frequently Asked Questions</h2>
+
+<h3>How much does Apollo.io cost in 2026?</h3>
+<p>Apollo.io costs $49, $79 or $119 per seat per month on annual billing for Basic, Professional and Organization respectively, or $65 and $99 per seat monthly for Basic and Professional &mdash; Organization is annual-only with a 3-seat minimum. There's a free tier with 900 credits per seat per year and an unpriced Custom tier sold through sales. Every paid tier works out to roughly $0.020 per credit, so the tier you choose changes which features you can use, not how cheap your data is.</p>
+
+<h3>Does Apollo have unlimited emails?</h3>
+<p>Not any more. All four current plans ship a finite credit allowance &mdash; 900, 30,000, 48,000 and 72,000 per seat per year &mdash; and one verified email costs one credit. Apollo's site still carries legacy "unlimited plan" fair-use language, but that describes the old credit system Apollo is migrating customers off; all new customers are on the unified credit model. Separately, note that Basic caps you at 250 sends per day regardless of credits.</p>
+
+<h3>How much are Apollo mobile credits?</h3>
+<p>There is no separate mobile credit any more. Apollo unified its currencies, and a mobile or personal phone number costs <strong>8 credits</strong> &mdash; about $0.16 at Professional's annual rate. Your full 48,000-credit annual allowance therefore buys at most 6,000 numbers per seat with nothing left for email. Corporate and HQ numbers are free, but personal numbers are charged even when the contact is on a do-not-call registry.</p>
+
+<h3>Do Apollo credits roll over?</h3>
+<p>No. Apollo states it three separate ways: unused credits don't roll over, they don't carry into the following billing cycle or upon renewal, and per its terms they expire at cycle end. Annual plans receive all credits upfront, which means an annual buyer who under-uses early cannot bank that capacity for later in the term. Add-on credits behave the same way and are charged in full without proration.</p>
+
+<h3>Can I cancel Apollo.io?</h3>
+<p>Yes, but not instantly and not always by yourself. Cancellation takes effect at the end of your current term rather than on request, after which the account reverts to the free plan and keeps only one seat after 10 days. Apollo states that only "select paid teams" have self-serve cancellation &mdash; other accounts, and any account opened through Apollo sales, must go through support or an account manager. Mid-term downgrades are applied immediately but never refunded.</p>
+
+<h3>Which Apollo plan do I need for cold email?</h3>
+<p>Professional, at minimum. Basic gives you one mailbox per user and 250 sends per day, which is a data seat with a sequencer attached rather than an outbound engine. Professional lifts both to unlimited, adds 5 SMTP mailboxes per user and SendGrid/Mailgun support, and unlocks Agentic Loops. Bear in mind that most teams still pair Apollo's data with a dedicated sending tool for inbox rotation and warmup, and re-verify addresses before sending.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+
+<p><strong>Pricing a full outbound stack, not just a data seat?</strong> Read <a href="/blog/cold-email-cost-per-meeting-budget-2026">cold email cost per meeting</a> for the bottoms-up model, or <a href="/">talk to our team</a> &mdash; we build and run this stack for B2B teams every week, and we'll tell you honestly which tier you actually need.</p>
+
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. All Apollo plan prices, credit conversion rates, tier gates and contract terms were read directly off apollo.io/pricing, docs.apollo.io and dated knowledge.apollo.io articles on 7 September 2026, and Apollo notes it is still migrating some customers between credit systems &mdash; confirm figures in your own portal before committing. Effective cost-per-credit figures and the 3-seat stack model are our own arithmetic on those published inputs, at list price with no negotiation, and are not quotes. Third-party data-accuracy claims are identified as directional in-text where cited and refused where untraceable. Last updated September 2026.</em></p>

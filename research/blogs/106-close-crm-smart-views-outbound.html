@@ -1,0 +1,121 @@
+<!-- TITLE TAG: Close CRM Smart Views for Outbound: Filters & Recipes -->
+<!-- META: Close CRM Smart Views for outbound teams: build call queues, bulk email lists and follow-up views, with filter recipes, Power Dialer rules and key limits. -->
+<!-- SLUG: blog/close-crm-smart-views-outbound-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+  <p style="color:#e8732b;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 10px;font-size:13px;">TL;DR</p>
+  <ul style="margin:0;padding-left:20px;">
+    <li style="margin-bottom:8px;"><strong>A Smart View is a saved filter</strong> that gives one-click access to a list of leads or contacts, private or shared with your team. In outbound it is your queue: who to call, who to email, who to follow up with.</li>
+    <li style="margin-bottom:8px;"><strong>The Power Dialer runs only on a Smart View.</strong> It re-checks the view roughly every five minutes, so your filters decide who gets called next.</li>
+    <li style="margin-bottom:8px;"><strong>Bulk email and workflow enrolment run off views too,</strong> which is why exclusion filters ("not already emailed") matter as much as inclusion filters.</li>
+    <li style="margin-bottom:8px;"><strong>A Smart View does not trigger a Workflow on its own.</strong> Close says not all search filters are available as triggers, so you enrol view results manually or build the trigger conditions in the Workflow.</li>
+    <li style="margin-bottom:0;"><strong>Five recipes below</strong> cover never-contacted leads, call queues, opened-but-silent follow-ups, stalled deals and quiet leads.</li>
+  </ul>
+</div>
+
+<p>Ask a Close user how their team knows who to contact today and the answer is almost always "my Smart Views". They are the quiet engine of the product: a saved search that doubles as a call list, an email batch, a task queue and a pipeline-hygiene check. For a cold email and LinkedIn outbound team, getting them right is the difference between a CRM that tells reps what to do next and one they scroll through.</p>
+
+<p>This guide explains how Smart Views work, the filter logic that trips people up, and five recipes for outbound. It pairs with our guides to <a href="/blog/close-crm-workflows-sequences-outbound-2026">Close workflows</a>, <a href="/blog/close-crm-cold-email-integration-2026">connecting cold email to Close</a> and <a href="/blog/close-crm-pricing-2026">Close pricing</a>.</p>
+
+<p><em>Sourcing note: how Smart Views are built, the filter logic, the call-queue guidance and the Workflow trigger limitation are drawn from Close's own help documentation, read on 7 October 2026. Close changes its product, so check the docs before relying on a detail. Recipes marked as ours are our own constructions, not Close examples. Anything we could not confirm is marked <strong>(directional)</strong> or left out.</em></p>
+
+<h2>The Short Answer</h2>
+<p>Build a Smart View whenever you catch yourself running the same search twice. For outbound, the five worth having on day one are: leads never contacted, a call queue per rep, leads who opened but did not reply, stalled opportunities, and leads gone quiet. Share them with the team, sort them so the next best lead is always at the top, and exclude anyone already in a sequence so nobody is contacted twice.</p>
+
+<h2>What a Smart View Is</h2>
+<p>Close describes Smart Views as saved lead filters that give you one-click access to your favourite searches, listed in the sidebar. A view can be private or shared with specific people. Views come in lead and contact versions, and there are activity views covering calls, emails, SMS, meetings and notes, with customisable columns. You create one by adding filters on the Leads or Contacts page and choosing "Save as".</p>
+
+<p>Management is simple: you can reorder views in your own sidebar, unpin one without affecting others, and only the owner can delete it. That last point matters for teams. Put shared, business-critical views under an owner who will not leave, or someone's departure takes the call queue with them.</p>
+
+<h2>Filter Logic Without the Headaches</h2>
+<p>Close's filter builder supports four match operators: All of, Any of, Not all of and None of. To get OR logic, put conditions on the same row and choose Any of, then add another set on a different row. You can also wrap conditions in a group for nested logic.</p>
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:14px 18px;margin:20px 0;border-radius:6px;">
+  <p style="margin:0;"><strong>Watch the double negative.</strong> Close warns that "None of" combined with an "is not" condition cancels out and returns the opposite of what you meant. If a view looks wrong, check for this first.</p>
+</div>
+<p>Other useful features from Close's filtering docs: date filters go down to hours and minutes, text filters offer exact words and phrase matching, and Smart Fields calculate things like latest communication date, opportunity values and the lead's local time. You can also reference other views with an "In Smart View" filter, so a single combined queue can merge several views. Every referenced view has to be shared with whoever uses the combined one.</p>
+
+<h2>Five Outbound Smart View Recipes</h2>
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+    <th style="padding:10px 12px;">View</th>
+    <th style="padding:10px 12px;">Filters</th>
+    <th style="padding:10px 12px;">Source</th>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>1. Never contacted</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Total number of emails = None AND total number of calls = None, plus status and created-date filters</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Close docs</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>2. Call queue</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Status is Potential or Interested; no call in the last 2 days (outbound); no incomplete tasks; local time 9am to 5pm; owner is Me; sort by call count ascending, then call date oldest first</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Close docs</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>3. Opened, no reply</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Email opens = Some; email date not within the last 7 days; direction is outgoing</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Close docs example (adapt)</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>4. Stalled opportunities</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Active opportunity with status unchanged beyond your threshold, no upcoming meeting, no recent communication</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Close docs and blog (adapt)</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>5. Gone quiet</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Latest communication date older than your threshold, no meetings, no open tasks, not disqualified</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Ours (directional)</td>
+  </tr>
+</table>
+<p>Treat the numbers (2 days, 7 days, your stall threshold) as starting points. Close's own examples use different windows in different places, and the right value depends on your cadence and sales cycle. Recipe 5 is our own construction using the latest-communication Smart Field; no Close page we read gives a ready-made version.</p>
+
+<h3>Tracking opens is a weak signal</h3>
+<p>Recipe 3 relies on email open data, which is unreliable because of mail privacy features. We cover why in our guide to <a href="/blog/apple-mail-privacy-protection-cold-email-2026">Apple Mail Privacy Protection and cold email</a>. If you use it, treat "opened" as a soft hint and prioritise replies and clicks wherever you have them.</p>
+
+<h2>Smart Views and the Power Dialer</h2>
+<p>If your team calls, the Power Dialer is where Smart Views earn their keep. According to Close's help docs, the dialer works only through a Smart View. It re-checks the view roughly every five minutes, adding and removing leads according to the view's filters and sort order, so a lead that stops matching (because someone just called them) drops out of the queue. Using a shared view stops two reps dialling the same lead. The dialer is not available on the Solo or Essentials plans.</p>
+
+<p>The sort order in recipe 2 is the clever bit: fewest calls first, then oldest call first, gives a queue that refreshes itself without anyone re-sorting. Combine it with a local-time filter so you only ring leads inside business hours. For when calling beats email, see our <a href="/blog/cold-calling-vs-cold-email-b2b-outbound-2026">cold calling vs cold email</a> comparison.</p>
+
+<h2>Smart Views for Bulk Email and Workflows</h2>
+<p>Views are also how you build send lists. Close's guidance is to filter by status plus a segment such as lead source or industry, and to exclude leads who already received the template. For workflow enrolment, exclude leads who got the first step's template, because a contact can only be subscribed to a given workflow once. Start in batches using the "Set limit" button, for example 200 at a time, and remember that email goes out through your own mail provider, which has its own daily limits. Our <a href="/blog/cold-email-domain-mailbox-rotation-2026">domain and mailbox rotation</a> guide covers keeping that volume safe.</p>
+
+<h3>A view does not trigger a workflow</h3>
+<p>This is the most common misunderstanding. Workflows are available on the Growth and Scale plans, and you can trigger one in bulk from the Leads or Contacts list using the Workflow icon and "Trigger Workflow". But Close states that not all search filters are currently available as triggers, so a Smart View cannot be assumed to start a workflow automatically as new leads match it. In practice: enrol on a schedule by hand, or express the trigger conditions inside the workflow itself. We walk through the automation side in our <a href="/blog/close-crm-workflows-sequences-outbound-2026">Close workflows guide</a>.</p>
+
+<h2>Smart Views in the API</h2>
+<p>Close's API supports listing, creating, getting, updating and deleting Smart Views, and bulk actions (email, edit, delete, subscribe) can run against a saved search. A paused bulk action can be resumed within seven days, according to the developer docs. If you push leads in from LinkedIn tooling, see our guide to <a href="/blog/heyreach-close-crm-integration-2026">connecting HeyReach to Close</a> and tag the lead source with a custom field, so you can build channel-specific views. Close's own channel-segmentation example uses exactly this pattern.</p>
+
+<h2>Gotchas Checklist</h2>
+<ul>
+  <li><strong>Exclude before you include.</strong> Most duplicate-contact mistakes come from a view with no "not already emailed" or "not in workflow" condition.</li>
+  <li><strong>Own your shared views.</strong> Only the owner can delete one; use a shared admin owner for critical queues.</li>
+  <li><strong>Dialer lag.</strong> Expect up to about five minutes before a changed lead leaves the queue.</li>
+  <li><strong>Plan gating.</strong> Workflows need Growth or Scale and the dialer is not on Solo or Essentials. Check <a href="/blog/close-crm-pricing-2026">current Close pricing</a> before designing around either.</li>
+  <li><strong>Data hygiene decides quality.</strong> A view is only as good as the status, source and owner fields behind it; see our <a href="/blog/crm-data-hygiene-outbound-teams-2026">CRM data hygiene</a> guide.</li>
+</ul>
+<p>Weighing Close against HubSpot for this kind of queue-driven selling? Our <a href="/blog/close-crm-vs-hubspot-outbound-sales-teams-2026">Close vs HubSpot</a> comparison covers it.</p>
+
+<h2>Frequently Asked Questions</h2>
+
+<h3>What is a Smart View in Close CRM?</h3>
+<p>A Smart View is a saved set of filters that gives one-click access to a list of leads, contacts or activities. It appears in your sidebar and can be private or shared with your team. Outbound teams use views as call queues, email lists and follow-up lists.</p>
+
+<h3>Can I use a Smart View with the Power Dialer?</h3>
+<p>Yes, and it is the only way to use it. The Power Dialer works through a Smart View and re-checks it roughly every five minutes. It is not available on the Solo or Essentials plans, so confirm your plan first.</p>
+
+<h3>Can a Smart View trigger a Workflow automatically?</h3>
+<p>Not reliably. Close says not all search filters are currently available as Workflow triggers. You can bulk-trigger a workflow manually from the Leads or Contacts list, or rebuild the conditions inside the workflow trigger itself.</p>
+
+<h3>What is the difference between lead and contact Smart Views?</h3>
+<p>Lead views list companies or accounts and filter on lead-level data such as status and opportunities. Contact views list individual people. Close also offers activity views for calls, emails, SMS, meetings and notes, each with customisable columns.</p>
+
+<h3>Can I share a Smart View or keep it private?</h3>
+<p>Both. When you save a view you choose specific people to share it with or keep it private. Anyone can unpin a view from their own sidebar, but only the owner can delete it, so assign key team views to a stable owner.</p>
+
+<h3>Which Close plan do I need for Smart Views and bulk email?</h3>
+<p>We found no plan restriction on Smart Views themselves in Close's docs, but Workflows need Growth or Scale and the Power Dialer is not on Solo or Essentials. Plans and prices change, so verify on Close's pricing page before you buy.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+<p><strong>Want your Close or HubSpot pipeline set up so reps always know the next lead to contact? Read our <a href="/blog/close-crm-workflows-sequences-outbound-2026">Close workflows guide</a>, or <a href="/">talk to our team</a> and we will build the views, automations and reporting around your cold email and LinkedIn outreach.</strong></p>
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. Smart View behaviour verified against Close's help documentation on 7 October 2026; recipes marked as ours are our own. Last updated October 2026.</em></p>

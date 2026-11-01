@@ -1,0 +1,114 @@
+<!-- TITLE TAG: B2B Revenue Attribution Models (2026): How to Choose -->
+<!-- META: B2B revenue attribution models explained for 2026: first-touch, last-touch, multi-touch and data-driven — plus how to credit outbound and which to choose. -->
+<!-- SLUG: blog/revenue-attribution-models-b2b-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+  <strong style="display:block;text-transform:uppercase;letter-spacing:.04em;font-size:13px;color:#e8732b;margin-bottom:8px;">TL;DR</strong>
+  <ul style="margin:0;padding-left:20px;">
+    <li><strong>Last-touch is your CRM's default and the single biggest source of bad B2B budget decisions.</strong> It credits the demo-request form and hides everything that created the demand.</li>
+    <li><strong>B2B breaks simple attribution.</strong> Gartner finds a typical complex purchase involves <strong>6–10 decision-makers</strong>, and buyers spend only <strong>~17% of the journey</strong> meeting with suppliers — most of it is untracked, self-directed research.</li>
+    <li><strong>For most B2B, use a multi-touch model</strong> — Linear or W-shaped — not single-touch. W-shaped credits the three moments that matter: first touch, lead creation, opportunity creation.</li>
+    <li><strong>Outbound gets robbed by last-click.</strong> A cold email starts a deal that later returns as "direct" and steals the credit. Log outbound touches in the CRM and reward early touches.</li>
+    <li><strong>The fix isn't one model — it's a hybrid:</strong> multi-touch (tracked) + self-reported ("How did you hear about us?") to catch the dark funnel that software can't see.</li>
+  </ul>
+</div>
+
+<p>Revenue attribution is how you decide which marketing and sales activities actually generated revenue — and therefore where the next dollar of budget goes. Get it wrong and you defund the channels quietly creating demand while over-investing in the ones that merely capture it. In B2B, "getting it wrong" is the default state, because the out-of-the-box CRM setting (last-touch) is structurally mismatched to how committees actually buy. This guide explains every model in plain English, shows how to credit outbound fairly, and gives you a decision framework for picking one.</p>
+
+<p><em>Model mechanics below are standard and stable. "Best for" calls are conventional practice; tool prices are "starting around" and change often. Dark-funnel percentages vary wildly by source and are presented as ranges, not facts.</em></p>
+
+<h2>The Short Answer</h2>
+<p>If your sales cycle is long and involves a buying committee — i.e., you're a normal B2B company — use a <strong>multi-touch model (Linear or W-shaped)</strong> and stop trusting last-click. Then layer a <strong>self-reported "How did you hear about us?" field</strong> on high-intent forms to catch the demand that tracking misses. Reserve single-touch (first- or last-touch) for genuinely short, single-channel, transactional sales.</p>
+
+<h2>The Attribution Models, in Plain English</h2>
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <thead>
+    <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+      <th style="padding:10px 12px;">Model</th><th style="padding:10px 12px;">How it credits</th><th style="padding:10px 12px;">Best for</th><th style="padding:10px 12px;">Key weakness</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;"><strong>First-touch</strong></td><td style="padding:10px 12px;">100% to the first interaction</td><td style="padding:10px 12px;">Measuring demand creation / what sources net-new accounts</td><td style="padding:10px 12px;">Ignores everything that closed the deal</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;"><strong>Last-touch</strong></td><td style="padding:10px 12px;">100% to the final interaction</td><td style="padding:10px 12px;">Short, transactional cycles</td><td style="padding:10px 12px;">Over-credits forms/branded search/"direct"; the CRM default</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;"><strong>Linear</strong></td><td style="padding:10px 12px;">Equal credit to every touch</td><td style="padding:10px 12px;">A first move into multi-touch; long, many-touch cycles</td><td style="padding:10px 12px;">Treats a blog visit like a sales demo</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;"><strong>Time-decay</strong></td><td style="padding:10px 12px;">More credit to touches nearer the close</td><td style="padding:10px 12px;">Long cycles where late/sales touches carry the deal</td><td style="padding:10px 12px;">Undervalues awareness and outbound prospecting</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;"><strong>U-shaped</strong></td><td style="padding:10px 12px;">~40% first / 40% lead-conversion / 20% middle</td><td style="padding:10px 12px;">Teams focused on what sourced <em>and</em> converted a lead</td><td style="padding:10px 12px;">Arbitrary weights; undervalues nurture</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;"><strong>W-shaped</strong></td><td style="padding:10px 12px;">Weighted on first touch, lead creation, opp creation</td><td style="padding:10px 12px;">Full-funnel B2B where marketing + sales share credit</td><td style="padding:10px 12px;">More complex; needs clean stage data</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;"><strong>Full-path</strong></td><td style="padding:10px 12px;">W-shaped + a 4th milestone at deal close</td><td style="padding:10px 12px;">Mature RevOps measuring the whole lifecycle</td><td style="padding:10px 12px;">Highest data-hygiene burden</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;"><strong>Data-driven</strong></td><td style="padding:10px 12px;">ML assigns fractional credit from real paths</td><td style="padding:10px 12px;">High-volume orgs with clean, plentiful data</td><td style="padding:10px 12px;">"Black box"; needs volume; hard to explain</td></tr>
+  </tbody>
+</table>
+
+<h3>Single-touch vs multi-touch</h3>
+<p>Single-touch models (first- or last-touch) assign 100% of the credit to one interaction. They're simple, free, and built into every CRM — and structurally wrong for B2B, where a dozen touches across several people precede a deal. Multi-touch models spread credit across the journey and reflect reality far better, at the cost of cleaner data and better tooling. First-touch answers "what <em>created</em> this opportunity?"; last-touch answers "what was <em>present</em> when it converted?" — and confusing the second for the first is how demand-creation budgets get cut.</p>
+
+<h2>Why B2B Breaks Simple Attribution</h2>
+<p>The reason single-touch fails isn't ideological — it's the shape of B2B buying:</p>
+<ul>
+  <li><strong>Committees, not individuals.</strong> Gartner's canonical research finds a typical complex B2B purchase involves <strong>6–10 decision-makers</strong>, and <strong>77% of buyers</strong> describe their most recent purchase as very complex or difficult.</li>
+  <li><strong>Buyers barely talk to sales.</strong> Gartner also finds B2B buyers spend only about <strong>17% of the entire purchase journey</strong> meeting with potential suppliers — and far less with any single vendor. The majority is independent, untracked research.</li>
+  <li><strong>The dark funnel.</strong> Much of the modern journey — peer Slack/DM communities, podcasts, LinkedIn feed consumption, review sites, word-of-mouth, and increasingly AI-search — leaves <em>no trackable click</em>. Buyers arrive as "direct" or "organic," so even multi-touch mis-credits what created the demand. <em>(Estimates of how much of the journey is "dark" range widely — commonly cited as anywhere from a third to the majority of pipeline — and are directional.)</em></li>
+</ul>
+
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:14px 20px;margin:20px 0;border-radius:6px;">
+  <strong>Correcting a stat you'll still hear:</strong> third-party cookies did <em>not</em> die. After years of delays, Google confirmed in April 2025 that it would <strong>keep third-party cookies in Chrome</strong>. The real reason click-based attribution is unreliable in 2026 isn't a "cookie apocalypse" — it's that Safari and Firefox already block third-party cookies by default <em>and</em> the dark funnel is untrackable by design. That combination is why first-party data and self-reported attribution are rising, regardless of what Chrome does.
+</div>
+
+<h2>How to Credit Outbound Fairly</h2>
+<p>Outbound is the channel attribution treats most unfairly, and the failure pattern is always the same: an SDR <a href="/blog/data-driven-lead-scoring-how-gtm-engineers-prioritize-prospects-for-outbound">cold-emails a prioritized VP</a> who doesn't reply → two days later that VP Googles your brand and reads a case study → a colleague checks your pricing page → the account books a demo as "direct." Last-touch credits organic/direct; the outbound email that <em>started</em> the whole thing gets nothing. Do that across a quarter and outbound looks weak while inbound looks strong — and you defund the engine that's actually creating pipeline.</p>
+<p>Most attribution problems in outbound aren't model problems, they're <strong>data-capture</strong> problems: cold-email opens, LinkedIn touches, and dials often aren't clicks and never reach web analytics. The fix is a blend:</p>
+<ol>
+  <li><strong>Log outbound touches into the CRM</strong> as activities or campaign members so they're eligible for credit at all — this is a <a href="/blog/crm-data-hygiene-outbound-teams-2026">data-hygiene</a> prerequisite.</li>
+  <li><strong>Use a model that rewards demand creation</strong> — Linear or W-shaped, which credits the initial prospecting touch — not time-decay or last-touch.</li>
+  <li><strong>Add self-reported attribution</strong> — a "How did you hear about us?" field on demo forms plus a rep-asked qualifier — to catch what tracking misses.</li>
+  <li><strong>Reconcile the two:</strong> treat self-reported as the truth-check on where demand originated and CRM multi-touch for the trackable path.</li>
+</ol>
+<p>This is also how you connect attribution back to <a href="/blog/how-to-measure-and-optimize-outbound-roi-gtm-engineering-metrics-that-matter">outbound ROI</a> and to the <a href="/blog/intent-data-b2b-outbound-buying-signals-2026">intent signals</a> that triggered the play in the first place.</p>
+
+<h2>Implementing It: Tools &amp; Tiers</h2>
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <thead>
+    <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+      <th style="padding:10px 12px;">Tool</th><th style="padding:10px 12px;">What it does</th><th style="padding:10px 12px;">Roughly</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;"><strong>HubSpot</strong></td><td style="padding:10px 12px;">Multi-touch <em>revenue</em> attribution reporting (all model types) — but it's gated to <strong>Marketing Hub Enterprise</strong>. Lower tiers get basic source / first- &amp; last-touch only.</td><td style="padding:10px 12px;">Enterprise ~$3,600/mo + onboarding (directional)</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;"><strong>Salesforce Campaign Influence</strong></td><td style="padding:10px 12px;">Native multi-touch via Customizable Campaign Influence. Splits credit across campaigns — but only if <strong>Contact Roles</strong> are on the opportunity. No contact role, no credit.</td><td style="padding:10px 12px;">Enterprise edition+ </td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;"><strong>Dreamdata</strong></td><td style="padding:10px 12px;">B2B-native pipeline/revenue attribution, account-level tracking</td><td style="padding:10px 12px;">Free tier; paid from ~$999/mo (directional)</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;"><strong>HockeyStack</strong></td><td style="padding:10px 12px;">Analytics + attribution + ABM/journey tracking</td><td style="padding:10px 12px;">From ~$1,200/mo (directional)</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;"><strong>Ruler Analytics</strong></td><td style="padding:10px 12px;">Lead-level tracking tying closed revenue to sources; multi-touch</td><td style="padding:10px 12px;">From ~$199/mo (directional)</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;"><strong>Adobe Marketo Measure</strong></td><td style="padding:10px 12px;">Enterprise MTA, deep Marketo/Salesforce integration</td><td style="padding:10px 12px;">~$40–60k+/yr, quote-only (directional)</td></tr>
+  </tbody>
+</table>
+<p>The market splits into roughly three tiers: free/self-serve, mid-market specialists ($300–$2,500/mo), and quote-only enterprise ($3,000/mo+). Pick based on data volume and where your <a href="/blog/revops-tech-stack-essential-tools-2026">RevOps stack</a> already lives — and don't buy an attribution platform you can't feed clean data. If you're on a starter CRM, a first-/last-touch view plus a self-reported field beats an expensive tool fed by messy inputs.</p>
+
+<h2>Which Model Should You Use?</h2>
+<ul>
+  <li><strong>Short, single-channel, transactional sales →</strong> last-touch is fine.</li>
+  <li><strong>Early stage, starter CRM, want directional insight →</strong> first-touch + last-touch, plus a "How did you hear about us?" field.</li>
+  <li><strong>Long cycles with buying committees (typical B2B) →</strong> Linear or W-shaped multi-touch.</li>
+  <li><strong>Demand creation / outbound is core →</strong> favor first-touch or W-shaped so early work gets credit; avoid time-decay.</li>
+  <li><strong>Sales-led closing dominates, need full lifecycle →</strong> full-path.</li>
+  <li><strong>High volume + clean data + engineering support →</strong> data-driven/algorithmic.</li>
+  <li><strong>A lot of your journey is dark (almost everyone) →</strong> run hybrid: multi-touch + self-reported + signal-based, with self-reported as the tiebreaker.</li>
+</ul>
+<p>Whichever you choose, attribution is a RevOps discipline, not a one-time setting — it lives alongside your <a href="/blog/revops-dashboard-metrics-how-to-build-2026">RevOps dashboard</a> and the broader operating model in the <a href="/blog/revops-complete-guide-what-is-revenue-operations-2026">complete guide to RevOps</a>.</p>
+
+<h2>Frequently Asked Questions</h2>
+<h3>What is multi-touch attribution?</h3>
+<p>Multi-touch attribution splits credit for a conversion across all the touchpoints in a buyer's journey rather than assigning it to one, using a model like linear, time-decay, U-shaped, W-shaped, or full-path. It suits B2B because deals involve many interactions across multiple people, so crediting a single touch misrepresents what actually drove the revenue.</p>
+<h3>First-touch vs last-touch attribution — what's the difference?</h3>
+<p>First-touch gives 100% of the credit to the first interaction, which is useful for measuring what creates awareness and demand. Last-touch gives 100% to the final interaction before conversion — useful for short cycles, but it over-credits demo forms and branded search and hides everything that generated the demand earlier in the journey.</p>
+<h3>What's the best attribution model for B2B?</h3>
+<p>There's no single best model, but for typical B2B — long cycles and buying committees of 6–10 people — a multi-touch model such as W-shaped or linear, combined with self-reported attribution, is the current best-practice consensus. Single-touch models are too simplistic for committee-based buying.</p>
+<h3>How do you attribute outbound like cold email, SDR, and LinkedIn touches?</h3>
+<p>Log every outbound touch into the CRM so it's eligible for credit, use a model that rewards early demand-creation touches (linear or W-shaped, not last-touch), and add self-reported attribution to catch what tracking misses. Outbound often starts deals that later look like "direct" or "organic," so a blended self-reported plus CRM approach is essential to credit it fairly.</p>
+<h3>Does HubSpot do revenue attribution?</h3>
+<p>Yes, but multi-touch revenue attribution reporting requires Marketing Hub Enterprise. Lower tiers offer basic contact-level source and first-/last-touch data. On Enterprise, HubSpot supports first-touch, last-touch, linear, U-shaped, W-shaped, time-decay, and full-path models.</p>
+<h3>Single-touch vs multi-touch attribution — which should I use?</h3>
+<p>Single-touch is simple and available everywhere but assigns all credit to one interaction, which misleads in B2B. Multi-touch spreads credit across the journey and reflects reality far better, at the cost of cleaner data and better tooling. For most B2B, use multi-touch; reserve single-touch for very short, single-channel sales.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+<p><strong>Want attribution that finally gives outbound the credit it earns?</strong> GenFlows builds the RevOps plumbing — CRM touch logging, multi-touch models, and self-reported capture — so you can see which channels actually create pipeline. <a href="/blog/revops-complete-guide-what-is-revenue-operations-2026">Start with the RevOps guide</a> or <a href="/">talk to our team</a>.</p>
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. Committee-size and journey stats are from Gartner's B2B buying research; tool pricing is "starting around," subject to change, and often quote-only; dark-funnel percentages vary by source and are directional. This is operational guidance, not financial advice. Last updated July 2026.</em></p>

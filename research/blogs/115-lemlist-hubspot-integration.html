@@ -1,0 +1,131 @@
+<!-- TITLE TAG: lemlist HubSpot Integration: Setup & Limits (2026) -->
+<!-- META: How the lemlist HubSpot integration works in 2026: OAuth setup, per-field sync direction, what activity logs as emails vs notes, gaps, and a reply-to-deal fix. -->
+<!-- SLUG: blog/lemlist-hubspot-integration-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+<p style="margin:0 0 10px;color:#e8732b;font-weight:700;text-transform:uppercase;letter-spacing:.04em;font-size:13px;">TL;DR</p>
+<ul style="margin:0;padding-left:20px;">
+<li><strong>lemlist has a native, bi-directional HubSpot integration.</strong> A HubSpot admin connects it with OAuth, and you choose the sync direction field by field.</li>
+<li><strong>Sends and replies log to HubSpot as Email objects.</strong> Opens, clicks, bounces and &ldquo;interested&rdquo; markers log as Notes, because HubSpot does not let third-party apps store them as emails.</li>
+<li><strong>Only one lemlist team can connect to one HubSpot account.</strong> Plan your workspace structure before you link.</li>
+<li><strong>The native docs do not describe reply-triggered deals, tasks or lifecycle changes.</strong> For that, use lemlist webhooks into n8n, Make, Zapier or a HubSpot workflow.</li>
+<li><strong>Manual unsubscribes do not sync to HubSpot.</strong> Only self-unsubscribes do, so set your own suppression property.</li>
+</ul>
+</div>
+
+<p>lemlist sends the emails and LinkedIn touches. HubSpot is where your reps, reports and attribution live. If a reply sits in lemlist and never becomes a task or a deal in HubSpot, the pipeline looks emptier than it is and good leads go cold.</p>
+
+<p>This guide covers what the native integration does, what lands in HubSpot as what, where the documentation stops, and how to close the gaps. We have covered the same ground for <a href="/blog/smartlead-hubspot-integration-2026">Smartlead and Instantly</a> and for <a href="/blog/heyreach-hubspot-integration-2026">HeyReach</a>. For the wider data-model question, start with our guide to <a href="/blog/sync-cold-email-linkedin-data-hubspot-2026">syncing cold email and LinkedIn data into HubSpot</a>.</p>
+
+<p><em>Sourcing note: behaviour below comes from lemlist&rsquo;s help center and integration page and HubSpot&rsquo;s developer docs, read in October 2026. Where lemlist does not document something, we say &ldquo;not documented&rdquo; instead of guessing. Items marked (directional) come from marketing pages or third-party summaries; confirm them in your own account.</em></p>
+
+<h2>The Short Answer</h2>
+
+<p>Use the native integration for what it does well: importing HubSpot lists into lemlist, mapping fields, and logging email and LinkedIn activity on the contact timeline. Add a webhook flow only for the actions it does not document, such as creating a deal or task when a lead replies or is marked interested.</p>
+
+<h2>How to Set It Up</h2>
+
+<ol>
+<li><strong>Connect with OAuth.</strong> In lemlist, go to Settings &gt; Integrations and start the HubSpot connection. lemlist says it does not store your HubSpot credentials. A HubSpot admin has to authorize it.</li>
+<li><strong>Map users.</strong> Each lemlist sender maps to a HubSpot user, manually or by matching email. Several lemlist users can map to one HubSpot user, but not the other way round. Tasks and ownership depend on this step.</li>
+<li><strong>Choose sync direction per field.</strong> Options are HubSpot priority, lemlist priority, bi-sync or deactivate. lemlist recommends HubSpot as the source of truth, and so do we.</li>
+<li><strong>Set mandatory properties and defaults.</strong> Mandatory properties block contact or company creation until filled. Default values apply to the Contact, Company or Deal records lemlist creates.</li>
+<li><strong>Import your first list.</strong> Pull from an active HubSpot list or contact view. Contacts that existed before you linked must be imported manually.</li>
+<li><strong>Pick which activities sync,</strong> then test with one contact before you launch a campaign.</li>
+</ol>
+
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:14px 18px;margin:20px 0;border-radius:6px;">
+<p style="margin:0;"><strong>Two setup traps.</strong> Field mapping is not retroactive: records imported and campaigns launched before you map a field will not backfill. And imports only pull fields that are visible as columns in the HubSpot list view, so add the columns first.</p>
+</div>
+
+<h2>What lemlist Writes to HubSpot</h2>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;"><th style="padding:10px 12px;">lemlist activity</th><th style="padding:10px 12px;">Appears in HubSpot as</th></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Email sent, email replied</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Email</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Open, click, bounce, failure</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Note</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Self-unsubscribe, interested / not interested</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Note</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">LinkedIn message sent or replied</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">LinkedIn Message</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">LinkedIn visit, invite sent, invite accepted</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Note</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Calls</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Call</td></tr>
+</table>
+
+<p>Activities attach only to a HubSpot contact with a matching email address. Calls need the contact to exist first; otherwise the call waits and syncs once the contact appears. Call notes are capped at 65,000 characters, with the transcript cut first, and are overwritten on each refresh, so edits made in HubSpot are lost.</p>
+
+<h3>Why this matters for reporting</h3>
+<p>Because opens and clicks are Notes, they will not show in HubSpot&rsquo;s email reporting or sequence metrics. If your dashboard counts &ldquo;emails sent&rdquo; or &ldquo;replies,&rdquo; those come through; engagement does not. Build engagement reporting from lemlist, or log it as a property. See our <a href="/blog/revops-dashboard-metrics-how-to-build-2026">RevOps dashboard guide</a> for what to report where.</p>
+
+<h2>Duplicates and Sync Speed</h2>
+
+<p>lemlist checks existing contacts by email and existing companies by domain or name before creating records. Its troubleshooting guide adds that matching can use email, LinkedIn URL or company domain, and that contacts without a valid identifier may not match. Merge and conflict behaviour beyond that is not documented, so keep your own hygiene rules; see <a href="/blog/crm-data-hygiene-outbound-teams-2026">CRM data hygiene for outbound teams</a>.</p>
+
+<p>lemlist says sync typically takes 2 to 10 minutes, can lag under heavy volume, and suggests waiting up to 30 minutes at scale before contacting support after an hour. Errors show in Settings &gt; Integrations &gt; HubSpot &gt; Logs. Two you will see: <code>CONTACT_FIND_FIRST</code> (the contact must exist in HubSpot, so enable creation or add it) and a deal-not-found error when a synced deal does not exist in lemlist.</p>
+
+<h2>What Is Not Covered (and the Fix)</h2>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;"><th style="padding:10px 12px;">Gap</th><th style="padding:10px 12px;">Status in lemlist docs</th><th style="padding:10px 12px;">What to do</th></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Reply creates a deal or task</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Not documented (deal creation is set per campaign)</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Webhook flow, or HubSpot workflow on the logged reply</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">&ldquo;Interested&rdquo; updates lifecycle stage</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Not documented</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Webhook flow that sets the property</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Manual unsubscribe to HubSpot opt-out</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Not supported</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Set a suppression property yourself and exclude it from lists</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Past changes before mapping</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Not retroactive</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Re-import or backfill with a one-off script</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Several lemlist teams on one HubSpot</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Not supported</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Run one team, or use webhooks per team</td></tr>
+</table>
+
+<h2>Native vs Webhook Flow</h2>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;"><th style="padding:10px 12px;"></th><th style="padding:10px 12px;">Native integration</th><th style="padding:10px 12px;">Webhook + n8n / Make / Zapier</th></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Setup</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">OAuth and a mapping screen</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">You build and maintain the flow</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Activity logging</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Built in</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Custom</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Reply to deal / task</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Not documented</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes, you build it</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Dedupe</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Email, domain or name matching</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Search, then upsert, yourself</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Latency</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Typically 2 to 10 minutes</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Near real time</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Rate limits</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Handled by lemlist</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Your HubSpot API limits</td></tr>
+</table>
+
+<p>lemlist webhooks send real-time callbacks for events such as replies and interested markers; check the live event list in lemlist&rsquo;s developer docs because the grouped event types are described differently across sources <em>(directional)</em>. If you build your own flow, HubSpot&rsquo;s documented limits apply to your app: a burst limit per 10 seconds (100 on Free and Starter, 190 on Professional and Enterprise) and a daily cap (250,000, 625,000 and 1,000,000 respectively) <em>(directional: read from a summary of HubSpot&rsquo;s usage guidelines; confirm on the page)</em>. Exceeding them returns 429 errors. Use a search-then-upsert pattern keyed on email, and compare tools in our <a href="/blog/n8n-vs-make-vs-zapier-gtm-automation-2026">n8n vs Make vs Zapier guide</a>.</p>
+
+<h2>A Reply-to-Deal Pattern That Works</h2>
+
+<ol>
+<li>lemlist fires a webhook when a lead replies or is marked interested.</li>
+<li>Your flow searches HubSpot by email. If the contact is missing, it creates one.</li>
+<li>It sets a property such as <code>outbound_status = Interested</code> and assigns the owner.</li>
+<li>A HubSpot workflow on that property creates the deal, the task and the Slack alert. We cover the workflow side in <a href="/blog/hubspot-workflow-automation-reply-handling-2026">reply handling with HubSpot workflows</a>.</li>
+<li>Routing and speed matter more than the tool: see <a href="/blog/lead-routing-speed-to-lead-2026">lead routing and speed to lead</a>.</li>
+</ol>
+
+<div style="background:#f4f7fb;border-left:4px solid #1f3a5f;padding:14px 18px;margin:20px 0;border-radius:6px;">
+<p style="margin:0;"><strong>Plan requirements.</strong> lemlist&rsquo;s configuration article does not state a required plan. Its pricing page appears to list CRM integrations on its paid email plans, and its integration page says it works with paid HubSpot plans <em>(directional)</em>. Check both before you commit. We cover lemlist&rsquo;s plans in <a href="/blog/lemlist-pricing-2026">lemlist pricing</a>.</p>
+</div>
+
+<h2>Should You Use lemlist for HubSpot-Centric Outbound?</h2>
+
+<p>lemlist&rsquo;s native HubSpot sync is its strength against sender-only tools: it logs email and LinkedIn activity and supports per-field sync direction. If you run high volume across many mailboxes, compare it with <a href="/blog/smartlead-vs-lemlist-cold-email-2026">Smartlead vs lemlist</a> and <a href="/blog/instantly-vs-lemlist-cold-email-2026">Instantly vs lemlist</a>. And if you are deciding whether to send from HubSpot itself, read <a href="/blog/hubspot-sequences-vs-cold-email-tools-2026">HubSpot Sequences vs cold email tools</a>.</p>
+
+<h2>Frequently Asked Questions</h2>
+
+<h3>How do I connect lemlist to HubSpot?</h3>
+<p>A HubSpot admin authorizes the connection with OAuth in lemlist under Settings &gt; Integrations, then a lemlist admin configures user and field mapping. One HubSpot account can link to only one lemlist team.</p>
+
+<h3>Does the lemlist HubSpot integration sync both ways?</h3>
+<p>Yes. You set the direction for each field: HubSpot priority, lemlist priority, bi-sync or off. lemlist recommends treating HubSpot as the source of truth.</p>
+
+<h3>What shows up in HubSpot from lemlist?</h3>
+<p>Sent emails and replies appear as Emails, and LinkedIn messages as LinkedIn Messages. Opens, clicks, bounces and interested markers appear as Notes, and calls sync as Calls.</p>
+
+<h3>Why are opens and clicks logged as Notes?</h3>
+<p>lemlist says HubSpot does not let third-party apps store opens and clicks as Email objects, so they are logged as Notes on the contact.</p>
+
+<h3>Does a reply create a deal or update the lifecycle stage?</h3>
+<p>The native docs we read do not describe it, though deal creation can be set per campaign. For reply-triggered deals, tasks or lifecycle changes, use lemlist webhooks with an automation tool or a HubSpot workflow.</p>
+
+<h3>Are unsubscribes and bounces synced to HubSpot?</h3>
+<p>Self-unsubscribes sync as Notes and bounces are logged as Notes. Manual additions to lemlist&rsquo;s Unsubscribe section are not pushed to the CRM, so set your own opt-out or suppression property.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+
+<p><strong>Want this wired up for you?</strong> We build cold email, LinkedIn and HubSpot RevOps systems end to end. Start with our <a href="/blog/sync-cold-email-linkedin-data-hubspot-2026">HubSpot data sync guide</a>, then <a href="/">talk to our team</a>.</p>
+
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. Vendor details were checked in October 2026 and change often; confirm on the vendor pages before building. Last updated October 2026.</em></p>

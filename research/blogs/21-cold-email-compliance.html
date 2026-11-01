@@ -1,0 +1,89 @@
+<!-- TITLE TAG: Cold Email Compliance Guide 2026: CAN-SPAM, GDPR & Bulk Sender Rules -->
+<!-- META: Is cold email legal in 2026? Yes — if you follow three rulebooks. A practitioner's guide to CAN-SPAM, GDPR legitimate interest, CASL, and the Google/Yahoo/Microsoft bulk sender requirements, with a compliance checklist. -->
+<!-- SLUG: blog/cold-email-compliance-guide-gdpr-can-spam-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+  <strong style="display:block;text-transform:uppercase;letter-spacing:.04em;font-size:13px;color:#e8732b;margin-bottom:8px;">TL;DR</strong>
+  <ul style="margin:0;padding-left:20px;">
+    <li>B2B cold email is <strong>legal in 2026</strong> — but you're answering to three rulebooks at once: the law (CAN-SPAM, GDPR, CASL), the mailbox providers (Google/Yahoo/Microsoft bulk sender rules), and the recipient's patience.</li>
+    <li><strong>US:</strong> no consent required, but every email needs accurate headers, a physical address, and a working opt-out. Violations run up to <strong>~$53,088 per email</strong>.</li>
+    <li><strong>EU/UK:</strong> cold B2B email is possible under GDPR's <strong>legitimate interest</strong> basis — if the outreach is relevant to the recipient's role and you've documented a Legitimate Interest Assessment. Fines reach €20M or 4% of global turnover. Several countries (notably Germany) are stricter than GDPR baseline.</li>
+    <li><strong>Providers:</strong> since Feb 2024 (tightened Oct 2025), bulk senders need SPF + DKIM + aligned DMARC, one-click unsubscribe (RFC 8058), and spam complaints under <strong>0.1%</strong> (0.3% = enforcement). Microsoft joined with hard rejections in May 2025.</li>
+    <li>Below: each regime in plain English, the per-country nuances, and a pre-send checklist.</li>
+  </ul>
+</div>
+
+<p>"Is cold email legal?" is the wrong question — it's legal almost everywhere, under conditions. The right question is "which of the three rulebooks am I about to break?" Legal compliance keeps you from fines; provider compliance keeps you out of the spam folder; and list discipline keeps the first two achievable. This guide covers the law and the provider rules; the infrastructure side (domains, warmup, DNS) lives in our <a href="/blog/cold-email-infrastructure-deliverability">cold email infrastructure guide</a>.</p>
+<p><em>The usual disclaimer: this is practitioner guidance, not legal advice — for regulated industries or large EU campaigns, run your setup past counsel.</em></p>
+
+<h2>The Three Rulebooks at a Glance</h2>
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <thead>
+    <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+      <th style="padding:10px 12px;">Regime</th><th style="padding:10px 12px;">Consent needed?</th><th style="padding:10px 12px;">Core requirements</th><th style="padding:10px 12px;">Penalty for getting it wrong</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;"><strong>CAN-SPAM (US)</strong></td><td style="padding:10px 12px;">No</td><td style="padding:10px 12px;">Accurate headers, no deceptive subject, physical address, opt-out honored ≤10 days</td><td style="padding:10px 12px;">Up to ~$53,088 per email</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;"><strong>GDPR + ePrivacy (EU/UK)</strong></td><td style="padding:10px 12px;">No, if legitimate interest holds</td><td style="padding:10px 12px;">Documented LIA, role-relevant outreach, disclosure of data source, easy objection</td><td style="padding:10px 12px;">Up to €20M or 4% of global turnover</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;"><strong>CASL (Canada)</strong></td><td style="padding:10px 12px;">Yes (express or implied)</td><td style="padding:10px 12px;">Implied consent via published business contact + relevance; ID + unsubscribe</td><td style="padding:10px 12px;">Up to CA$10M per violation</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;"><strong>Google/Yahoo/Microsoft</strong></td><td style="padding:10px 12px;">n/a</td><td style="padding:10px 12px;">SPF + DKIM + aligned DMARC, one-click unsub, spam rate &lt;0.1%</td><td style="padding:10px 12px;">Rejection/spam-foldering (Microsoft: 550 5.7.15)</td></tr>
+  </tbody>
+</table>
+
+<h2>CAN-SPAM: The US Baseline</h2>
+<p>The US is the most permissive major market: no prior consent needed for commercial email. What CAN-SPAM does demand, in every single message:</p>
+<ul>
+  <li><strong>Truthful headers and sender identity.</strong> Your "from" name and reply address must be real. Spoofing or misleading sender names is the fastest route to liability.</li>
+  <li><strong>No deceptive subject lines.</strong> "Re:" on a thread that doesn't exist and fake forwards are violations, not growth hacks — and they torch reply quality anyway (our <a href="/blog/cold-email-subject-lines-that-get-opens-2026">subject line data</a> shows honest specificity wins).</li>
+  <li><strong>A physical postal address</strong> in the footer. A registered agent or virtual office address counts.</li>
+  <li><strong>A working opt-out, honored within 10 business days</strong> — and you can't charge, require login, or ask for anything beyond an email address to process it. Suppress the address permanently; that includes future campaigns from new domains.</li>
+</ul>
+<p>Each non-compliant email is a separate violation at up to ~$53,088 — a 1,000-send campaign is theoretical eight-figure exposure. In practice the FTC pursues egregious senders, but "we're too small to notice" is not a compliance strategy.</p>
+
+<h2>GDPR: Legitimate Interest, Done Properly</h2>
+<p>The persistent myth is that GDPR killed cold email in Europe. It didn't — it killed <em>lazy</em> cold email. B2B outreach to EU contacts generally runs on the <strong>legitimate interest</strong> lawful basis (Article 6(1)(f)), and it holds up when:</p>
+<ul>
+  <li><strong>The outreach is relevant to the recipient's professional role.</strong> Pitching a RevOps platform to a Head of RevOps passes; blasting the whole company directory does not. This is where a tight <a href="/blog/icp-definition-template-b2b-framework-2026">ICP definition</a> is literally a compliance control.</li>
+  <li><strong>You've documented a Legitimate Interest Assessment (LIA)</strong> — a short written three-part test (purpose, necessity, balancing) showing why your interest doesn't override their privacy rights. Do it once per campaign type, before sending.</li>
+  <li><strong>You disclose and enable rights.</strong> Say who you are, be able to explain where you got their data (they can ask under Article 14), and make objecting effortless. An objection is a permanent suppression, not a different sequence.</li>
+  <li><strong>You minimize data.</strong> Name, role, company, business email — enough to personalize relevantly. Scraping personal social profiles into your CRM weakens the balancing test.</li>
+</ul>
+<p><strong>Country nuance matters:</strong> ePrivacy rules layer on top of GDPR and vary by member state. Germany is the strictest (competition law effectively requires opt-in for email marketing — many senders route German prospects to LinkedIn instead, which is one more argument for a <a href="/blog/cold-email-vs-linkedin-outreach-b2b-2026">multi-channel view</a>); the Netherlands and the UK are workable under legitimate interest for corporate email addresses. Segment your sequences by country, not by continent.</p>
+
+<h2>The Provider Rulebook: Google, Yahoo, Microsoft</h2>
+<p>Since February 2024 — with requirements tightened again in October 2025 — the mailbox providers enforce what amounts to a private regulatory regime for anyone sending at volume (Google's bulk threshold: 5,000+/day to Gmail):</p>
+<ul>
+  <li><strong>Full authentication:</strong> SPF and DKIM passing, plus a DMARC policy whose domain <em>aligns</em> with your from-address. Microsoft began hard-rejecting unauthenticated bulk mail in May 2025 (bounce code 550 5.7.15).</li>
+  <li><strong>One-click unsubscribe (RFC 8058)</strong> via list-unsubscribe headers — Gmail renders it as a native button. Your sequencer should inject these headers; if it can't, change sequencers (our <a href="/blog/best-cold-email-software-smartlead-instantly-lemlist-apollo-2026">2026 software comparison</a> flags which ones handle this properly).</li>
+  <li><strong>Spam complaint rate under 0.3%</strong> — but treat <strong>0.1%</strong> as the real ceiling; sustained 0.3% means outright rejection. At cold-email volumes, one complaint per thousand sends is your budget. List quality is the only lever that reliably keeps you under it.</li>
+</ul>
+<p>Note the practical inversion: the law is why you won't get fined, but the provider rules are why you'll get <em>read</em>. A legally perfect campaign with 0.4% complaint rates is dead. Full setup lives in the <a href="/blog/cold-email-deliverability-in-2025-how-gtm-engineers-avoid-spam-filters-and-land-in-inbox">deliverability guide</a>.</p>
+
+<h2>The Pre-Send Compliance Checklist</h2>
+<ul>
+  <li>☐ SPF, DKIM, DMARC passing and aligned on every sending domain</li>
+  <li>☐ One-click unsubscribe headers active; plus a plain-text opt-out line in the copy</li>
+  <li>☐ Physical address in the footer</li>
+  <li>☐ Sender name and subject line honest (no fake "Re:")</li>
+  <li>☐ List segmented by country; Germany and other opt-in markets routed out of email</li>
+  <li>☐ LIA written and filed for EU/UK segments; data source answerable on request</li>
+  <li>☐ Global suppression list applied across all domains and sequencers, opt-outs processed ≤10 days</li>
+  <li>☐ Complaint rate monitored per domain against the 0.1% ceiling</li>
+</ul>
+
+<h2>Frequently Asked Questions</h2>
+<h3>Is cold email legal in 2026?</h3>
+<p>Yes, in most major markets. The US allows it without consent under CAN-SPAM's disclosure rules; the EU/UK allow relevant B2B outreach under GDPR's legitimate interest basis with a documented assessment; Canada requires express or implied consent under CASL. Germany is the notable near-exception, effectively requiring opt-in.</p>
+<h3>Do I need consent to cold email in Europe?</h3>
+<p>Not necessarily. For B2B outreach to corporate addresses, legitimate interest is the standard lawful basis — provided the pitch is relevant to the recipient's role, you've documented a Legitimate Interest Assessment, and objecting is easy. Some member states (Germany especially) layer stricter national rules on top.</p>
+<h3>What are the Google and Yahoo bulk sender requirements?</h3>
+<p>For senders over 5,000 emails/day: SPF and DKIM authentication with an aligned DMARC policy, one-click unsubscribe via RFC 8058 headers, and spam complaint rates kept below 0.3% (with 0.1% as the working target). The rules took effect February 2024 and were tightened in October 2025; Microsoft enforces equivalents since May 2025.</p>
+<h3>Does CAN-SPAM apply to B2B email?</h3>
+<p>Yes — CAN-SPAM covers all commercial email regardless of whether the recipient is a business or consumer. Every message needs accurate sender information, a physical address, and a working opt-out honored within 10 business days.</p>
+<h3>Can I keep emailing someone who didn't reply?</h3>
+<p>Legally, yes (in the US and under legitimate interest in the EU) until they opt out or object — but a silent prospect after a full sequence belongs in a re-engagement cycle, not perpetual touches. Our <a href="/blog/cold-email-follow-up-sequences-cadence-templates-2026">follow-up cadence guide</a> covers where persistence stops paying.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+<p><strong>Want outbound that's compliant by construction?</strong> GenFlows builds campaigns with authentication, suppression, and country routing baked in — so scale never comes at the cost of the sender reputation. <a href="/blog/cold-email-infrastructure-deliverability">See how we build the infrastructure</a> or <a href="/">talk to our team</a>.</p>
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. Practitioner guidance, not legal advice. Last updated July 2026.</em></p>

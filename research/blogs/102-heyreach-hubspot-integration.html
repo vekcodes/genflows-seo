@@ -1,0 +1,136 @@
+<!-- TITLE TAG: HeyReach HubSpot Integration: Setup, Fields & Gaps -->
+<!-- META: How the HeyReach HubSpot integration works: OAuth setup, triggers, the email requirement, what it logs, why it won't create contacts, and webhook fallbacks. -->
+<!-- SLUG: blog/heyreach-hubspot-integration-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+  <p style="color:#e8732b;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 10px;font-size:13px;">TL;DR</p>
+  <ul style="margin:0;padding-left:20px;">
+    <li style="margin-bottom:8px;"><strong>HeyReach's native HubSpot integration only updates existing contacts.</strong> It matches on email and, per HeyReach's own listing, "does not create new contacts in HubSpot."</li>
+    <li style="margin-bottom:8px;"><strong>A lead with no email is not synced.</strong> HeyReach's help article says an email is required for the contact update. That is the biggest gap for LinkedIn-sourced leads.</li>
+    <li style="margin-bottom:8px;"><strong>Setup is OAuth in a few clicks,</strong> and HeyReach creates its own property group in HubSpot covering attribution, exposure, engagement and intent.</li>
+    <li style="margin-bottom:8px;"><strong>It is not retroactive.</strong> Only activity after you connect is logged, and agencies must connect HubSpot separately in each workspace.</li>
+    <li style="margin-bottom:0;"><strong>For leads without email, use webhooks or Clay.</strong> Key the HubSpot record on the LinkedIn profile URL and create the contact yourself.</li>
+  </ul>
+</div>
+
+<p>LinkedIn outreach produces some of the best conversations in outbound, and some of the worst data hygiene. Replies sit inside the LinkedIn automation tool, reps work in HubSpot, and unless the two are connected, the pipeline report cannot tell you which deals started on LinkedIn.</p>
+
+<p>HeyReach is one of the tools most agencies use for multi-account LinkedIn sending, and it has a native HubSpot integration. This guide explains what that integration does, the limits that catch teams out, and what to build when it is not enough. For the email side of the same problem, see our <a href="/blog/smartlead-hubspot-integration-2026">Smartlead and Instantly HubSpot integration guide</a>.</p>
+
+<p><em>Sourcing note: HeyReach behaviour below comes from HeyReach's help article and its HubSpot Marketplace listing, both read on 5 October 2026. The two sources disagree in places, and we say where. Plan and price details can be stale, so confirm in your account. Anything we could not confirm is marked <strong>(directional)</strong>, and build patterns are our own recommendation.</em></p>
+
+<h2>The Short Answer</h2>
+<p>Use the native integration when your LinkedIn leads already exist in HubSpot with an email address, for example leads you enriched in Clay before the campaign. Use a webhook flow or Clay in the middle when leads come from LinkedIn searches with no email, because the native sync will skip them and will never create the contact. Many agencies run both: native for rich timeline activity, webhooks for everything the native route cannot reach.</p>
+
+<h2>Native vs Webhook vs Clay at a Glance</h2>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+    <th style="padding:10px 12px;">Route</th>
+    <th style="padding:10px 12px;">Needs email?</th>
+    <th style="padding:10px 12px;">Creates contacts?</th>
+    <th style="padding:10px 12px;">What you get</th>
+    <th style="padding:10px 12px;">Best for</th>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Native HeyReach integration</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No, updates only</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Custom properties plus timeline activity</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Leads already in HubSpot with email</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Webhook + Zapier, Make or n8n</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No, if keyed on LinkedIn URL</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes, you build it</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Whatever you map: notes, properties, deals</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Email-less leads, real-time deal creation</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Clay in the middle</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Enriched in the table</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Enriched, deduped record before HubSpot</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Enrichment-heavy outbound</td>
+  </tr>
+</table>
+
+<h2>How the Native Integration Works</h2>
+
+<h3>Setup</h3>
+<p>In HeyReach, open Integrations, click the HubSpot card (labelled Beta in the help article), click Connect and complete HubSpot's OAuth screen. There is no API key. HeyReach then creates a custom property group in your HubSpot account.</p>
+
+<h3>Triggers</h3>
+<p>You choose when a lead syncs. HeyReach's help article lists two triggers: when a lead is added to a campaign, and when a reply is received. The HubSpot Marketplace listing describes three, adding "when added to a list" and calling first reply the recommended default. The two sources disagree, so check which options your account shows. If you want the fewest false records in HubSpot, sync on reply rather than on campaign add.</p>
+
+<h3>What gets written</h3>
+<p>The integration adds properties in four groups, according to HeyReach's help article:</p>
+<ul>
+  <li><strong>Attribution:</strong> first touch date and the first campaign.</li>
+  <li><strong>Exposure:</strong> how many campaigns the lead is in and the last sender.</li>
+  <li><strong>Engagement:</strong> reply status, reply count and timing.</li>
+  <li><strong>Intent:</strong> sentiment direction from HeyReach's auto-tagging.</li>
+</ul>
+<p>The marketplace listing says the property group holds 20 fields. The help article also says ten event types can be logged to the contact timeline, including connection requests, messages, replies, campaign additions and sends from third-party tools. Per the listing, message content is saved as notes.</p>
+
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:14px 18px;margin:18px 0;border-radius:6px;">
+  <p style="margin:0;"><strong>The requirement that trips teams up:</strong> HeyReach's help article states that a lead must have an email assigned for the contact update, and its listing says HeyReach "does not create new contacts in HubSpot." A prospect found on LinkedIn with no email will not appear in HubSpot at all.</p>
+</div>
+
+<h2>Limits to Plan Around</h2>
+<ul>
+  <li><strong>Not retroactive.</strong> Only activity after you connect is synced, so connect before launching campaigns, not after.</li>
+  <li><strong>Deleted contacts stay deleted.</strong> If you remove a contact in HubSpot, later HeyReach triggers will not recreate it.</li>
+  <li><strong>One connection per workspace.</strong> Agencies running client workspaces must authorize HubSpot separately in each one, which also keeps client data isolated.</li>
+  <li><strong>One-way sync.</strong> The help article describes HeyReach to HubSpot. The listing calls it bidirectional because HubSpot lists can be used as campaign sources, which is a separate feature from the activity sync.</li>
+  <li><strong>Plan gating.</strong> The help article does not name a plan. The listing says Growth, Agency or Unlimited, with Growth shown at $79 per seat monthly or $59.25 billed yearly <strong>(directional, may be stale)</strong>. See our <a href="/blog/heyreach-pricing-2026">HeyReach pricing guide</a> for current plans.</li>
+</ul>
+
+<h2>When Leads Have No Email: Webhooks</h2>
+<p>HeyReach supports webhooks for events such as connection request accepted, message reply received, InMail replies, tags and profile views. A third-party guide from OutboundSync lists the events and notes that each webhook covers one event and a campaign, that failed deliveries are retried up to five times in 24 hours, and that there are no user-facing webhook logs <strong>(directional, third-party source)</strong>. Build your own alerting for failures.</p>
+<p>A reliable pattern, which is our recommendation rather than HeyReach documentation:</p>
+<ol>
+  <li><strong>Trigger:</strong> a connection-accepted or reply-received webhook into n8n, Make or Zapier. Use the every-reply event or the first-reply event, not both, to avoid double logging.</li>
+  <li><strong>Create a unique property</strong> in HubSpot called "LinkedIn Profile URL" with unique values required. HubSpot allows up to 10 unique-value custom properties per object, and the setting can only be chosen when the property is created.</li>
+  <li><strong>Search then upsert:</strong> look up the contact by LinkedIn URL, then by email if you have one, and update or create.</li>
+  <li><strong>Log the activity</strong> as a note or engagement, and set source and campaign properties.</li>
+  <li><strong>Create a deal</strong> on a positive reply and assign an owner.</li>
+</ol>
+<p>We did not verify whether HubSpot's API upsert by property works with custom unique properties, so test with a throwaway contact <strong>(directional)</strong>. For picking the automation tool, see our <a href="/blog/n8n-vs-make-vs-zapier-gtm-automation-2026">n8n vs Make vs Zapier comparison</a>.</p>
+
+<h2>Clay in the Middle</h2>
+<p>If email coverage is your real problem, fix it upstream. Enrich the LinkedIn list in Clay, write a deduplicated record to HubSpot first, then send the lead to HeyReach. The native integration then has an email to match on, and the HeyReach properties land on a contact that already exists. Our guides to <a href="/blog/clay-heyreach-integration-push-leads-linkedin-2026">pushing Clay leads into HeyReach</a> and <a href="/blog/clay-hubspot-integration-sync-crm-2026">syncing Clay with HubSpot</a> cover each step.</p>
+
+<h2>Failure Modes to Test Before Launch</h2>
+<ul>
+  <li><strong>Silent skips.</strong> Leads without email vanish from the sync. Check the activity log in HeyReach for failures.</li>
+  <li><strong>Duplicate contacts.</strong> The native sync does not create contacts, so duplicates usually come from your own webhook flow creating without a unique key.</li>
+  <li><strong>Double logging.</strong> Enabling both every-reply and first-reply events writes the same reply twice.</li>
+  <li><strong>Wrong intent.</strong> The intent properties rely on HeyReach's auto-tagging, so review positive replies manually before routing deals.</li>
+  <li><strong>Multi-sender conflicts.</strong> The last sender is stored as a property. How conflicting updates behave when one lead sits in two senders' campaigns was not verified <strong>(directional)</strong>.</li>
+</ul>
+<p>Keep LinkedIn volume inside safe limits too: see our <a href="/blog/linkedin-outreach-limits-account-safety-2026">LinkedIn outreach limits guide</a> and the <a href="/blog/best-linkedin-automation-tools-heyreach-expandi-comparison-2026">LinkedIn automation tools comparison</a>. For the full cross-channel picture, read our <a href="/blog/sync-cold-email-linkedin-data-hubspot-2026">guide to syncing cold email and LinkedIn data into HubSpot</a>.</p>
+
+<h2>Frequently Asked Questions</h2>
+
+<h3>Does HeyReach create contacts in HubSpot?</h3>
+<p>No. HeyReach's HubSpot listing says it does not create new contacts. It updates existing HubSpot contacts matched by email, so the contact must already exist in HubSpot.</p>
+
+<h3>Do I need an email address for the HeyReach HubSpot sync?</h3>
+<p>Yes. HeyReach's help article says a lead must have an email assigned for the contact update, and leads without one are not synced. For email-less leads, use webhooks keyed on the LinkedIn profile URL, or enrich emails in Clay first.</p>
+
+<h3>What does the HeyReach HubSpot integration sync?</h3>
+<p>It writes custom properties for attribution, exposure, engagement and intent, and logs activities such as connection requests, messages, InMails and replies to the contact timeline. The sync runs one way, from HeyReach to HubSpot.</p>
+
+<h3>Is the HeyReach HubSpot sync retroactive?</h3>
+<p>No. Only activity after you connect the integration is synced. Connect HubSpot before launching campaigns, because earlier LinkedIn activity will not be backfilled.</p>
+
+<h3>How do I avoid duplicate contacts when syncing LinkedIn leads?</h3>
+<p>Create a unique-value custom property for the LinkedIn profile URL, search by it before creating a contact, and do not enable overlapping reply events. Email is HubSpot's default dedupe key where one exists.</p>
+
+<h3>Which HeyReach plan do I need for the HubSpot integration?</h3>
+<p>HeyReach's help article does not name a plan. The HubSpot Marketplace listing says Growth, Agency or Unlimited. Check HeyReach's current pricing page and your account before buying, since plans and prices change.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+<p><strong>Want LinkedIn replies showing up in HubSpot as real pipeline? Read our <a href="/blog/linkedin-outreach-cold-email-the-gtm-engineers-multi-channel-sales-playbook">multi-channel LinkedIn and cold email playbook</a>, or <a href="/">talk to our team</a> and we will build and run the cold email, LinkedIn and RevOps stack for you.</strong></p>
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. Integration details from HeyReach's help center and HubSpot Marketplace listing and HubSpot documentation, checked 5 October 2026. Build patterns are our own recommendation. Last updated October 2026.</em></p>

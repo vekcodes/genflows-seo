@@ -1,0 +1,125 @@
+<!-- TITLE TAG: Clay + HubSpot Integration (2026): Sync Data Cleanly -->
+<!-- META: How to sync Clay enriched data into HubSpot in 2026 without duplicates: the import + write-action workflow, dedup keys, field mapping and automation triggers. -->
+<!-- SLUG: blog/clay-hubspot-integration-sync-crm-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+  <strong style="display:block;text-transform:uppercase;letter-spacing:.04em;font-size:13px;color:#e8732b;margin-bottom:8px;">TL;DR</strong>
+  <ul style="margin:0;padding-left:20px;">
+    <li><strong>Clay's HubSpot integration is import + write actions, not a true two-way sync.</strong> You pull records in (with scheduled auto-update), enrich, then push values back with Create / Update / Create-association actions.</li>
+    <li><strong>The one rule that prevents duplicates:</strong> carry the <strong>HubSpot Record ID</strong> on every row and write back with <strong>Update keyed on that ID</strong> — never blind Create.</li>
+    <li><strong>The one rule that protects good data:</strong> turn on <strong>"Ignore blank values"</strong> on every write so failed enrichments don't wipe existing CRM fields.</li>
+    <li><strong>Never let Clay write owner or lifecycle-stage fields</strong> — those are owned by your CRM/marketing ops. Write enriched data to a dedicated property set instead.</li>
+    <li><strong>Writing to HubSpot consumes Clay Actions</strong>, and native CRM sync / HTTP API / webhooks sit on Clay's higher tiers <em>(directional — confirm on Clay's live pricing)</em>.</li>
+  </ul>
+</div>
+
+<p>Enriching leads in Clay is only half the job — the data has to land in your CRM cleanly, or you've just built a very expensive way to create duplicate contacts. This is where most Clay-to-HubSpot setups go wrong: they push enriched rows back with the wrong action, no dedup key, and blank-value overwrites turned on, and within a week the CRM is dirtier than before. This guide walks through the native Clay ↔ HubSpot integration the way a GTM engineer actually runs it — the import → enrich → write-back workflow, the dedup and field-mapping rules that keep it clean, and how to automate it.</p>
+
+<p><em>The integration mechanics, actions, and dedup behavior below are drawn from Clay's and HubSpot's official documentation. Clay's exact plan names, per-write credit costs, and which tier gates native auto-sync are from secondary pricing sources and are flagged directional — confirm them on Clay's live pricing page before budgeting.</em></p>
+
+<h2>The Short Answer</h2>
+<p>Import a <strong>filtered</strong> HubSpot list into a Clay table (not your whole portal), keep the <strong>HubSpot Record ID</strong> on every row, enrich, gate writes so only verified data goes back, then <strong>Update</strong> keyed on the Record ID with <strong>"Ignore blank values" on</strong>. Reserve <strong>Create</strong> for genuinely net-new records. Do that and you get clean, enriched CRM data with zero duplicates and no clobbered fields. Everything else in this guide is detail on top of those two rules. If you're new to Clay itself, start with the <a href="/blog/clay-workflow-automation-gtm-engineering-playbook">Clay workflow playbook</a> and <a href="/blog/clay-waterfall-enrichment-setup-step-by-step-2026">waterfall enrichment setup</a> first.</p>
+
+<h2>What the Native Integration Actually Does</h2>
+<p>Clay's HubSpot integration lets you import, create, update, and manage HubSpot objects directly from a Clay table. It supports <strong>contacts, companies, leads, deals, and custom objects</strong>. There are two families of actions:</p>
+<ul>
+  <li><strong>Read (HubSpot → Clay):</strong> a <em>Source</em> action imports objects (optionally filtered to a specific list or view), a <em>Lookup</em> action reads objects, and a <em>Find owner</em> action resolves owners by ID or email.</li>
+  <li><strong>Write (Clay → HubSpot):</strong> <em>Create object</em>, <em>Update object</em> (keyed on the HubSpot Object ID), <em>Create association</em> (links two objects), and <em>Retrieve associated objects</em>.</li>
+</ul>
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:14px 20px;margin:20px 0;border-radius:6px;">
+  <strong>The "two-way sync" caveat:</strong> Clay markets this as keeping "both systems current," but technically it's <em>scheduled import (auto-update) plus explicit write actions</em> — not a live bidirectional sync daemon. Changes flow on Clay's refresh cadence and when your write actions run, not instantly. Treat it as an orchestration you compose, not a single always-on "sync" toggle. <em>(directional — Clay's framing vs how it behaves)</em>
+</div>
+
+<h2>The Sync Workflow, Step by Step</h2>
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <thead>
+    <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+      <th style="padding:10px 12px;">#</th><th style="padding:10px 12px;">Step</th><th style="padding:10px 12px;">Action / setting</th><th style="padding:10px 12px;">Why</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;">1</td><td style="padding:10px 12px;">Connect HubSpot</td><td style="padding:10px 12px;">OAuth with minimal scopes</td><td style="padding:10px 12px;">Least-privilege, auditable</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;">2</td><td style="padding:10px 12px;">Import a filtered list</td><td style="padding:10px 12px;">Source/Lookup action, filtered to a HubSpot view</td><td style="padding:10px 12px;">Control cost; avoid stale full-portal syncs</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;">3</td><td style="padding:10px 12px;">Carry the Record ID</td><td style="padding:10px 12px;">Include the HubSpot Record ID column</td><td style="padding:10px 12px;">This is your dedup key for write-back</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;">4</td><td style="padding:10px 12px;">Enable Auto-update</td><td style="padding:10px 12px;">~24h refresh cadence</td><td style="padding:10px 12px;">Keeps Clay rows current with HubSpot</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;">5</td><td style="padding:10px 12px;">Enrich &amp; score</td><td style="padding:10px 12px;">Waterfall + formula columns; keep originals</td><td style="padding:10px 12px;">Compare enriched vs existing values</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;">6</td><td style="padding:10px 12px;">Gate the writes</td><td style="padding:10px 12px;">"Only run if" (e.g., email verified)</td><td style="padding:10px 12px;">No junk data into the CRM</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;">7</td><td style="padding:10px 12px;">Write back</td><td style="padding:10px 12px;"><strong>Update</strong> keyed on Record ID + <strong>Ignore blank values</strong> ON</td><td style="padding:10px 12px;">No dupes, no overwrites</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;">8</td><td style="padding:10px 12px;">Test small</td><td style="padding:10px 12px;">Run 5–10 rows, verify in HubSpot</td><td style="padding:10px 12px;">Catch mapping errors before scale</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;">9</td><td style="padding:10px 12px;">Scale &amp; automate</td><td style="padding:10px 12px;">Re-enable auto-update / add a HubSpot webhook trigger</td><td style="padding:10px 12px;">Ongoing, hands-off enrichment</td></tr>
+  </tbody>
+</table>
+
+<h2>Deduplication: The Record-ID Rule</h2>
+<p>Duplicates are the number-one failure mode, and they're entirely avoidable. The mechanics:</p>
+<ul>
+  <li><strong>Best path — Update keyed on Record ID.</strong> For rows imported with their HubSpot Record ID, use the <strong>Update</strong> action keyed on that ID. It writes to the exact existing object and creates nothing, so there's nothing to duplicate.</li>
+  <li><strong>When you only have email/domain — match before write.</strong> If a row has no Record ID (e.g., a net-new list), <em>Lookup/Find</em> the object first to resolve its ID, then Update. Reserve <strong>Create</strong> for records that genuinely don't exist.</li>
+  <li><strong>HubSpot's backstop.</strong> HubSpot auto-deduplicates <strong>contacts by the Email property</strong> and <strong>companies by domain</strong>, and Record ID works as a dedup key across contacts, companies, deals, tickets, and custom objects. So even a stray Create on an existing email usually merges — but don't rely on it: it won't protect against near-duplicate companies or non-email objects, and manual dedupe tooling needs Professional/Enterprise.</li>
+</ul>
+<p>"Match before write" is the whole game. This is the same hygiene discipline covered in our <a href="/blog/crm-data-hygiene-outbound-teams-2026">CRM data hygiene guide</a> — enrichment that creates duplicates is negative value.</p>
+
+<h2>Field Mapping: Write Rules That Protect Your CRM</h2>
+<p>Not every field should be written the same way. The difference between a clean sync and a corrupted CRM is per-field <em>write rules</em>:</p>
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <thead>
+    <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+      <th style="padding:10px 12px;">Clay column</th><th style="padding:10px 12px;">HubSpot property</th><th style="padding:10px 12px;">Write rule</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;">HubSpot Record ID</td><td style="padding:10px 12px;">(object ID)</td><td style="padding:10px 12px;"><strong>Dedup key</strong> — match/Update target, never overwritten</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;">Verified email</td><td style="padding:10px 12px;">email</td><td style="padding:10px 12px;">Only if verified; email is HubSpot's contact dedup key</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;">Company domain</td><td style="padding:10px 12px;">domain (company)</td><td style="padding:10px 12px;">Match key for companies; only-if-empty</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;">Job title</td><td style="padding:10px 12px;">jobtitle</td><td style="padding:10px 12px;">Only-if-empty (don't clobber rep-entered)</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;">LinkedIn URL</td><td style="padding:10px 12px;">linkedin_url (custom)</td><td style="padding:10px 12px;">Always (safe to refresh)</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;">Employee count</td><td style="padding:10px 12px;">numberofemployees</td><td style="padding:10px 12px;">Only-if-newer / only-if-empty</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;">Clay enrichment status</td><td style="padding:10px 12px;">clay_enriched_at (custom)</td><td style="padding:10px 12px;">Always (audit stamp)</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;">Lifecycle stage</td><td style="padding:10px 12px;">lifecyclestage</td><td style="padding:10px 12px;"><strong>Do not write</strong> from Clay (owned by CRM/marketing ops)</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;">Contact owner</td><td style="padding:10px 12px;">hubspot_owner_id</td><td style="padding:10px 12px;"><strong>Do not write</strong> (never overwrite ownership)</td></tr>
+  </tbody>
+</table>
+<p>Two settings make this safe: <strong>"Ignore blank values"</strong> on every write (so an empty enrichment never wipes a good field), and Clay's <strong>"Only run if"</strong> conditional logic to enforce only-if-empty / only-if-newer / only-if-verified rules. Writing enriched data into a <strong>dedicated property set</strong> keeps changes auditable and sensitive fields untouched. <em>(only-if-empty and only-if-newer patterns are documented by Clay; the dedicated-property-set convention is directional best practice.)</em></p>
+
+<h2>Automating It: Triggers &amp; Two Directions</h2>
+<p>Beyond scheduled auto-update, you can make enrichment event-driven:</p>
+<ul>
+  <li><strong>HubSpot workflow → Clay (enrich on new contact).</strong> A contact-based HubSpot workflow fires a <strong>webhook</strong> (email, company domain, Record ID) to a Clay webhook/table when a contact is created; Clay enriches and writes back. Clay also publishes a free HubSpot plugin for webhook-based record enrichment. <em>(directional)</em></li>
+  <li><strong>The round-trip effect.</strong> Once Clay writes a property back (say, a LinkedIn URL or a fit score), that property can itself trigger a downstream HubSpot workflow — enroll in a sequence, create a task, or set a lifecycle stage. Enrichment becomes the first domino in <a href="/blog/lead-routing-speed-to-lead-2026">routing</a>.</li>
+  <li><strong>Clay HTTP API + webhooks</strong> enable fully custom pipelines in both directions for teams that outgrow the native actions.</li>
+</ul>
+
+<h2>Credits, Cost &amp; Plan Gating</h2>
+<p>Writing to HubSpot isn't free of Clay's economy: writes are <strong>Actions</strong> (Clay separates <em>Data Credits</em> for buying third-party data from <em>Actions</em> for orchestration and sending data to integrations). Each action costs a small fraction of a cent, and Clay says most customers never hit their Actions ceiling. <em>(directional)</em> On plan gating: the base HubSpot integration requires Clay's Pro plan or higher (verified in Clay's docs), while native CRM auto-sync, HTTP API access, and webhooks are reported to sit on the Growth tier and above. <em>(directional — plan names, prices, and credit counts vary; confirm on Clay's live pricing page.)</em> For the full breakdown, see our <a href="/blog/clay-pricing-honest-review-plans-credits-costs-2026">honest Clay pricing review</a>.</p>
+
+<h2>Common Mistakes to Avoid</h2>
+<ul>
+  <li><strong>Create instead of Update</strong> for existing records → duplicates on every run.</li>
+  <li><strong>No dedup key</strong> — rows with no Record ID and no lookup-before-create.</li>
+  <li><strong>"Ignore blank values" left off</strong> → blank enrichments overwrite good data.</li>
+  <li><strong>Writing unverified emails</strong> — always gate on verification first.</li>
+  <li><strong>Overwriting owner / lifecycle / other trusted fields</strong> instead of using a dedicated property set.</li>
+  <li><strong>Syncing the entire portal</strong> instead of filtered rows → cost blowout and stale data.</li>
+  <li><strong>Leaving auto-update on while experimenting</strong> with Create/Update — test small, then re-enable.</li>
+</ul>
+
+<h2>When to Use n8n / Make Instead</h2>
+<p>Clay's native actions cover most CRM-sync needs. When you need conditional routing, custom dedup logic, or fan-out to several tools at once, route Clay's <strong>HTTP API column to an n8n (or Make) webhook</strong>, do the logic there, and let n8n write to the CRM — n8n can also push new leads and signals back into a Clay table. That's a deeper pattern covered in our <a href="/blog/clay-n8n-integration-automate-gtm-workflow-2026">Clay + n8n integration guide</a>. For choosing the CRM itself, see <a href="/blog/best-crm-b2b-outbound-hubspot-salesforce-pipedrive-attio-2026">best CRM for B2B outbound</a>.</p>
+
+<h2>Frequently Asked Questions</h2>
+<h3>Does Clay have a true two-way sync with HubSpot?</h3>
+<p>Not a live bidirectional sync. Clay imports HubSpot records with a scheduled auto-update (around every 24 hours) and pushes data back through explicit Create, Update, and Create-association actions. It's an import-plus-write-actions system you compose, not a single always-on sync toggle — changes flow on Clay's refresh cadence and when your write actions run, not instantly.</p>
+<h3>Will Clay create duplicate contacts in HubSpot?</h3>
+<p>Not if you use the Update action keyed on the HubSpot Record ID, or Lookup-then-Update on email/domain when you don't have the ID. Reserve Create for records that genuinely don't exist. HubSpot also auto-deduplicates contacts by email and companies by domain as a backstop, but you shouldn't rely on that alone — the Record-ID Update path is what actually prevents duplicates.</p>
+<h3>What is the dedup key for a Clay–HubSpot sync?</h3>
+<p>The HubSpot Record ID is the best dedup key because it targets an exact existing object for an Update. Email is HubSpot's native dedup key for contacts, and domain is the key for companies — use those to look up and resolve a Record ID when a row doesn't already carry one.</p>
+<h3>Does writing to HubSpot use Clay credits?</h3>
+<p>Yes. Writes to HubSpot count as Clay Actions (distinct from the Data Credits you spend buying third-party data), each costing a small fraction of a cent. Native CRM auto-sync, HTTP API access, and webhooks are reported to require Clay's higher tiers — confirm the current plan gating and prices on Clay's live pricing page.</p>
+<h3>Can I auto-enrich new HubSpot contacts with Clay?</h3>
+<p>Yes. Set up a contact-based HubSpot workflow that fires a webhook (email, company domain, Record ID) to Clay when a contact is created; Clay enriches the record and writes the values back. The newly written property can then trigger further HubSpot workflows, such as enrolling the contact in a sequence or setting a lifecycle stage.</p>
+<h3>How do I stop Clay from overwriting good CRM data?</h3>
+<p>Turn on "Ignore blank values" on every write so failed enrichments can't wipe existing fields, use Clay's "only run if" conditional rules (only-if-empty, only-if-newer, only-if-verified), never write owner or lifecycle-stage fields from Clay, and write enriched data into a dedicated set of custom properties so changes stay auditable.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+<p><strong>Want Clay-enriched data flowing into HubSpot without the duplicate mess?</strong> GenFlows builds the Clay → CRM plumbing — dedup keys, conditional write rules, and event-driven enrichment — so your pipeline stays clean and enriched. <a href="/blog/clay-workflow-automation-gtm-engineering-playbook">Start with the Clay playbook</a> or <a href="/">talk to our team</a>.</p>
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. Integration mechanics, actions, and dedup behavior are from Clay and HubSpot documentation; Clay's plan names, per-write credit costs, and the exact tier gating native auto-sync are from secondary pricing sources and are directional — confirm on Clay's live pricing page. Last updated July 2026.</em></p>

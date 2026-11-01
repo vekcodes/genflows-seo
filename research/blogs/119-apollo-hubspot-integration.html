@@ -1,0 +1,121 @@
+<!-- TITLE TAG: Apollo HubSpot Integration: Setup & Sync Rules (2026) -->
+<!-- META: How the Apollo HubSpot integration works in 2026: setup, push conditions, field mapping, overwrite rules, duplicates and fixes for failed syncs. -->
+<!-- SLUG: blog/apollo-hubspot-integration-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+<p style="margin:0 0 10px;color:#e8732b;font-weight:700;text-transform:uppercase;letter-spacing:.04em;font-size:13px;">TL;DR</p>
+<ul style="margin:0;padding-left:20px;">
+<li><strong>Apollo has two HubSpot integrations.</strong> &ldquo;HubSpot CRM&rdquo; is a two-way sync. &ldquo;HubSpot Data Enrichment&rdquo; only enriches existing records <em>(directional)</em>.</li>
+<li><strong>Set sync rules before you push anything.</strong> Push conditions, field mapping and overwrite behavior decide what lands in HubSpot and what gets replaced.</li>
+<li><strong>Protect good data with auto-fill.</strong> Overwrite replaces existing HubSpot values, and manual pushes ignore both rules.</li>
+<li><strong>Most failed syncs are mapping problems:</strong> read-only properties, mismatched dropdowns, multi-checkbox fields and unmapped phone types.</li>
+<li><strong>Apollo does not document some details we would want:</strong> the required plan tiers, the pull interval and rate limits. Test in a sandbox first.</li>
+</ul>
+</div>
+
+<p>Apollo is where many teams find leads and run first-touch sequences. HubSpot is where the pipeline, reporting and handoffs live. If the two are connected carelessly, reps overwrite each other&rsquo;s data and nobody trusts the funnel report. If they are connected on purpose, every reply and meeting shows up where deals are managed.</p>
+
+<p>We have covered the same connection for <a href="/blog/smartlead-hubspot-integration-2026">Smartlead and Instantly</a>, <a href="/blog/instantly-hubspot-integration-2026">Instantly on its own</a> and <a href="/blog/clay-hubspot-integration-sync-crm-2026">Clay</a>. This guide is the Apollo version, focused on the sync rules that cause the most damage when they are left on defaults. For Apollo&rsquo;s cost side, see our <a href="/blog/apollo-io-pricing-2026">Apollo.io pricing guide</a>.</p>
+
+<p><em>Sourcing note: this guide is based on summaries of Apollo&rsquo;s official help center articles read in October 2026. Apollo&rsquo;s knowledge base blocked direct page fetches during research, so every Apollo detail is marked (directional) or hedged. Check each one against the live article, and note where we say &ldquo;not documented.&rdquo;</em></p>
+
+<h2>The Short Answer</h2>
+
+<p>Connect HubSpot from Apollo&rsquo;s Integrations page as a HubSpot super admin, choose the CRM integration rather than data enrichment, and configure sync settings and field mapping before the first push. Use push conditions to send only qualified net-new contacts, set sensitive fields to auto-fill so Apollo never overwrites reps&rsquo; edits, and map stages one-to-one.</p>
+
+<h2>Two Integrations, Two Jobs</h2>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;"><th style="padding:10px 12px;"></th><th style="padding:10px 12px;">HubSpot CRM integration</th><th style="padding:10px 12px;">HubSpot Data Enrichment</th></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Direction</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Two-way sync</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Enrichment into HubSpot only</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Objects</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Contacts, accounts, deals, activities</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Existing HubSpot records</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Controls</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Push conditions, manual push, Push all / Pull all</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Enrichment overwrite rules</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Best for</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Teams running outbound sequences from Apollo</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Cleaning and filling an existing database</td></tr>
+</table>
+
+<p>If your goal is running sequences in Apollo and tracking deals in HubSpot, you want the CRM integration. If your sales team already works from HubSpot and you just want better firmographic data, the enrichment version is the lighter option. Apollo&rsquo;s own enrichment article (&ldquo;HubSpot Data Enrichment&rdquo;) should be checked before you decide, because our notes on it are thin.</p>
+
+<h2>Step-by-Step Setup</h2>
+
+<ol>
+<li><strong>Check permissions.</strong> You need to be a HubSpot super admin, plus have CRM edit permission or admin rights in Apollo <em>(directional)</em>.</li>
+<li><strong>Disconnect any other CRM.</strong> Apollo supports one connected CRM at a time <em>(directional)</em>.</li>
+<li><strong>Connect.</strong> In Apollo go to Integrations, click Connect next to HubSpot, sign in, choose the HubSpot account and click Connect app. The flow looks like OAuth, but the docs we saw never use that word.</li>
+<li><strong>Decide who owns the connection.</strong> Team sync lets one user be the primary connection under Settings &gt; Integrations &gt; HubSpot &gt; Authentication <em>(directional)</em>. Record ownership on push depends on whether the pushing user connected personal credentials or the team connection falls back.</li>
+<li><strong>Configure sync settings and mapping inside the setup window.</strong> Apollo says paid plans get a 6-hour window after enabling to configure everything, during which manual pulls are blocked <em>(directional)</em>.</li>
+<li><strong>Backfill if needed.</strong> Mappings only apply to records created or updated after you save, so use Push all or Pull all for existing data <em>(directional)</em>.</li>
+</ol>
+
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:14px 18px;margin:18px 0;border-radius:6px;"><strong>Not documented in what we could read:</strong> which Apollo plan tier unlocks CRM sync, which HubSpot tier is required, the pull interval, and any record caps or API rate limits. Do not promise a client any of these until you have checked your own accounts.</div>
+
+<h2>The Sync Settings That Matter</h2>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;"><th style="padding:10px 12px;">Setting</th><th style="padding:10px 12px;">What it does</th><th style="padding:10px 12px;">Watch out for</th></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Push conditions</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Decide which net-new contacts go to HubSpot (all, by stage, email status or custom field)</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Only affects net-new contacts; updates to existing contacts push automatically</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Auto-fill vs overwrite</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Auto-fill writes empty fields only; overwrite replaces differing values</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Manual pushes ignore both rules</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Activity sync</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Emails, tasks, notes, conversations and calls, each set up separately</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Only completed tasks push; activities need the parent record to exist first</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Stage mapping</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Map HubSpot Lifecycle stage or Lead status to Apollo stages</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Must be one-to-one; re-run Push/Pull all after renaming stages</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Owner mapping</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Sets the HubSpot owner on pushed records</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Depends on whose credentials push and on the sync user&rsquo;s &ldquo;Assign contact owner&rdquo; permission</td></tr>
+</table>
+
+<h3>Push conditions: send fewer, better contacts</h3>
+
+<p>Push conditions live under Edit Conditions on the Contacts, Accounts, Deals and Activities sync tabs. Options include pushing all new contacts or filtering by stage, email verification status or a custom field <em>(directional)</em>. For outbound, the safest default is pushing only contacts that reach a meaningful stage, such as replied or interested, instead of every prospect you save. Otherwise HubSpot fills with cold records that inflate your contact count and distort reporting. If you use an email-status filter, contacts without an email will not sync.</p>
+
+<h3>Auto-fill vs overwrite</h3>
+
+<p>Auto-fill writes only into empty HubSpot fields. Overwrite replaces existing values when Apollo has different data. One summary says overwrite is the default for mapped fields, but Apollo describes the setting in two places with different labels, so check the live UI <em>(directional)</em>. Our recommendation: use auto-fill for job title, phone and anything reps edit by hand, and reserve overwrite for fields Apollo should own, such as employee count or industry. Remember that a manual push ignores both rules, so train reps on that before they use it.</p>
+
+<h3>Activity sync</h3>
+
+<p>Emails, tasks, notes, conversations and calls are configured separately. Only completed tasks push, activity pushes are delayed by at least 10 minutes, and an activity needs its parent record to exist in HubSpot first <em>(directional)</em>. That last rule is why a restrictive push condition can leave you with replies that never appear on a HubSpot timeline.</p>
+
+<h2>Stages, Lifecycle and Ownership</h2>
+
+<p>You can map HubSpot Lifecycle stage or Lead status to Apollo stages <em>(directional)</em>. The mapping must be one-to-one: mapping one HubSpot status to several Apollo stages breaks the sync. If anyone renames, adds or deletes a HubSpot stage, update the Apollo mapping and run Push all or Pull all. Our <a href="/blog/hubspot-deal-stages-outbound-teams-2026">HubSpot deal stages guide for outbound teams</a> covers designing the stages themselves.</p>
+
+<p>Apollo sequence stage triggers can move a contact&rsquo;s stage when an email is delivered or a reply comes in, and by default contacts in the Replied, Interested, Do Not Contact and Bad Data stages are excluded from sequence sends <em>(directional)</em>. Combining a reply trigger with a push-by-stage condition is a sensible way to get replies into HubSpot, but no Apollo page we saw states that pairing explicitly, so test it. Owner changes in HubSpot reach Apollo only if the sync user&rsquo;s permission profile allows assigning contact owners <em>(directional)</em>. Pair this with <a href="/blog/lead-routing-speed-to-lead-2026">fast lead routing</a> so a positive reply reaches a human quickly.</p>
+
+<h2>Duplicates and Data Hygiene</h2>
+
+<p>HubSpot allows one contact per email address. If a contact already exists, Apollo skips creating a duplicate and logs the event in the integration error log <em>(directional)</em>. Companies behave differently: Apollo mirrors HubSpot duplicates and does not auto-merge them. Merge and deletion sync settings can carry HubSpot merges and deletions into Apollo. Clean duplicate companies in HubSpot before the first big push; our <a href="/blog/crm-data-hygiene-outbound-teams-2026">CRM data hygiene guide</a> has a checklist.</p>
+
+<h2>Troubleshooting Failed Syncs</h2>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;"><th style="padding:10px 12px;">Symptom</th><th style="padding:10px 12px;">Likely cause</th><th style="padding:10px 12px;">Fix</th></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Mapped field never fills</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Read-only HubSpot property</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Map to an editable property</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Dropdown value rejected</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Value does not match a HubSpot option exactly</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Align option labels in both systems</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Field type fails</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Multi-checkbox fields are not supported</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Use a single-select or text property</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Phone numbers missing</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Phone type has no mapped HubSpot property</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Map each Apollo phone type separately</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>New pull rule ignored old records</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Conditions apply to new records only</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Run Pull all</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Contact not created</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">HubSpot already has that email</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Check the integration error log</td></tr>
+</table>
+
+<p>Errors surface in Settings &gt; Integrations &gt; All integrations &gt; HubSpot &gt; Error logs <em>(directional)</em>. A stale mapping keeps failing until you remove or replace it, so clear out old mappings whenever HubSpot properties change.</p>
+
+<h2>Where Apollo Sits in a Full Outbound Stack</h2>
+
+<p>Apollo is a data source and sequencer. Many teams pair it with a dedicated cold email platform for deliverability or send LinkedIn outreach from a separate tool, which means leads can end up in HubSpot from three places. Decide up front which system is the source of truth for each property, and read our guide to <a href="/blog/sync-cold-email-linkedin-data-hubspot-2026">syncing cold email and LinkedIn data into HubSpot</a> before you add a second feeder. If HubSpot&rsquo;s own sequences are in the mix, see <a href="/blog/hubspot-sequences-vs-cold-email-tools-2026">HubSpot Sequences vs cold email tools</a>, and once replies start flowing, use a <a href="/blog/how-to-handle-cold-email-replies-objection-handling-2026">reply-handling process</a> so they do not sit unanswered. Teams that use Close instead of HubSpot should read the <a href="/blog/close-crm-cold-email-integration-2026">Close cold email integration guide</a>.</p>
+
+<h2>Frequently Asked Questions</h2>
+
+<h3>Can I connect Apollo to HubSpot and Salesforce at the same time?</h3>
+<p>No. Apollo&rsquo;s help center says only one CRM can be connected at a time, so disconnect Salesforce before connecting HubSpot <em>(directional)</em>.</p>
+<h3>Who can set up the Apollo HubSpot integration?</h3>
+<p>A HubSpot super admin who also has CRM edit permission or admin rights in Apollo <em>(directional)</em>. Confirm the exact requirement on Apollo&rsquo;s current setup article.</p>
+<h3>Will Apollo overwrite my existing HubSpot data?</h3>
+<p>It can. Mapped fields use an auto-fill rule (empty fields only) or an overwrite rule, and manual pushes ignore both <em>(directional)</em>. Set protected fields to auto-fill before you turn on sync.</p>
+<h3>Does Apollo create duplicate contacts in HubSpot?</h3>
+<p>HubSpot allows one contact per email address, so Apollo skips the duplicate and logs it in the integration error log <em>(directional)</em>. Companies are different: Apollo mirrors HubSpot duplicates rather than merging them.</p>
+<h3>Are Apollo emails and calls logged in HubSpot?</h3>
+<p>Yes if you enable them. Activity settings cover emails, tasks, notes, conversations and calls separately, and pushes are delayed at least 10 minutes <em>(directional)</em>. The contact must exist in HubSpot first.</p>
+<h3>Why did my Apollo push to HubSpot fail?</h3>
+<p>The usual causes are read-only HubSpot properties, dropdown values that do not match, multi-checkbox fields, unmapped phone types and stale mappings. Check Error logs under the HubSpot integration settings.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+
+<p><strong>Want Apollo, cold email and LinkedIn outreach feeding a clean HubSpot pipeline?</strong> Start with our <a href="/blog/sync-cold-email-linkedin-data-hubspot-2026">guide to syncing outreach data into HubSpot</a>, or <a href="/">talk to our team</a> and we will build and run it for you.</p>
+
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. Apollo details are drawn from Apollo help center summaries and should be confirmed in your own account. Last updated October 2026.</em></p>

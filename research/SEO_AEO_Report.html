@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>GenFlows SEO + AEO Audit & Implementation Plan</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 20mm; }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: -apple-system, "Helvetica Neue", Arial, sans-serif; color: #1f2937; font-size: 10.5px; line-height: 1.5; margin: 0; }
+  h1 { font-size: 25px; color: #1f3a5f; margin: 0 0 4px; letter-spacing: -.3px; }
+  h2 { font-size: 15.5px; color: #1f3a5f; margin: 26px 0 8px; padding-bottom: 5px; border-bottom: 2px solid #e8732b; }
+  h3 { font-size: 12.5px; color: #1f3a5f; margin: 16px 0 5px; }
+  p { margin: 0 0 8px; }
+  a { color: #1f3a5f; text-decoration: none; }
+  ul, ol { margin: 4px 0 10px; padding-left: 18px; }
+  li { margin: 2px 0; }
+  code { background: #f1f5f9; padding: 1px 4px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 9px; }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0 14px; font-size: 9.3px; }
+  th { background: #1f3a5f; color: #fff; text-align: left; padding: 6px 8px; font-weight: 600; }
+  td { padding: 5px 8px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+  tr:nth-child(even) td { background: #f8fafc; }
+  .cover { border-bottom: 3px solid #e8732b; padding-bottom: 14px; margin-bottom: 6px; }
+  .sub { color: #64748b; font-size: 10px; }
+  .tldr { background: #f4f7fb; border-left: 4px solid #e8732b; padding: 12px 16px; border-radius: 5px; margin: 12px 0 18px; }
+  .tag { display: inline-block; font-size: 8px; font-weight: 700; padding: 1px 6px; border-radius: 3px; color: #fff; vertical-align: middle; }
+  .p0 { background: #dc2626; } .p1 { background: #ea580c; } .p2 { background: #16a34a; }
+  .red { color: #dc2626; font-weight: 700; } .amber { color: #b45309; font-weight: 700; } .green { color: #16a34a; font-weight: 700; }
+  .pill { display:inline-block; background:#eef2f7; color:#1f3a5f; border-radius:10px; padding:1px 8px; font-size:8.5px; font-weight:600; }
+  .pagebreak { page-break-before: always; }
+  .muted { color:#64748b; }
+  .kpi { display:flex; gap:10px; margin:10px 0 16px; }
+  .kpi div { flex:1; background:#f4f7fb; border:1px solid #e2e8f0; border-radius:6px; padding:9px 11px; }
+  .kpi .n { font-size:19px; font-weight:800; color:#1f3a5f; display:block; }
+  .kpi .l { font-size:8.5px; color:#64748b; text-transform:uppercase; letter-spacing:.03em; }
+  .foot { margin-top: 22px; padding-top: 10px; border-top: 1px solid #e2e8f0; color: #94a3b8; font-size: 8.5px; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <h1>GenFlows — SEO &amp; AEO Audit + Implementation Plan</h1>
+  <p class="sub">Why we're not ranking yet, and the sequenced plan to fix it — content, technical SEO &amp; web-dev workstreams.</p>
+  <p class="sub"><strong>Date:</strong> 21 July 2026 &nbsp;·&nbsp; <strong>Property:</strong> www.genflows.com (HubSpot CMS, portal 49399880) &nbsp;·&nbsp; <strong>Scope:</strong> 62 published posts + site signals</p>
+  <p class="sub"><strong>Sources:</strong> HubSpot CMS API (live), live crawl of genflows.com, sitemap.xml, robots.txt. &nbsp; <strong>Not yet available:</strong> Google Search Console (OAuth not authorized — all query/position analysis pending).</p>
+</div>
+
+<div class="kpi">
+  <div><span class="n">62</span><span class="l">Published posts</span></div>
+  <div><span class="n">18 days</span><span class="l">Median post age</span></div>
+  <div><span class="n">18</span><span class="l">Missing from sitemap</span></div>
+  <div><span class="n">0</span><span class="l">FAQ schema blocks</span></div>
+  <div><span class="n">52</span><span class="l">Over-length titles</span></div>
+</div>
+
+<h2>0 · Executive summary — the honest verdict</h2>
+<div class="tldr">
+<strong>Nothing is fundamentally broken. The single biggest reason we're not ranking is that the content is brand new on a low-authority domain.</strong> 50 of 62 posts are under 30 days old (median <strong>18 days</strong>). New pages on a young domain routinely take <strong>3–6 months</strong> to rank for competitive terms; AI answer engines lag further still. We are in the normal "waiting" window — not a penalty.
+</div>
+<p>That said, the audit surfaced <strong>real, fixable problems slowing us down</strong> and a set of <strong>AEO (AI-search) opportunities we're leaving entirely on the table</strong>:</p>
+<ol>
+  <li><span class="red">18 of 62 posts — every high-value commercial post from the last 6 batches — are missing from the sitemap.</span> Google may not know they exist yet.</li>
+  <li><span class="red">Zero FAQ schema</span>, despite every post having a 6-question FAQ section. Biggest single AI-search / rich-result miss.</li>
+  <li><span class="red">No off-page authority (backlinks)</span> — the real reason competitive terms won't move regardless of on-page quality.</li>
+  <li><span class="amber">Secondary issues:</span> one post stuck on a 1970 publish date; sitemap not declared in robots.txt; 58/62 posts have no featured image; 52/62 title tags too long.</li>
+  <li><span class="amber">GSC still not connected</span> — we're blind on impressions/positions and "striking distance" wins.</li>
+</ol>
+<p>The content itself is strong and unusually AEO-ready (long-form, answer-first TL;DRs, comparison tables, cited sources, clean H-structure). <strong>The gap is discovery, authority, and machine-readable markup — not quality.</strong></p>
+
+<h2>1 · Why we're not ranking — root causes (ranked)</h2>
+<h3>1.1 <span class="red">Content age &amp; ranking latency</span> — biggest factor</h3>
+<table>
+  <tr><th>Age bucket</th><th>0–14 days</th><th>15–30 days</th><th>31–60 days</th><th>60 days+</th></tr>
+  <tr><td>Posts</td><td>30</td><td>20</td><td>11</td><td>1</td></tr>
+</table>
+<p>Median age <strong>18 days</strong>. Google needs time to crawl, index, gather engagement signals and assess trust — typically a quarter+ on a domain without established authority. Expected and self-resolving with time + the fixes below.</p>
+<h3>1.2 <span class="red">Domain authority &amp; backlinks</span> — the real competitive lever</h3>
+<p>We target commercial, high-competition keywords ("best cold email software", "clay pricing", "cold email cost", "best CRM for outbound") held by aged, heavily-linked incumbents (growthtoday.co, RevPartners, vendor domains). On-page quality alone does not beat that — <strong>links do</strong>. genflows.com is a young domain with very few referring domains. <span class="muted">(Exact count needs GSC "Links" or Ahrefs/Semrush — flagged, not yet measured.)</span></p>
+<h3>1.3 <span class="red">Discovery gap</span> — 18 posts missing from the sitemap</h3>
+<p>Our newest, most valuable posts aren't in <code>/sitemap.xml</code> (§2.1). If Google can't find a URL, it can't rank it — compounding 1.1 on exactly the pages we most want ranking.</p>
+<h3>1.4 <span class="amber">We can't optimize what we can't measure (GSC)</span></h3>
+<p>Without Search Console we have no visibility into impressions, average position, or "striking-distance" queries (positions 5–20, where small edits produce fast wins). Connecting GSC is a prerequisite, not a nice-to-have.</p>
+
+<h2>2 · Technical SEO findings (measured today)</h2>
+<table>
+  <tr><th>Finding</th><th>Sev.</th><th>Detail &amp; fix</th></tr>
+  <tr><td><strong>Sitemap coverage gap</strong></td><td><span class="red">High</span></td><td>44/62 posts present; 18 missing (all batches 9–14 — our best commercial content). Force HubSpot sitemap regen, resubmit in GSC, Request Indexing for the 18.</td></tr>
+  <tr><td><strong>Sitemap not in robots.txt</strong></td><td><span class="amber">Med</span></td><td>robots.txt has only Disallow rules — no <code>Sitemap:</code> line. Add <code>Sitemap: https://www.genflows.com/sitemap.xml</code>.</td></tr>
+  <tr><td><strong>Post frozen at 1970-01-01</strong></td><td><span class="amber">Med</span></td><td><code>linkedin-outreach-for-agencies-book-sales-calls-2025</code> has epoch-0 publishDate; renders a broken date. PATCH publishDate via API.</td></tr>
+  <tr><td>Canonical / meta-robots / og:type / H1 / long-form</td><td><span class="green">OK</span></td><td>Self-referencing canonicals, index,follow, og:type=article, single H1, clean H2 tree, ~3k words. Correct — leave alone.</td></tr>
+</table>
+<p class="muted">The 18 missing URLs: ai-cold-email-personalization-2026 · best-ai-sdr-tools-2026-pricing-comparison · best-crm-b2b-outbound-… · best-email-verification-tools-2026 · best-email-warmup-… · best-linkedin-automation-tools-… · cold-email-ab-testing-guide-2026 · cold-email-cost-per-meeting-budget-2026 · cold-email-deliverability-monitoring-2026 · cold-email-spf-dkim-dmarc-setup-2026 · crm-data-hygiene-outbound-teams-2026 · how-to-build-b2b-cold-email-list-2026 · how-to-handle-cold-email-replies-… · lead-routing-speed-to-lead-2026 · linkedin-message-templates-… · linkedin-sales-navigator-… · n8n-vs-make-vs-zapier-… · revops-manager-job-description-salary-2026.</p>
+
+<h2>3 · On-page SEO findings</h2>
+<table>
+  <tr><th>Issue</th><th>Count</th><th>Impact</th><th>Fix</th></tr>
+  <tr><td><span class="amber">Title tag &gt; 65 chars</span></td><td>52 / 62</td><td>SERP truncation → lower CTR</td><td>Trim to ≤60 chars, keyword first</td></tr>
+  <tr><td><span class="amber">No featured image (og:image empty)</span></td><td>58 / 62</td><td>Weak social/AI cards, no image results</td><td>Add featured images (needs <code>files</code> scope on token)</td></tr>
+  <tr><td>Meta description &lt; 70 chars</td><td>10 / 62</td><td>Under-uses SERP space</td><td>Expand to 140–160 chars</td></tr>
+  <tr><td>No topic tags</td><td>62 / 62</td><td>No native cluster grouping</td><td>Tag into 5 clusters</td></tr>
+  <tr><td><span class="green">Missing meta description</span></td><td>0 / 62</td><td>—</td><td>Already clean ✓</td></tr>
+  <tr><td><span class="green">Internal linking</span></td><td>strong</td><td>Real strength</td><td>Add links to service/money pages, not just <code>/</code></td></tr>
+</table>
+
+<div class="pagebreak"></div>
+<h2>4 · AEO / AI-search readiness — the biggest opportunity</h2>
+<p>AEO = getting cited by ChatGPT, Perplexity, Google AI Overviews, Claude. Our content is structurally well-suited; we're missing the markup that makes extraction trivial.</p>
+<h3>4.1 <span class="red">No FAQPage schema — the #1 AEO miss</span></h3>
+<p>Every post has a 6-Q&amp;A FAQ section, but <strong>none are marked up as <code>FAQPage</code></strong> (confirmed on 3 sampled posts). FAQ schema drives Google FAQ rich results &amp; People-Also-Ask, and lets AI engines lift our Q&amp;As verbatim as cited answers. <strong>High impact, low effort — the Q&amp;As already exist.</strong> <span class="muted">(Caveat: HubSpot may strip <code>&lt;script&gt;</code> from post body; reliable path is a theme/template FAQ module or a post-level HTML-injection field — verify before rollout.)</span></p>
+<h3>4.2 <span class="green">What already helps AEO</span></h3>
+<ul>
+  <li>Answer-first <strong>TL;DR boxes</strong> — ideal for AI extraction.</li>
+  <li><strong>Comparison tables</strong> (pricing/tools/thresholds) — AI engines favour structured comparisons.</li>
+  <li><strong>Cited sources &amp; dates</strong> — supports trust / E-E-A-T.</li>
+  <li>Baseline <strong>BlogPosting / Organization / Person / BreadcrumbList</strong> JSON-LD present.</li>
+</ul>
+<h3>4.3 <span class="amber">AEO gaps beyond FAQ schema</span></h3>
+<ul>
+  <li><strong>Author E-E-A-T:</strong> add <code>author</code> with real bio + link to author page (<code>/consultancy/wouter</code> exists — wire into schema + bylines).</li>
+  <li><strong>Entity clarity:</strong> add <code>Organization sameAs</code> (LinkedIn, Clay/Smartlead partner badges we already display).</li>
+  <li><strong>Off-site citations:</strong> AI engines weight Reddit / LinkedIn / G2 / comparison-site mentions. Zero presence = zero AI citations regardless of on-site quality.</li>
+  <li><strong>Publish <code>llms.txt</code></strong> — emerging convention some AI crawlers read.</li>
+</ul>
+
+<h2>5 · Content-strategy findings</h2>
+<ul>
+  <li><span class="green">Breadth is excellent</span> — 62 posts across 5 clusters (Clay/GTM, Cold Email, Outbound, RevOps, Growth), each mapped to a service line. A real asset once authority arrives.</li>
+  <li><span class="amber">Cannibalization watch</span> — many close cold-email posts (deliverability ×4, LinkedIn ×5). Cross-linked to disambiguate; confirm with GSC that two posts aren't competing for one query.</li>
+  <li><span class="amber">No explicit pillar pages</span> — designate one pillar per cluster with hub-and-spoke linking to concentrate authority.</li>
+  <li><span class="amber">No conversion path</span> — posts end with a CTA to <code>/</code>; build dedicated service landing pages per cluster.</li>
+</ul>
+
+<h2>6 · Blocked until Google Search Console is connected</h2>
+<p>The OAuth token was never minted (<code>research/.gsc_token.json</code> absent). Run <code>python3 research/gsc_connect.py</code> and authorize as bivek@genflowsagency.com. This unlocks:</p>
+<ul>
+  <li><strong>Striking-distance report</strong> — queries ranking 5–20; fastest wins.</li>
+  <li><strong>CTR gaps</strong> — high-impression/low-click pages → retitle (ties to the 52 long titles).</li>
+  <li><strong>Query-to-page mapping</strong> — confirm targets, detect cannibalization.</li>
+  <li><strong>Indexation truth</strong> — which of the 18 missing posts Google has actually indexed.</li>
+  <li><strong>Backlink reality</strong> — quantifies §1.2.</li>
+</ul>
+
+<div class="pagebreak"></div>
+<h1 style="font-size:20px;margin-bottom:2px;">Implementation Plan</h1>
+<p class="sub">Three parallel workstreams. Owner key: <span class="pill">Me (Claude)</span> = automatable now with current access · <span class="pill">You</span> = credential/settings · <span class="pill">Dev</span> = website developer (theme/template).</p>
+
+<h2>A · Technical SEO workstream</h2>
+<table>
+  <tr><th>#</th><th>Action</th><th>Owner</th><th>Impact</th><th>When</th></tr>
+  <tr><td><span class="tag p0">P0</span></td><td>Connect GSC (run <code>gsc_connect.py</code>, authorize)</td><td>You</td><td>High</td><td>This week</td></tr>
+  <tr><td><span class="tag p0">P0</span></td><td>Regenerate sitemap; resubmit in GSC; Request Indexing for the 18 missing posts</td><td>You + Me</td><td>High</td><td>This week</td></tr>
+  <tr><td><span class="tag p0">P0</span></td><td>Add <code>Sitemap:</code> line to robots.txt</td><td>Dev / You</td><td>Med</td><td>This week</td></tr>
+  <tr><td><span class="tag p0">P0</span></td><td>Fix the 1970 publishDate (API PATCH)</td><td>Me</td><td>Med</td><td>This week</td></tr>
+  <tr><td><span class="tag p1">P1</span></td><td>Trim 52 title tags to ≤60 chars, keyword-first (bulk via API)</td><td>Me</td><td>Med (CTR)</td><td>Wk 2</td></tr>
+  <tr><td><span class="tag p1">P1</span></td><td>Striking-distance optimization from GSC data</td><td>Me</td><td>High</td><td>Wk 2–4</td></tr>
+  <tr><td><span class="tag p1">P1</span></td><td>Grant HubSpot token the <code>files</code> scope; add featured images to 58 posts</td><td>You + Me</td><td>Med</td><td>Wk 2–4</td></tr>
+  <tr><td><span class="tag p2">P2</span></td><td>Expand 10 short meta descriptions; add topic tags for 5 clusters</td><td>Me</td><td>Low</td><td>Wk 4+</td></tr>
+</table>
+
+<h2>B · Website-developer workstream (theme / template)</h2>
+<p>These need theme-level access the CMS API can't reach — hand this list to the web developer.</p>
+<table>
+  <tr><th>#</th><th>Task</th><th>Why</th><th>Priority</th></tr>
+  <tr><td>1</td><td><strong>FAQPage JSON-LD module</strong> in the blog-post template — auto-emit <code>FAQPage</code> schema from each post's FAQ section (or a repeatable FAQ field)</td><td>#1 AEO win; FAQ rich results + AI citations</td><td><span class="tag p0">P0</span></td></tr>
+  <tr><td>2</td><td><strong>Article/author schema</strong> — add <code>author</code> (bio, sameAs, link to <code>/consultancy/wouter</code>) and <code>Organization sameAs</code> (LinkedIn + partner profiles) to post schema</td><td>E-E-A-T, entity strength for AI</td><td><span class="tag p1">P1</span></td></tr>
+  <tr><td>3</td><td><strong>robots.txt</strong> — add the Sitemap directive (if not editable in HubSpot settings)</td><td>Crawler/AI discovery</td><td><span class="tag p0">P0</span></td></tr>
+  <tr><td>4</td><td><strong>Default OG/featured-image fallback</strong> in the template (branded image when a post has none)</td><td>Fixes 58 empty og:image cards immediately</td><td><span class="tag p1">P1</span></td></tr>
+  <tr><td>5</td><td><strong>Core Web Vitals pass</strong> — lazy-load images, defer non-critical JS, check LCP/CLS/INP on blog template</td><td>Ranking + UX signal</td><td><span class="tag p1">P1</span></td></tr>
+  <tr><td>6</td><td><strong>Cluster service/landing pages</strong> (Cold Email, Clay/GTM, RevOps, LinkedIn) as conversion targets for blog CTAs</td><td>Turns traffic into pipeline; concentrates authority</td><td><span class="tag p1">P1</span></td></tr>
+  <tr><td>7</td><td><strong>Pillar-page hub template</strong> with automated spoke-linking per cluster</td><td>Topic-cluster authority model</td><td><span class="tag p2">P2</span></td></tr>
+  <tr><td>8</td><td><strong>Publish <code>/llms.txt</code></strong> and ensure AI bots (GPTBot, PerplexityBot, ClaudeBot, Google-Extended) are allowed in robots.txt</td><td>AEO discoverability</td><td><span class="tag p2">P2</span></td></tr>
+  <tr><td>9</td><td><strong>Breadcrumb + related-posts module</strong> surfaced on-page (not just schema)</td><td>Internal linking + dwell time</td><td><span class="tag p2">P2</span></td></tr>
+</table>
+
+<h2>C · Content-creation workstream</h2>
+<p>The engine works (14 batches, 62 posts). Shift emphasis from <em>breadth</em> to <em>authority + conversion + refresh</em>.</p>
+<table>
+  <tr><th>Track</th><th>What</th><th>Cadence</th><th>Owner</th></tr>
+  <tr><td><strong>New posts</strong></td><td>Continue clean-gap batches of 3, but bias toward <strong>lower-competition long-tail</strong> (faster early wins) and <strong>bottom-funnel commercial</strong> (pricing, comparisons, "vs", "cost", "alternatives") that convert</td><td>3 / week (unchanged)</td><td>Me</td></tr>
+  <tr><td><strong>Pillar upgrades</strong></td><td>Expand one cluster head-post per cluster into a true pillar (2,500–4,000 words) with spoke links; designate the canonical target for each cluster</td><td>1 / week</td><td>Me</td></tr>
+  <tr><td><strong>Refresh loop</strong></td><td>Once GSC is live: monthly, pull striking-distance + decaying pages and update (freshness date, new sections, tighter intent match)</td><td>Monthly</td><td>Me + GSC</td></tr>
+  <tr><td><strong>AEO formatting</strong></td><td>Bake FAQPage-ready markup, "quick answer" summaries, and a stats/definition block into every new post so schema is trivial for the dev module to consume</td><td>Every post</td><td>Me</td></tr>
+  <tr><td><strong>Off-site / authority</strong></td><td>Repurpose top posts into LinkedIn posts, Reddit answers, guest articles, and directory/G2 profiles; pursue partner backlinks (Clay, Smartlead)</td><td>Ongoing</td><td>You / team</td></tr>
+  <tr><td><strong>Original data</strong></td><td>Publish first-party benchmark data (our real campaign stats) — the deferred P3.01/P3.03 posts — the most link-worthy, most-cited-by-AI asset type</td><td>1 / month</td><td>You + Me</td></tr>
+</table>
+
+<h2>Expected timeline</h2>
+<table>
+  <tr><th>Window</th><th>What to expect</th></tr>
+  <tr><td><strong>Weeks 1–4</strong></td><td>Indexation fixes + FAQ schema land → more pages indexed, first FAQ rich results / AI citations possible, CTR up on retitled pages.</td></tr>
+  <tr><td><strong>Months 2–3</strong></td><td>Long-tail + low-competition queries start ranking; striking-distance edits (from GSC) produce first page-1 wins.</td></tr>
+  <tr><td><strong>Months 3–6+</strong></td><td>Head terms move <strong>only if</strong> the backlink/authority + original-data work is underway. On-page alone caps out on competitive terms.</td></tr>
+</table>
+<p><strong>Bottom line:</strong> the content foundation is strong and unusually AEO-ready. Fix discovery (sitemap), add machine-readable markup (FAQ schema), connect GSC to steer, then invest in authority — that sequence turns 62 good posts into ranking, cited posts.</p>
+
+<div class="foot">Prepared from live HubSpot + genflows.com data on 21 July 2026. Backlink/authority claims are reasoned inferences pending GSC/third-party confirmation; all query-level analysis pending GSC authorization. Companion source file: <code>research/SEO_AEO_AUDIT_2026-07-21.md</code>.</div>
+
+</body>
+</html>

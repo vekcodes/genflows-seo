@@ -1,0 +1,86 @@
+<!-- TITLE TAG: Clay + n8n: Automate Your Entire GTM Workflow (2026) -->
+<!-- META: Connect Clay to n8n to automate enrichment, sequencing, and CRM sync end-to-end. The exact webhook architecture, triggers, and guardrails we use. -->
+<!-- SLUG: blog/clay-n8n-integration-automate-gtm-workflow-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+  <strong style="display:block;text-transform:uppercase;letter-spacing:.04em;font-size:13px;color:#e8732b;margin-bottom:8px;">TL;DR</strong>
+  <ul style="margin:0;padding-left:20px;">
+    <li>Clay is brilliant at <strong>enrichment</strong>; n8n is brilliant at <strong>orchestration</strong>. Together they replace a stack of manual hand-offs.</li>
+    <li>The connection is just <strong>webhooks</strong>: Clay pushes a verified row out; n8n catches it, routes it, and pushes results back.</li>
+    <li>This unlocks three workflows: <strong>trigger-based enrichment</strong>, <strong>auto-sequencing</strong>, and <strong>two-way CRM sync</strong>.</li>
+    <li>n8n's self-hosting means your lead data never sits in a third-party SaaS you don't control.</li>
+    <li>Below: the exact architecture, a step-by-step build, and the guardrails that stop a runaway automation from torching your credits or your domain.</li>
+  </ul>
+</div>
+
+<p>Clay's enrichment is the best on the market, but on its own it is an island. You still end up manually exporting, re-importing into a sequencer, and copy-pasting replies into your CRM. <strong>n8n</strong> — an open-source, self-hostable workflow tool — is the connective tissue that turns those islands into one pipeline. This guide shows the architecture we use at GenFlows to run enrichment-to-outreach with no human in the middle.</p>
+
+<p>If you have not yet built your enrichment layer, start with the <a href="/blog/clay-waterfall-enrichment-setup-step-by-step-2026">Clay waterfall enrichment setup</a> — that is the data source this whole pipeline feeds on. For the wider toolset, see our <a href="/blog/gtm-engineering-tools-the-complete-tech-stack-for-outbound-sales-teams">GTM engineering tech stack</a>.</p>
+
+<h2>Why Connect Clay to n8n at All?</h2>
+<p>Because the gaps <em>between</em> tools are where outbound systems leak time and quality. Manual exports introduce delay (your "fresh" signal is three days stale by send time), human error (wrong list, wrong segment), and a hard ceiling on volume. n8n closes those gaps and gives you something Zapier-style tools struggle with: <strong>self-hosting</strong>, so prospect data and API keys stay on infrastructure you own.</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <thead>
+    <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+      <th style="padding:10px 12px;">Job</th><th style="padding:10px 12px;">Clay</th><th style="padding:10px 12px;">n8n</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;">Find &amp; enrich contacts</td><td style="padding:10px 12px;">✅ Best-in-class</td><td style="padding:10px 12px;">—</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;">Route data between apps</td><td style="padding:10px 12px;">Limited</td><td style="padding:10px 12px;">✅ Core strength</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;">Conditional logic / branching</td><td style="padding:10px 12px;">Basic</td><td style="padding:10px 12px;">✅ Full control</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;">Self-hosted / data ownership</td><td style="padding:10px 12px;">No (SaaS)</td><td style="padding:10px 12px;">✅ Yes</td></tr>
+  </tbody>
+</table>
+
+<h2>How Does the Integration Actually Work?</h2>
+<p>There is no special "Clay app" required — it is plain webhooks in both directions:</p>
+<ul>
+  <li><strong>Clay → n8n:</strong> Clay's "HTTP API" / webhook column sends a row's JSON to an n8n <em>Webhook</em> trigger node the moment a condition is met.</li>
+  <li><strong>n8n → Clay:</strong> n8n's <em>HTTP Request</em> node writes results back into a Clay table (or to your sequencer/CRM) via their APIs.</li>
+</ul>
+<p>Everything below is built from those two primitives.</p>
+
+<h2>Step-by-Step: Your First Clay → n8n Workflow</h2>
+<h3>Step 1 — Create the n8n webhook trigger</h3>
+<p>In n8n, add a <strong>Webhook</strong> node. Set method to <code>POST</code>, copy the generated test URL. This is the address Clay will send rows to.</p>
+<h3>Step 2 — Add the webhook column in Clay</h3>
+<p>In your Clay table, add an <strong>HTTP API</strong> column. Method <code>POST</code>, URL = your n8n webhook, body = the fields you want to send (name, verified email, company, signal). Gate it with a <strong>run condition</strong> — e.g. only fire when <code>verification = valid</code> — so only clean rows leave Clay.</p>
+<h3>Step 3 — Map and route in n8n</h3>
+<p>Run one test row. n8n captures the payload so you can map fields. Add an <strong>IF</strong> node to branch — for example, route enterprise accounts to a <a href="/blog/account-based-outbound-gtm-engineer-enterprise">different sequence</a> than SMB.</p>
+<h3>Step 4 — Push into your sequencer</h3>
+<p>Add an <strong>HTTP Request</strong> node calling your sequencer's API (Smartlead, Instantly, etc.) to add the contact to the right campaign. The lead now goes from "found in Clay" to "queued to send" with no manual step.</p>
+<h3>Step 5 — Close the loop back to the CRM</h3>
+<p>Add a branch that writes the contact and its status to HubSpot or your CRM via API, so reps see live pipeline. (Tie this to <a href="/blog/data-driven-lead-scoring-how-gtm-engineers-prioritize-prospects-for-outbound">lead scoring</a> to auto-prioritize.)</p>
+
+<h2>Three High-Leverage Workflows to Build</h2>
+<h3>1. Trigger-based enrichment</h3>
+<p>A new signal hits (job change, funding, new ad) → n8n receives it → calls back into Clay to enrich just that contact → pushes the verified result onward. You enrich <em>on the signal</em>, not in stale weekly batches.</p>
+<h3>2. Auto-sequencing with segmentation</h3>
+<p>Clay sends verified contacts → n8n branches by ICP fit / region / persona → drops each into the matching campaign. One pipeline, many tailored sequences.</p>
+<h3>3. Reply-driven CRM sync</h3>
+<p>Sequencer fires a "positive reply" webhook → n8n updates the CRM stage, notifies the rep in Slack, and pauses further automated touches so a human takes over. No hot lead gets cold.</p>
+
+<h2>Guardrails: Don't Let Automation Burn You</h2>
+<ul>
+  <li><strong>Rate-limit the Clay webhook.</strong> Firing thousands of rows at once can spike credit spend and hit API limits. Batch or throttle in n8n.</li>
+  <li><strong>Always gate on verification.</strong> Never let an unverified email reach the sequencer — it is the fastest way to wreck <a href="/blog/cold-email-deliverability-in-2025-how-gtm-engineers-avoid-spam-filters-and-land-in-inbox">deliverability</a>.</li>
+  <li><strong>Add a daily send cap.</strong> A counter node that stops new adds past your daily limit protects domain reputation.</li>
+  <li><strong>Log everything.</strong> Write each run to a sheet or DB so a silent failure does not quietly drain your pipeline.</li>
+  <li><strong>Secure the webhook.</strong> Use a secret header/token so only Clay can trigger your n8n endpoint.</li>
+</ul>
+
+<h2>Frequently Asked Questions</h2>
+<h3>Do I need to code to connect Clay and n8n?</h3>
+<p>No. The build is webhook + HTTP nodes with field mapping. Light JavaScript in a Function node helps for custom formatting but is optional.</p>
+<h3>Is n8n better than Zapier or Make for this?</h3>
+<p>For GTM data, n8n's self-hosting (data ownership) and unlimited-step workflows make it the practitioner favorite. Make and Zapier work too but get expensive at outbound volume and keep your data in their cloud.</p>
+<h3>Will this use more Clay credits?</h3>
+<p>Only if you let it run unthrottled. With run conditions and rate limits, you enrich the same volume — just automatically and on-trigger.</p>
+<h3>Can n8n write results back into Clay?</h3>
+<p>Yes, via Clay's API using an HTTP Request node — useful for trigger-based enrichment where n8n initiates the lookup.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+<p><strong>Don't want to wire this yourself?</strong> GenFlows builds Clay + n8n outbound pipelines as a managed system — enrichment, sequencing, and CRM sync, fully automated. <a href="/blog/how-to-build-an-outbound-lead-generation-machine-using-automation-and-ai">See the automation-first approach</a> or <a href="/">talk to us</a>.</p>
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. Last updated June 2026.</em></p>

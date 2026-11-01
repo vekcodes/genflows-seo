@@ -1,0 +1,172 @@
+<!-- TITLE TAG: Close CRM Cold Email Integration: Smartlead, Instantly -->
+<!-- META: Connect Smartlead, Instantly and lemlist to Close CRM: sync routes, what each logs, Close sending limits, reply-to-status mapping and duplicate pitfalls. -->
+<!-- SLUG: blog/close-crm-cold-email-integration-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+  <p style="color:#e8732b;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 10px;font-size:13px;">TL;DR</p>
+  <ul style="margin:0;padding-left:20px;">
+    <li style="margin-bottom:8px;"><strong>lemlist is the only one of the three with Close on its own integrations page.</strong> Its page lists "Close.io", described as syncing the activities from your lemlist campaigns into Close. We found no Close entry on Smartlead's or Instantly's integration pages.</li>
+    <li style="margin-bottom:8px;"><strong>Smartlead to Close runs through a third party.</strong> OutboundSync logs sends, opens, clicks, replies, bounces, unsubscribes and category updates on the matching Close Lead. It is one-way, labelled beta, and needs Smartlead Pro or higher.</li>
+    <li style="margin-bottom:8px;"><strong>Instantly to Close has an official Zapier recipe.</strong> Instantly's help center documents a Zap that adds a lead to Close when a lead is marked Interested, which means it only creates leads for positive replies.</li>
+    <li style="margin-bottom:8px;"><strong>Close throttles its own bulk email.</strong> Default limits are 200 emails a day on Gmail or Office365 and 2,500 on Mailgun or SendGrid, but manual and API emails are exempt. Run cold volume in a dedicated sending tool, and use Close for replies, calls and deals.</li>
+    <li style="margin-bottom:0;"><strong>The real work is the mapping.</strong> Decide which reply categories create leads, opportunities or do-not-contact flags before you connect anything.</li>
+  </ul>
+</div>
+
+<p>Close is built for sales teams that work leads by phone and email, which makes it a natural place for cold email replies to land. But Close is not designed to send cold email at volume, so most teams run Smartlead, Instantly or lemlist for sending and use Close as the system of record. The question is how to connect them without duplicate leads, lost replies or reps calling prospects who just unsubscribed.</p>
+
+<p>This guide covers the integration route for each tool, what actually syncs, the sending limits that decide where your email should be sent from, and a reply-to-status mapping you can copy. If you are still choosing a CRM, start with our <a href="/blog/close-crm-vs-hubspot-outbound-sales-teams-2026">Close vs HubSpot comparison</a> and our <a href="/blog/close-crm-pricing-2026">Close CRM pricing guide</a>.</p>
+
+<p><em>Sourcing note: Close's sending limits were read in Close's help center, the lemlist and Instantly integration claims on their own sites, and the Smartlead route on OutboundSync's page, all on 2 October 2026. The absence of a Close listing on Smartlead's and Instantly's integration pages is what we found, not a guarantee, so check their current pages. Mapping and de-duplication advice is our own recommendation and is labelled that way. Anything unconfirmed is marked <strong>(directional)</strong>.</em></p>
+
+<h2>The Short Answer</h2>
+<p>Use lemlist's Close sync if you are on lemlist, OutboundSync if you are on Smartlead and want activity logged on the Close Lead, and Instantly's Zapier recipe if you are on Instantly and only need interested leads in Close. If you need something none of these do, such as stopping a sequence when a rep changes a status in Close, build it with webhooks and the Close API through Zapier, Make or n8n. Keep cold sending in the dedicated tool in every case.</p>
+
+<h2>Integration Routes at a Glance</h2>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+    <th style="padding:10px 12px;">Tool</th>
+    <th style="padding:10px 12px;">Route to Close</th>
+    <th style="padding:10px 12px;">What it syncs</th>
+    <th style="padding:10px 12px;">Direction</th>
+    <th style="padding:10px 12px;">Notes</th>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>lemlist</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Listed integration ("Close.io")</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Campaign activities, per lemlist's description</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Not specified</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Plan requirements and field detail not confirmed <strong>(directional)</strong></td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Smartlead</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">OutboundSync (third party)</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Sends, opens, clicks, replies, bounces, unsubscribes, category updates, logged on the Close Lead</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">One-way, Smartlead to Close</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Beta; needs Smartlead Pro or higher; guided onboarding</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Instantly</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Zapier (documented by Instantly)</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Creates a Close lead when a lead is marked Interested</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">One-way, Instantly to Close</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Only positive replies reach Close</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Any tool</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Webhooks plus Close API via Zapier, Make or n8n</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Whatever you build</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Either, if you build both</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">You maintain every workflow</td>
+  </tr>
+</table>
+
+<h2>Smartlead + Close</h2>
+<p>OutboundSync describes the pairing as Beta, one-way and email only. Smartlead sends, opens, link clicks, replies, bounces, unsubscribes and lead category updates are logged as activity on the matching Close Lead, and OutboundSync handles onboarding. It requires Smartlead Pro or higher, and the page says exact event coverage is confirmed during onboarding, so ask what happens when no matching lead exists before you buy. It also lists the build-it-yourself alternative: catching Smartlead webhooks in Zapier, Make or n8n and writing each event to Close, which means every event type, retry and field change is a workflow you maintain.</p>
+
+<p>For the Smartlead side, see our <a href="/blog/smartlead-pricing-2026">Smartlead pricing</a> guide, since webhook access depends on plan.</p>
+
+<h2>Instantly + Close</h2>
+<p>Instantly documents a Zapier route: the trigger is "Lead is marked as Interested" and the action is Close "Create Lead". You copy the Zapier API key from Instantly's Integrations section. The result is a clean Close that only contains leads who raised a hand, which is good for reps but means Close never sees sends, opens or negative replies. If you want those, you need webhooks plus a custom flow. See our <a href="/blog/instantly-pricing-2026">Instantly pricing</a> guide and the <a href="/blog/smartlead-vs-instantly-2026">Smartlead vs Instantly</a> comparison.</p>
+
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:14px 18px;margin:20px 0;border-radius:6px;">
+  <p style="margin:0;"><strong>Duplicate warning (our recommendation):</strong> a "Create Lead" action fires every time its trigger fires. Add a lookup step that searches Close by contact email first and updates the existing lead if found, otherwise you will create duplicates whenever a prospect is marked Interested twice or a colleague at the same company replies.</p>
+</div>
+
+<h2>lemlist + Close</h2>
+<p>lemlist's integrations page lists Close.io with the description "sync all the activities from your lemlist campaigns with your CRM". We could not confirm from lemlist's own pages which activities, which direction, or which plans, so test it on a small list and check what lands on the Close Lead before rolling out. Pricing context is in our <a href="/blog/lemlist-pricing-2026">lemlist pricing</a> guide.</p>
+
+<h2>Why You Should Not Send Cold Email From Close</h2>
+<p>Close's Email Sending Limits are designed to keep you under your email provider's thresholds. For Regular accounts such as Gmail or Office365, the defaults are 200 emails per day, 20 per hour and a 60-second minimum delay. For Mass accounts such as Mailgun or SendGrid, the defaults are 2,500 per day and 500 per hour. The limits apply to bulk emails and Workflow email steps, and Close spreads larger sends over several days. Manual emails and API emails, such as those sent through Zapier, are exempt.</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+    <th style="padding:10px 12px;">Close account type</th>
+    <th style="padding:10px 12px;">Daily</th>
+    <th style="padding:10px 12px;">Hourly</th>
+    <th style="padding:10px 12px;">Minimum delay</th>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Regular (Gmail, Office365)</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">200</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">20</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">60 seconds</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Mass (Mailgun, SendGrid)</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">2,500</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">500</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Not stated</td>
+  </tr>
+</table>
+
+<p>Those limits protect a handful of reps' real mailboxes. They are not a cold email infrastructure, which spreads volume across many warmed mailboxes and domains. See <a href="/blog/how-many-domains-mailboxes-cold-email-2026">how many domains and mailboxes you need</a> and <a href="/blog/cold-email-spf-dkim-dmarc-setup-2026">SPF, DKIM and DMARC setup</a>. A sound split: the sending tool owns cold outreach and warm-up, Close owns the conversation once someone replies.</p>
+
+<h2>Mapping Replies to Close (Our Recommended Setup)</h2>
+<p>Close and the sending tools do not ship a shared reply taxonomy, so you need to define one. This mapping is our recommendation, not vendor guidance.</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+    <th style="padding:10px 12px;">Reply category</th>
+    <th style="padding:10px 12px;">Close action</th>
+    <th style="padding:10px 12px;">Stop the sequence?</th>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Interested / meeting booked</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Create or update lead, set an engaged status, open an opportunity, create a call task</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Not interested</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Set a not-interested status</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Out of office / wrong person</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Log a note, leave status</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Pause or re-route</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Unsubscribe / do not contact</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Set a do-not-contact status</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes, everywhere</td>
+  </tr>
+</table>
+
+<p>Handle replies fast. Our guides on <a href="/blog/how-to-handle-cold-email-replies-objection-handling-2026">handling cold email replies</a> and <a href="/blog/lead-routing-speed-to-lead-2026">speed to lead</a> explain why, and the unsubscribe row ties into <a href="/blog/cold-email-compliance-guide-gdpr-can-spam-2026">cold email compliance</a>.</p>
+
+<h2>Pitfalls to Plan For</h2>
+<ul>
+  <li><strong>One-way sync.</strong> With OutboundSync, data flows from Smartlead into Close only, so changing a status in Close will not stop a sequence in Smartlead. Add a rule that suppresses contacts on the sending-tool side.</li>
+  <li><strong>Leads versus contacts.</strong> Close organises data as leads containing contacts. A tool that creates one lead per email address can fragment a company across multiple leads. Decide whether you match on contact email or company domain, and test with two contacts at one company <strong>(our recommendation)</strong>.</li>
+  <li><strong>Webhook ordering.</strong> Close's own webhooks do not guarantee event order, so do not rely on arrival sequence for status logic if you build a custom flow.</li>
+  <li><strong>Data hygiene.</strong> Syncs amplify messy data. Standardise statuses and fields first; see <a href="/blog/crm-data-hygiene-outbound-teams-2026">CRM data hygiene for outbound teams</a>.</li>
+  <li><strong>Choosing the automation layer.</strong> If you go custom, compare <a href="/blog/n8n-vs-make-vs-zapier-gtm-automation-2026">n8n, Make and Zapier</a>. Close allows 40 webhook subscriptions per organisation and a higher allowance for automation platforms such as Zapier.</li>
+</ul>
+
+<p>Running HubSpot instead? The same architecture applies. See <a href="/blog/sync-cold-email-linkedin-data-hubspot-2026">how to sync cold email and LinkedIn data into HubSpot</a>.</p>
+
+<h2>Frequently Asked Questions</h2>
+
+<h3>Does Close CRM integrate with Smartlead?</h3>
+<p>We found no Close listing on Smartlead's own integration page. The documented route is OutboundSync, a third-party sync that logs Smartlead sends, replies, bounces, unsubscribes and category updates on the matching Close Lead. It is one-way, in beta, and requires Smartlead Pro or higher.</p>
+
+<h3>How do I connect Instantly to Close?</h3>
+<p>Instantly's help center documents a Zapier recipe: when a lead is marked Interested in Instantly, Zapier creates a lead in Close. Copy the Zapier API key from Instantly's Integrations settings and connect your Close account in Zapier. Add a lookup step to avoid duplicates.</p>
+
+<h3>Does lemlist work with Close?</h3>
+<p>lemlist lists a Close.io integration that syncs campaign activities with Close. We could not confirm direction, field detail or plan requirements from lemlist's own pages, so test with a small list before relying on it.</p>
+
+<h3>Can I send cold email directly from Close?</h3>
+<p>You can, but Close limits bulk and Workflow emails to protect your mailbox. Defaults are 200 emails a day, 20 an hour and a 60-second delay for Gmail or Office365, and 2,500 a day and 500 an hour for Mailgun or SendGrid. Manual and API emails are exempt. For true cold volume, use a dedicated sending tool.</p>
+
+<h3>How do I avoid duplicate leads in Close?</h3>
+<p>Search Close by contact email before creating a lead, update the existing lead if one exists, and store the campaign or lead ID from the sending tool in a custom field. This is our recommendation, not Close's documented guidance. Test with multiple contacts at the same company.</p>
+
+<h3>When should I build a custom integration instead?</h3>
+<p>Build custom when you need two-way behaviour, such as pausing a sequence when a rep marks a lead lost in Close, or when a tool's built-in sync does not log the events you need. Use webhooks and the Close API through Zapier, Make or n8n, and expect to maintain the flow.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+<p><strong>Want replies flowing cleanly into Close or HubSpot? Read our <a href="/blog/sync-cold-email-linkedin-data-hubspot-2026">guide to syncing outbound data into your CRM</a>, or <a href="/">talk to our team</a> and we will build and run the cold email, LinkedIn and RevOps stack for you.</strong></p>
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. Close sending limits from Close's help center; integration details from Close, lemlist, Instantly and OutboundSync pages, checked 2 October 2026. Mapping and de-duplication advice is our own recommendation. Last updated October 2026.</em></p>

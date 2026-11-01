@@ -1,0 +1,113 @@
+<!-- TITLE TAG: Migrate to Close CRM from HubSpot or Pipedrive (2026) -->
+<!-- META: How to migrate to Close CRM from HubSpot or Pipedrive: field mapping, the Import2 route, CSV rules, duplicates, what does not carry over, and a cutover plan. -->
+<!-- SLUG: blog/migrate-to-close-crm-from-hubspot-pipedrive-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+<p style="margin:0 0 10px;color:#e8732b;font-weight:700;text-transform:uppercase;letter-spacing:.04em;font-size:13px;">TL;DR</p>
+<ul style="margin:0;padding-left:20px;">
+<li><strong>Close organizes data around the Lead.</strong> A Lead is the company container; Contacts, Opportunities and Activities sit inside it. Pipedrive Organizations map to Leads, People to Contacts, Deals to Opportunities.</li>
+<li><strong>You have three routes:</strong> Close&rsquo;s &ldquo;Import from a CRM&rdquo; option (run by its partner Import2), a CSV import you control, or emailing Pipedrive exports to Close support.</li>
+<li><strong>CSV uploads are capped at 15MB</strong>, and duplicates are handled by comparison fields you choose. An import can be undone.</li>
+<li><strong>Notes, tasks and calls are documented as importable.</strong> Email history, recordings, sequences and reports are not documented as migrating <em>(directional)</em>, so plan to rebuild or archive them.</li>
+<li><strong>Do not migrate your old pipeline design.</strong> Rebuild stages for outbound, and keep the old CRM read-only for 60&ndash;90 days.</li>
+</ul>
+</div>
+
+<p>Teams that run cold email and LinkedIn outreach at volume often outgrow a marketing-first CRM. The move to Close is usually about calling, email and speed, not features. This guide covers the mechanics: how records map, which import route to use, what is likely to be left behind, and how to cut over without losing a week of replies.</p>
+
+<p><em>Sourcing note: import mechanics come from Close&rsquo;s own help center. HubSpot-side field mapping, source-side export limits and the API route were not verified in full and are marked <strong>directional</strong> or left out. Confirm current terms with Close before you commit.</em></p>
+
+<h2>The Short Answer</h2>
+<p>Use Close&rsquo;s built-in &ldquo;Import from a CRM&rdquo; if your source is on its supported list (HubSpot CRM and Pipedrive are), because it is usually free when started inside Close <em>(&ldquo;in most cases&rdquo; per Close; confirm)</em>. Use a CSV import when you want control over mapping, custom fields and duplicate rules. Either way, run a sample first, rebuild your pipeline and sequences instead of copying them, and keep the old CRM available until the first full month of reporting in Close matches your expectations.</p>
+
+<h2>How Records Map to Close</h2>
+<p>Close&rsquo;s core records are Leads, Contacts and Opportunities. Anything without a native field goes into a custom field at Lead, Contact or Opportunity level, and Opportunity pipelines and statuses can be created during field mapping.</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;"><th style="padding:10px 12px;">Source object</th><th style="padding:10px 12px;">Close equivalent</th><th style="padding:10px 12px;">Notes</th></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Pipedrive Organizations</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Leads</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Documented by Close</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Pipedrive People</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Contacts</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Documented by Close</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Pipedrive Deals and Leads</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Opportunities</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Documented by Close</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">HubSpot Companies</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Leads</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Our inference <em>(directional)</em></td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">HubSpot Contacts</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Contacts inside a Lead</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Contacts with no company or several companies need a decision <em>(directional)</em></td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">HubSpot Deals</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Opportunities</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Map stages to a rebuilt pipeline</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Notes, tasks, calls</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Notes, Tasks, Calls</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Pipedrive route: notes, incomplete tasks, completed calls</td></tr>
+</table>
+
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:14px 18px;margin:18px 0;border-radius:6px;">
+<p style="margin:0;"><strong>The contact-to-company trap.</strong> HubSpot lets one contact associate with several companies. Close nests contacts inside a single Lead, so those people have to be flattened or duplicated <em>(directional; Close&rsquo;s pages do not address this)</em>. Decide the rule before you export, not after.</p>
+</div>
+
+<h2>Three Ways to Move the Data</h2>
+
+<h3>1. Import from a CRM (Import2)</h3>
+<p>Close&rsquo;s Lead Importer includes an &ldquo;Import from a CRM&rdquo; option powered by its partner Import2, with 28 CRMs listed including HubSpot CRM and Pipedrive. Only a Close Admin can start it, and only one person should, because a single import moves the whole team&rsquo;s data. Import2 runs a sample migration first (a few hours depending on size), emails you, then runs the full import.</p>
+
+<h3>2. CSV import</h3>
+<p>The CSV route gives you the most control. Key rules from Close&rsquo;s help center:</p>
+<ul>
+<li>The first row must be a header; Close guesses field assignments and you can correct them.</li>
+<li>Uploads are limited to 15MB per .csv, so split larger files. Excel files are accepted depending on the import option.</li>
+<li>Prefix a header with <code>custom.</code> to map it to a custom field. Unrecognized columns can become new Text custom fields.</li>
+<li>Choice fields and Lead Statuses must exist before the import. Multi-choice values are separated by semicolons and dates use yyyy-mm-dd.</li>
+<li>Several contacts per lead can sit on one row, or on separate rows grouped by a column such as company name.</li>
+</ul>
+
+<h3>3. Pipedrive export emailed to Close</h3>
+<p>For Pipedrive, you can export Leads, Deals, Organizations, People, Activities and Notes as CSVs (Tools and apps, then Export data) and email them to Close support, who run the import. If you use a Pipedrive field to mark customer relationships, tell support so Lead Statuses can match.</p>
+
+<h2>Duplicates and Undo</h2>
+<p>When you import into an account that already has leads, you pick one or more comparison fields, such as company name or a customer-ID custom field. A lead matching any selected field counts as a match. For matches you can add missing info only, replace the lead entirely (this cannot be undone), or skip it. Within the file, &ldquo;Group Related Rows&rdquo; merges rows that share an identifier such as an email address.</p>
+<p>An import can be reverted, but only by users with the Bulk Delete permission. Skipped and failed rows are available as CSVs for 30 days. Clean your source first: our <a href="/blog/crm-data-hygiene-outbound-teams-2026">CRM data hygiene guide</a> covers the dedupe pass that saves you from importing the same mess twice.</p>
+
+<h2>Notes, Tasks and Calls</h2>
+<p>Close documents separate tools for importing notes (one row creates one note on the matched lead, matched by lead ID, name, email or phone), tasks (text plus optional date and user) and calls. These need an API key from Settings, then Developer, then API Keys. The help page does not mention emails or other activity types, and we did not verify rate limits for bulk loads <em>(see <a href="/blog/close-crm-api-webhooks-automation-outbound-2026">Close API &amp; webhooks</a> for how the API behaves)</em>.</p>
+
+<h2>What Probably Does Not Carry Over</h2>
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;"><th style="padding:10px 12px;">Item</th><th style="padding:10px 12px;">Status</th><th style="padding:10px 12px;">What to do</th></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Email history</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Not documented as supported <em>(directional)</em></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Keep the old CRM as an archive</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Call recordings, attachments</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Not documented as supported <em>(directional)</em></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Download before cancelling</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Sequences and workflows</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Different objects <em>(directional)</em></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Rebuild; see <a href="/blog/close-crm-workflows-sequences-outbound-2026">Close workflows</a></td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Reports and dashboards</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Not migrated <em>(directional)</em></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Rebuild; see <a href="/blog/close-crm-reporting-outbound-2026">Close reporting</a></td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Marketing history</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Not documented <em>(directional)</em></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Export from the source before cutover</td></tr>
+</table>
+<p>One vendor exclusion is documented: for SalesforceIQ, only Accounts and Contacts import, not notes or activities. Ask Close or Import2 directly about any data type you cannot afford to lose.</p>
+
+<h2>A Cutover Plan for Outbound Teams</h2>
+<ol>
+<li><strong>Audit and clean.</strong> Remove dead contacts and decide the contact-to-company rule. Fields you never report on should not migrate.</li>
+<li><strong>Design the new pipeline first.</strong> Do not copy your old stages. Our <a href="/blog/hubspot-deal-stages-outbound-teams-2026">deal stages guide</a> shows an outbound-first structure that carries over to Close.</li>
+<li><strong>Run the sample import.</strong> Check 20 leads end to end: contacts nested correctly, custom fields filled, statuses mapped.</li>
+<li><strong>Freeze, then import.</strong> Pick a low-activity window and stop manual edits in the old CRM.</li>
+<li><strong>Reconnect the stack.</strong> Re-point your sending and LinkedIn tools: <a href="/blog/close-crm-cold-email-integration-2026">cold email to Close</a>, <a href="/blog/heyreach-close-crm-integration-2026">HeyReach to Close</a> and <a href="/blog/clay-close-crm-integration-push-leads-2026">Clay to Close</a>.</li>
+<li><strong>Run both for 60&ndash;90 days</strong> with the old CRM read-only, then archive.</li>
+</ol>
+
+<div style="background:#f4f7fb;border-left:4px solid #1f3a5f;padding:14px 18px;margin:18px 0;border-radius:6px;">
+<p style="margin:0;"><strong>Is Close the right target?</strong> If you are still deciding, read <a href="/blog/close-crm-vs-hubspot-outbound-sales-teams-2026">Close vs HubSpot</a> and <a href="/blog/close-crm-vs-pipedrive-outbound-sales-teams-2026">Close vs Pipedrive</a> first, and budget the licence with <a href="/blog/close-crm-pricing-2026">Close CRM pricing</a>. Going the other way? See our <a href="/blog/hubspot-crm-migration-checklist-2026">HubSpot migration checklist</a>.</p>
+</div>
+
+<h2>Frequently Asked Questions</h2>
+
+<h3>Can I import from HubSpot or Pipedrive without a CSV?</h3>
+<p>Yes. A Close Admin can start &ldquo;Import from a CRM&rdquo; in the Lead Importer, which runs on Close&rsquo;s partner Import2, and HubSpot CRM and Pipedrive are on its supported list. Pipedrive users can alternatively email their exports to Close support.</p>
+
+<h3>How much does a migration to Close cost?</h3>
+<p>Close says the built-in import is free &ldquo;in most cases&rdquo; when started from inside Close. Terms can change and help beyond the standard import may be priced separately, so confirm current terms with Close before you commit.</p>
+
+<h3>What is the CSV size limit and how do I avoid duplicates?</h3>
+<p>Uploads are capped at 15MB, so split larger files. Choose comparison fields such as company name or an ID custom field, and use Group Related Rows to merge duplicates inside the file. You can undo an import afterward if you have the Bulk Delete permission.</p>
+
+<h3>Will my email history move over?</h3>
+<p>Close&rsquo;s migration pages name only notes, tasks and calls. Email history is not documented as supported <em>(directional)</em>, so keep the old CRM as a read-only archive and ask Close or Import2 before assuming anything more.</p>
+
+<h3>What happens to sequences, workflows and reports?</h3>
+<p>Neither vendor page we read documents them as migrating. Plan to rebuild outbound sequences, automations and reports in Close, and test them on a sample of leads before you move the whole team.</p>
+
+<h3>How do HubSpot companies and contacts fit Close&rsquo;s lead model?</h3>
+<p>In Close a Lead is the company container and contacts sit inside it. A HubSpot contact tied to several companies, or to none, needs a rule before import <em>(directional; Close&rsquo;s pages do not address it)</em>. Most teams assign the primary company and note the rest in a custom field.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+<p><strong>Planning a CRM move?</strong> GenFlows runs Close and HubSpot builds for outbound teams, from migration to sequences and reporting. Start with our <a href="/blog/revops-agency-pricing-2026">RevOps agency pricing guide</a>, or <a href="/">talk to our team</a>.</p>
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. Import mechanics from Close help-center documentation; items marked directional were not verified. Last updated October 2026.</em></p>

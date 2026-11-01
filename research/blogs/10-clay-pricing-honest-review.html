@@ -1,0 +1,95 @@
+<!-- TITLE TAG: Clay Pricing: An Honest Review of Plans, Credits & Real Costs (2026) -->
+<!-- META: An honest breakdown of Clay's 2026 pricing: how the credit model really works, what each plan costs, where teams overspend, and whether Clay is worth it. -->
+<!-- SLUG: blog/clay-pricing-honest-review-plans-credits-costs-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+  <strong style="display:block;text-transform:uppercase;letter-spacing:.04em;font-size:13px;color:#e8732b;margin-bottom:8px;">TL;DR</strong>
+  <ul style="margin:0;padding-left:20px;">
+    <li>Clay's price tag isn't the plan fee — it's <strong>consumption</strong>. Clay bills two things: <em>Actions</em> (platform orchestration) and <em>Data Credits</em> (buying data from 150+ providers), so two teams on the same plan can pay very different effective costs.</li>
+    <li>Plans in 2026 run from a <strong>free tier</strong> up through <strong>Launch (~$167/mo)</strong>, <strong>Growth (~$446/mo)</strong>, and custom Enterprise — annual billing lowers the effective monthly rate. Always confirm current numbers at clay.com.</li>
+    <li>The real cost driver is <strong>waterfall enrichment</strong> across many providers — though Clay <strong>doesn't charge Data Credits for failed lookups</strong>, so smart waterfall ordering keeps this efficient.</li>
+    <li>Clay is worth it when you're running <em>signal-based, high-personalization outbound</em> at volume. It's overkill if you just need a static list of emails.</li>
+    <li>Below: how credits really work, a plan-by-plan table, the hidden costs, and five ways to cut your Clay bill without cutting output.</li>
+  </ul>
+</div>
+
+<p>Search "Clay pricing" and you'll find a lot of screenshots of plan tiers and very little on what you'll <em>actually</em> pay. That's because Clay's headline plan fee is the least interesting number. The number that matters is how fast you burn credits — and that depends entirely on how you build your tables. This is the honest version: what the model is, what it costs in practice, and when it's worth it.</p>
+
+<p>If you're still deciding whether Clay is the right tool at all, start with our <a href="/blog/clay-vs-apollo-vs-zoominfo-outbound-comparison-2026">Clay vs Apollo vs ZoomInfo comparison</a>. If you've already committed and want to get the most from it, our <a href="/blog/clay-workflow-automation-gtm-engineering-playbook">Clay workflow automation playbook</a> and <a href="/blog/clay-waterfall-enrichment-setup-step-by-step-2026">waterfall enrichment setup guide</a> are the companion reads to this one.</p>
+
+<h2>How Clay Pricing Actually Works: Actions vs Data Credits</h2>
+<p>Clay doesn't charge per contact or per seat the way a traditional database does — in fact, seats are unlimited on every plan. Instead you pay a monthly (or annual) subscription that includes an allotment of <strong>two different currencies</strong>, and understanding the split is the whole key to Clay's pricing:</p>
+<ul>
+  <li><strong>Actions</strong> measure <em>platform orchestration</em> — Clay running the steps in your table (searches, formulas, AI/agent columns, moving data around). Every plan includes a monthly Actions allotment.</li>
+  <li><strong>Data Credits</strong> are what you spend to <em>buy data</em> from Clay's 150+ providers — finding an email, pulling firmographics, verifying a contact. This is the currency people usually run out of first.</li>
+</ul>
+<p>Three things make this trip people up:</p>
+<ul>
+  <li><strong>Cost scales per <em>action</em>, not per row.</strong> A row that runs five enrichments consumes far more than a row that runs one. Build a 10-column table over 5,000 leads and you're triggering tens of thousands of actions.</li>
+  <li><strong>Failed lookups are free.</strong> Clay doesn't charge Data Credits when a provider returns no result — you only pay for data you actually get. This is what makes multi-provider waterfalls economical.</li>
+  <li><strong>Bring-your-own API keys spend only Actions.</strong> If you plug in your own key for a provider (e.g. a dedicated email-finder), you consume Actions but not Clay Data Credits — a real lever for heavy users.</li>
+</ul>
+<p>Unused Data Credits also roll over month to month, up to 2× your allocation on paid plans. The upside of this model is honesty: you pay for data you actually pull, not for a seat that sits idle. The risk is that a sloppy table quietly multiplies your consumption.</p>
+
+<h2>Clay Plans & Pricing in 2026</h2>
+<p>Here's the current structure as of 2026. Clay changes plans and allotments periodically, so treat these as directional and confirm the live numbers on clay.com before you buy. Note the two allotments per plan: <strong>Actions</strong> (orchestration) and <strong>Data Credits</strong> (buying data).</p>
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <thead>
+    <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+      <th style="padding:10px 12px;">Plan</th><th style="padding:10px 12px;">Starting price</th><th style="padding:10px 12px;">Monthly Actions / Data Credits</th><th style="padding:10px 12px;">Best for</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;"><strong>Free</strong></td><td style="padding:10px 12px;">$0</td><td style="padding:10px 12px;">500 actions / 100 credits</td><td style="padding:10px 12px;">Learning the interface — not enough to run campaigns</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;"><strong>Launch</strong></td><td style="padding:10px 12px;">~$167/mo (~$1,800/yr)</td><td style="padding:10px 12px;">15,000 actions / 2,500 credits</td><td style="padding:10px 12px;">Solo founders and a first outbound motion</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:10px 12px;"><strong>Growth</strong> <span style="color:#e8732b;">(popular)</span></td><td style="padding:10px 12px;">~$446/mo (~$4,800/yr)</td><td style="padding:10px 12px;">40,000 actions / 6,000 credits</td><td style="padding:10px 12px;">Growing teams running weekly campaigns — CRM sync, API, intent signals</td></tr>
+    <tr style="border-bottom:1px solid #e2e8f0;background:#f8fafc;"><td style="padding:10px 12px;"><strong>Enterprise</strong></td><td style="padding:10px 12px;">Custom (annual)</td><td style="padding:10px 12px;">100,000+ / custom</td><td style="padding:10px 12px;">High volume, SSO/RBAC, dedicated strategist, warehouse syncs</td></tr>
+  </tbody>
+</table>
+<p>Both paid tiers let you buy add-on credit tiers on top of the base allotment (roughly $125–$2,125/mo of extra credits), and annual billing lowers the effective monthly rate. Most teams that use Clay seriously land on <strong>Growth</strong> — Launch runs out of credits the moment you scale past a few hundred well-enriched leads a week.</p>
+
+<h2>What a Credit Actually Buys You</h2>
+<p>Instead of memorizing per-provider credit costs (they vary and change), think in <strong>cost per enriched, verified contact</strong>. A useful outbound row usually needs a few things: the right company, a verified work email, and one or two personalization data points — each successful data pull spends a few Data Credits, while the orchestration around it spends Actions.</p>
+<p>The practical takeaway: <strong>estimate your monthly usable-contact target, multiply by your per-contact data pulls, and size your plan to that</strong> — not to the plan's marketing copy. A team wanting a few thousand clean, richly personalized contacts a month is a Growth conversation, not a Launch one (and will likely buy add-on credits on top).</p>
+
+<h2>The Real Cost Driver: Waterfall Enrichment</h2>
+<p>Waterfall enrichment is Clay's headline feature and its biggest credit sink. Instead of trusting one data provider, you chain several: if provider A doesn't return a valid email, try B, then C, and so on. Match rates climb from ~50–60% with a single source to 80%+ with a good waterfall. That's the whole reason to use Clay.</p>
+<p>Here's the important nuance: Clay <strong>doesn't charge Data Credits for failed lookups</strong> — you only pay when a provider actually returns data. So a waterfall isn't "pay for every provider you try"; it's "pay for the one that succeeds." The cost risk is instead a wide, uncapped waterfall running expensive premium providers on a huge list before you've filtered it. Our <a href="/blog/clay-waterfall-enrichment-setup-step-by-step-2026">step-by-step waterfall setup guide</a> covers ordering providers cheapest-first and stopping the chain on the first valid result — which, combined with free failed lookups, keeps match rates high and spend predictable.</p>
+
+<h2>Hidden Costs & Where Teams Overspend</h2>
+<ul>
+  <li><strong>Re-running tables.</strong> Every time you re-run a column, it can re-spend credits. Lock finished columns before you touch a table again.</li>
+  <li><strong>Enriching before filtering.</strong> Enriching 5,000 rows and <em>then</em> filtering to your ICP wastes credits on 4,000 rows you'll delete. Filter first, enrich the survivors.</li>
+  <li><strong>AI / agent columns at scale.</strong> LLM-powered columns (research summaries, personalized openers) are fantastic but add cost per row. Reserve them for leads that clear your other filters.</li>
+  <li><strong>Email verification on already-verified data.</strong> Don't re-verify contacts you pulled from a source that already verifies.</li>
+  <li><strong>Testing on full lists.</strong> Prototype a table on 20 rows, confirm it works, <em>then</em> run the full list.</li>
+</ul>
+
+<h2>Is Clay Worth It? Who Should (and Shouldn't) Pay</h2>
+<p><strong>Clay is worth it if</strong> you run signal-based, personalized outbound at volume and want one place to combine dozens of data sources with AI research and automation. For the modern <a href="/blog/gtm-engineering-tools-the-complete-tech-stack-for-outbound-sales-teams">GTM tech stack</a>, it's often the enrichment and orchestration hub the rest of the stack plugs into.</p>
+<p><strong>Clay is probably overkill if</strong> you just need a one-time static list of emails, you're not personalizing beyond first name, or your volume is so low that a single-source tool covers you. In those cases a cheaper database or a basic finder does the job — see the trade-offs in our <a href="/blog/clay-vs-apollo-vs-zoominfo-outbound-comparison-2026">Clay vs Apollo vs ZoomInfo breakdown</a>.</p>
+
+<h2>5 Ways to Cut Your Clay Bill Without Cutting Output</h2>
+<ol>
+  <li><strong>Filter before you enrich.</strong> Trim to your true ICP first; only spend credits on rows you'd actually contact.</li>
+  <li><strong>Order waterfalls cheapest-first and stop on first hit.</strong> The single highest-leverage setting for credit control.</li>
+  <li><strong>Cache and reuse.</strong> Maintain a master enriched table and pull from it instead of re-enriching the same accounts.</li>
+  <li><strong>Push heavy logic to automation.</strong> Offload scheduling, dedup, and routing to a tool like n8n so Clay only does what Clay is uniquely good at — see our <a href="/blog/clay-n8n-integration-automate-gtm-workflow-2026">Clay + n8n integration guide</a>.</li>
+  <li><strong>Gate AI columns behind filters.</strong> Only run expensive LLM research on leads that already passed your fit and signal checks.</li>
+</ol>
+
+<h2>Frequently Asked Questions</h2>
+<h3>How much does Clay cost per month?</h3>
+<p>As of 2026, paid plans start around ~$167/mo (Launch) and ~$446/mo (Growth, the popular tier), with a free plan below and custom Enterprise pricing above. Annual billing lowers the effective monthly rate, and both paid tiers let you buy add-on credits. Your effective cost depends far more on consumption than on the base fee — confirm current numbers at clay.com.</p>
+<h3>What's the difference between Actions and Data Credits in Clay?</h3>
+<p>Actions measure platform orchestration — Clay running the steps in your table (searches, formulas, AI columns). Data Credits are what you spend to buy data from Clay's 150+ providers, like finding or verifying an email. Every plan includes an allotment of each; Data Credits are usually the first to run out. Failed lookups don't cost Data Credits, and using your own API keys spends only Actions.</p>
+<h3>Why is my Clay usage so high?</h3>
+<p>The usual culprits are wide, uncapped waterfalls running premium providers, enriching before filtering to your ICP, re-running finished columns, and running AI columns across an entire list. Filtering first and ordering waterfalls cheapest-first are the two biggest fixes.</p>
+<h3>Is Clay's free plan enough to run campaigns?</h3>
+<p>No. The free tier is meant for learning the interface — its 100 monthly Data Credits run out well before you've enriched a real campaign list. Expect to be on Launch or Growth for sustained outbound.</p>
+<h3>Is Clay worth it compared to cheaper tools?</h3>
+<p>If you personalize at volume and combine many data sources, yes — Clay replaces a stack of point tools. If you just need a static list of verified emails, a cheaper single-source database is more economical. Our Clay vs Apollo vs ZoomInfo comparison walks through where each wins.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+<p><strong>Want Clay set up so it doesn't quietly drain your credits?</strong> GenFlows builds credit-efficient Clay tables, waterfalls, and automations that maximize match rates while keeping spend predictable. <a href="/blog/clay-workflow-automation-gtm-engineering-playbook">See the Clay workflow playbook</a> or <a href="/">talk to our team</a>.</p>
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. Last updated July 2026. Pricing is representative as of early 2026 — confirm current figures at clay.com.</em></p>

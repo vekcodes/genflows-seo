@@ -1,0 +1,131 @@
+<!-- TITLE TAG: Instantly HubSpot Integration: Setup & Sync (2026) -->
+<!-- META: How the Instantly HubSpot integration works in 2026: the two connections, Automations triggers, field mapping, duplicates, and a webhook route for deals. -->
+<!-- SLUG: blog/instantly-hubspot-integration-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+<p style="margin:0 0 10px;color:#e8732b;font-weight:700;text-transform:uppercase;letter-spacing:.04em;font-size:13px;">TL;DR</p>
+<ul style="margin:0;padding-left:20px;">
+<li><strong>Instantly has two separate HubSpot connections.</strong> &ldquo;Old HubSpot&rdquo; imports leads from HubSpot lists. &ldquo;New HubSpot&rdquo; exports SuperSearch leads and powers Automations. Connect the right one.</li>
+<li><strong>The Automations route is two-way.</strong> HubSpot events can trigger Instantly actions, and Instantly replies and status changes can create or update HubSpot records.</li>
+<li><strong>The list import is a one-time pull,</strong> not an ongoing sync. Its duplicate check is a checkbox you have to tick.</li>
+<li><strong>Instantly does not document specific HubSpot properties, owner assignment or opt-out writes.</strong> Test each in a sandbox before you trust it.</li>
+<li><strong>For custom properties and deals, use webhooks</strong> into n8n, Make or Zapier with a find-then-upsert step. Webhooks reportedly need a higher Instantly plan <em>(directional)</em>.</li>
+</ul>
+</div>
+
+<p>Instantly sends the emails. HubSpot is where reps work deals and where you report on pipeline. The gap between them is where positive replies get lost, so the integration is worth setting up on purpose instead of by default.</p>
+
+<p>We have already covered <a href="/blog/smartlead-hubspot-integration-2026">Smartlead and Instantly together</a>, plus the <a href="/blog/lemlist-hubspot-integration-2026">lemlist</a> and <a href="/blog/heyreach-hubspot-integration-2026">HeyReach</a> versions. This guide goes deeper on Instantly alone, including the two-connection trap most guides skip. For the data-model question underneath, see <a href="/blog/sync-cold-email-linkedin-data-hubspot-2026">syncing cold email and LinkedIn data into HubSpot</a>.</p>
+
+<p><em>Sourcing note: details come from Instantly&rsquo;s help center, changelog and developer docs, read in October 2026. Where Instantly does not document something we say &ldquo;not documented.&rdquo; Items marked (directional) come from changelogs, blog posts or third-party pages and should be confirmed in your account.</em></p>
+
+<h2>The Short Answer</h2>
+
+<p>Use the Old HubSpot connection to pull a HubSpot list into a campaign. Use Automations (the New HubSpot connection) to push positive replies and status changes back. If you need deals, owner assignment or custom properties, build a webhook flow with a search-before-create step, because the native docs do not describe them.</p>
+
+<h2>The Two HubSpot Connections</h2>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;"><th style="padding:10px 12px;"></th><th style="padding:10px 12px;">Old HubSpot</th><th style="padding:10px 12px;">New HubSpot</th></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Used for</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Importing leads from HubSpot lists into a campaign</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Exporting SuperSearch leads and HubSpot steps inside Automations</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Direction</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">HubSpot to Instantly, one-time import</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Both ways via triggers and actions</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Where to connect</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Settings &gt; Integrations</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Settings &gt; Integrations, or &ldquo;Add new&rdquo; under Account inside an Automation</td></tr>
+</table>
+
+<p>Connect through Settings &gt; Integrations, search HubSpot in the Apps section, sign in, pick the account and click Connect app. Instantly&rsquo;s help article does not say whether this is OAuth or an API key; the sign-in flow looks like OAuth <em>(directional)</em>. It also does not state which Instantly plan or HubSpot plan and permissions are required, so check both before you promise a client this works.</p>
+
+<h2>Importing Leads from HubSpot</h2>
+
+<ol>
+<li>In HubSpot, build a list under CRM &gt; Lists and pick the object type.</li>
+<li>In Instantly, open the campaign&rsquo;s Leads section and choose HubSpot as the source.</li>
+<li>Pick the list, then map each column to Email, a custom variable or Do Not Import.</li>
+<li>Tick <strong>Check for duplicates across all</strong> to skip leads already in another campaign or list.</li>
+<li>Optionally verify emails first. Instantly lists this at 0.25 credits per lead.</li>
+<li>Click Upload all.</li>
+</ol>
+
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:14px 18px;margin:20px 0;border-radius:6px;">
+<p style="margin:0;"><strong>This is a one-time import.</strong> The help article describes no ongoing sync, and does not say whether active and static lists behave differently. Re-import when the list changes, and verify before you send; see <a href="/blog/clay-instantly-integration-push-leads-2026">Clay to Instantly</a> if your list comes from Clay instead.</p>
+</div>
+
+<h2>Two-Way Sync with Automations</h2>
+
+<p>Instantly&rsquo;s Automations builder (launched January 2026 per its changelog; the help article places it under the Agents tab, so check the live label) adds HubSpot triggers and actions <em>(directional on the date and label)</em>.</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;"><th style="padding:10px 12px;">Type</th><th style="padding:10px 12px;">What is available</th></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>HubSpot triggers</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Contact, deal and record created, updated or deleted; tasks, notes and communications; conversations; deal association changes</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Instantly triggers</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Reply, interest status change, positive and negative labels, sent, opened, bounced, link clicked, campaign events</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>HubSpot actions</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Create or update contact, create message, task or note, send event, create or update record, find contact</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Logic</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Condition, paths, delay, human approval, HTTP request, execute code</td></tr>
+</table>
+
+<p>A &ldquo;Map Variables&rdquo; step maps Email, first and last name, phone, company, website, job title and custom variables. The docs name no specific HubSpot properties and do not say whether custom HubSpot properties are supported. Treat that as untested. Instantly&rsquo;s changelog describes the sync as real time <em>(directional)</em>.</p>
+
+<h3>A starter automation: positive reply to HubSpot</h3>
+<ol>
+<li><strong>Trigger:</strong> Instantly lead interest status changes to interested.</li>
+<li><strong>Action:</strong> HubSpot Find contact by email.</li>
+<li><strong>Condition:</strong> if found, update; if not, create.</li>
+<li><strong>Action:</strong> create a task for the owner and a note with the reply text.</li>
+<li>Test with the Data Out view on each step, then toggle on and watch the Live Feed.</li>
+</ol>
+
+<p>Then let a HubSpot workflow take over for deals and routing; see <a href="/blog/hubspot-workflow-automation-reply-handling-2026">reply handling with HubSpot workflows</a> and <a href="/blog/lead-routing-speed-to-lead-2026">lead routing</a>.</p>
+
+<h2>What Is Not Documented</h2>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;"><th style="padding:10px 12px;">Question</th><th style="padding:10px 12px;">Status</th><th style="padding:10px 12px;">Safe move</th></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Create deals</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Deal triggers exist; a generic create-or-update-record action may reach deals, unconfirmed</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Test, or create the deal from a HubSpot workflow</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Owner assignment</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Not documented</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Assign in HubSpot rotation rules</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Unsubscribe and bounce to HubSpot opt-out</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Triggers exist; HubSpot write not described</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Write your own suppression property</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">HubSpot-side dedupe</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Not documented</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Always Find contact before create</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Rate or volume limits</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Not documented</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Load test with a small batch</td></tr>
+</table>
+
+<p>Clean data matters more than the connector. See <a href="/blog/crm-data-hygiene-outbound-teams-2026">CRM data hygiene for outbound teams</a> before you let a sync write at scale.</p>
+
+<h2>The Webhook Route</h2>
+
+<p>Instantly&rsquo;s developer docs list webhook events including <code>reply_received</code>, <code>auto_reply_received</code>, <code>lead_interested</code>, <code>lead_not_interested</code>, <code>lead_neutral</code>, <code>lead_meeting_booked</code>, <code>email_bounced</code> and <code>lead_unsubscribed</code>, plus custom labels sent as the event type. Payloads always carry the timestamp, event type, workspace and campaign, and usually the lead email; reply events add the reply text.</p>
+
+<p>Point those at n8n, Make or Zapier, then search HubSpot by email, create or update the contact, store the Instantly status in a custom property, and create the deal. Use a HubSpot private app token with contact read and write scopes and confirm the endpoints in HubSpot&rsquo;s developer docs <em>(directional: not verified for this post)</em>. Instantly&rsquo;s own posts say webhooks need Hypergrowth or higher, and they conflict on API access for lower plans, so check Instantly&rsquo;s pricing page <em>(directional)</em>; plans are covered in <a href="/blog/instantly-pricing-2026">Instantly pricing</a>.</p>
+
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+<tr style="background:#1f3a5f;color:#fff;text-align:left;"><th style="padding:10px 12px;"></th><th style="padding:10px 12px;">Native Automations</th><th style="padding:10px 12px;">Webhook + n8n / Make</th><th style="padding:10px 12px;">Zapier</th></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Setup</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Lowest</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Highest</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Low</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Custom properties</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Not documented</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Full via HubSpot API</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Depends on app fields</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Dedupe</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Find contact step</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Search then upsert</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Find-or-create</td></tr>
+<tr style="background:#f8fafc;"><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Instantly plan</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Not documented</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Webhooks reportedly Hypergrowth+ (directional)</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Not researched</td></tr>
+<tr><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Cost</strong></td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Included</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Tool plan or self-host</td><td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Per-task fees</td></tr>
+</table>
+
+<p>Compare the tools in <a href="/blog/n8n-vs-make-vs-zapier-gtm-automation-2026">n8n vs Make vs Zapier</a>. If you are still choosing a sender, see <a href="/blog/smartlead-vs-instantly-2026">Smartlead vs Instantly</a>, and if you are weighing HubSpot&rsquo;s own sending, read <a href="/blog/hubspot-sequences-vs-cold-email-tools-2026">HubSpot Sequences vs cold email tools</a>.</p>
+
+<h2>Frequently Asked Questions</h2>
+
+<h3>Does Instantly integrate natively with HubSpot?</h3>
+<p>Yes. It offers a one-time list import and an Automations connection that works both ways. Instantly&rsquo;s changelog dates the Automations launch to January 2026 <em>(directional)</em>.</p>
+
+<h3>Why does Instantly have two HubSpot connections?</h3>
+<p>The Old HubSpot connection imports leads from HubSpot lists. The New HubSpot connection exports SuperSearch leads and is used inside Automations. Connect the one that matches your job.</p>
+
+<h3>Can positive replies update HubSpot automatically?</h3>
+<p>Yes. Use an Instantly reply or interest-status trigger with a HubSpot find-contact step, then create or update the contact, and add a task or note.</p>
+
+<h3>How do I stop duplicates between Instantly and HubSpot?</h3>
+<p>On import, tick Check for duplicates across all. When writing back, run Find contact by email before any create. HubSpot-side dedupe is not documented by Instantly.</p>
+
+<h3>When do I need webhooks instead of the native integration?</h3>
+<p>When you need custom HubSpot properties, deals, owner logic or your own retries. Webhooks reportedly require a higher Instantly plan, so check pricing <em>(directional)</em>.</p>
+
+<h3>Which Instantly events should I send to HubSpot?</h3>
+<p>Most teams start with <code>reply_received</code>, <code>lead_interested</code>, <code>lead_not_interested</code>, <code>lead_meeting_booked</code>, <code>email_bounced</code> and <code>lead_unsubscribed</code>.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+
+<p><strong>Want this wired up for you?</strong> We build cold email, LinkedIn and HubSpot RevOps systems end to end. Start with our <a href="/blog/smartlead-hubspot-integration-2026">Smartlead and Instantly HubSpot guide</a>, then <a href="/">talk to our team</a>.</p>
+
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. Vendor details were checked in October 2026 and change often; confirm on the vendor pages before building. Last updated October 2026.</em></p>

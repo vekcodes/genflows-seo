@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>GenFlows SEO/AEO — Website & Access Action List</title>
+<style>
+  @page { size: A4; margin: 16mm 15mm 18mm; }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: -apple-system, "Helvetica Neue", Arial, sans-serif; color: #1f2937; font-size: 10.5px; line-height: 1.5; margin: 0; }
+  h1 { font-size: 24px; color: #1f3a5f; margin: 0 0 4px; letter-spacing: -.3px; }
+  h2 { font-size: 15px; color: #1f3a5f; margin: 24px 0 8px; padding-bottom: 5px; border-bottom: 2px solid #e8732b; }
+  h3 { font-size: 12.5px; color: #1f3a5f; margin: 15px 0 4px; }
+  p { margin: 0 0 8px; }
+  a { color: #1f3a5f; text-decoration: none; }
+  ul, ol { margin: 4px 0 10px; padding-left: 18px; }
+  li { margin: 3px 0; }
+  code { background: #f1f5f9; padding: 1px 4px; border-radius: 3px; font-family: "SF Mono", Menlo, monospace; font-size: 9px; }
+  pre { background: #0f172a; color: #e2e8f0; padding: 10px 12px; border-radius: 6px; font-family: "SF Mono", Menlo, monospace; font-size: 8.6px; line-height:1.45; overflow-x:auto; white-space: pre-wrap; }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0 14px; font-size: 9.3px; }
+  th { background: #1f3a5f; color: #fff; text-align: left; padding: 6px 8px; font-weight: 600; }
+  td { padding: 5px 8px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+  tr:nth-child(even) td { background: #f8fafc; }
+  .cover { border-bottom: 3px solid #e8732b; padding-bottom: 14px; margin-bottom: 6px; }
+  .sub { color: #64748b; font-size: 10px; }
+  .tldr { background: #f4f7fb; border-left: 4px solid #e8732b; padding: 12px 16px; border-radius: 5px; margin: 12px 0 18px; }
+  .tag { display: inline-block; font-size: 8px; font-weight: 700; padding: 1px 6px; border-radius: 3px; color: #fff; vertical-align: middle; white-space:nowrap; }
+  .p0 { background: #dc2626; } .p1 { background: #ea580c; } .p2 { background: #16a34a; }
+  .done { background:#0e7490; }
+  .muted { color:#64748b; }
+  .pagebreak { page-break-before: always; }
+  .foot { margin-top: 22px; padding-top: 10px; border-top: 1px solid #e2e8f0; color: #94a3b8; font-size: 8.5px; }
+  .box { background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:10px 14px; margin:8px 0 14px; }
+  .chk { list-style:none; padding-left:0; }
+  .chk li { padding-left:18px; text-indent:-18px; }
+  .chk li:before { content:"☐  "; color:#e8732b; font-weight:700; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <h1>GenFlows — Website &amp; Access Action List</h1>
+  <p class="sub">The SEO/AEO fixes that <strong>cannot</strong> be done through the HubSpot content API — they need theme/template access, portal settings, or a credential. Hand Part 1 to the website developer; Part 2 is for the account owner.</p>
+  <p class="sub"><strong>Date:</strong> 22 July 2026 &nbsp;·&nbsp; <strong>Property:</strong> www.genflows.com (HubSpot CMS, portal 49399880) &nbsp;·&nbsp; <strong>Companion audit:</strong> GenFlows_SEO_AEO_Report_2026-07-21</p>
+</div>
+
+<h2>Already fixed from the automation (no action needed)</h2>
+<div class="tldr">
+These items from the audit are <strong>done and live</strong> via the HubSpot API — listed so the developer doesn't duplicate them:
+<ul style="margin-bottom:0;">
+  <li><span class="tag done">DONE</span> <strong>FAQPage schema</strong> injected per-post into <code>&lt;head&gt;</code> (per-post Head HTML field) on all 45 posts that have an FAQ section — verified rendering live. <em>A native template module (Part 1 · #2) is now optional, not required.</em></li>
+  <li><span class="tag done">DONE</span> <strong>52 title tags</strong> trimmed to ≤60 chars, keyword-first.</li>
+  <li><span class="tag done">DONE</span> <strong>10 short/broken meta descriptions</strong> rewritten to 140–160 chars.</li>
+  <li><span class="tag done">DONE</span> <strong>5 topic-cluster tags</strong> created and applied across all 62 posts.</li>
+  <li><span class="tag done">DONE</span> <strong>1970 publish date</strong> on the LinkedIn-agencies post corrected.</li>
+</ul>
+</div>
+<p class="muted">Still API-blocked and therefore listed below: featured images (needs the <code>files</code> scope — Part 2 · #2), sitemap regeneration (portal/behaviour, not per-post — Part 1 · #1), and all query analysis (needs Search Console — Part 2 · #1).</p>
+
+<h2>Part 1 · Website developer — theme, template &amp; portal settings</h2>
+<table>
+  <tr><th style="width:24px;">#</th><th>Task</th><th style="width:150px;">Where / how</th><th style="width:52px;">Priority</th></tr>
+  <tr>
+    <td>1</td>
+    <td><strong>Get the 18 newest posts into the sitemap &amp; keep it current.</strong> The live <code>sitemap.xml</code> last rebuilt 2026-07-11 and is missing every post published since (full list on p.3). Force a regeneration and confirm new blog posts are auto-included going forward.</td>
+    <td>HubSpot: <em>Settings → Content → Pages → SEO &amp; Crawlers</em>. Confirm the blog is included in the sitemap; re-save to trigger a rebuild. Then verify all 62 blog URLs resolve in <code>/sitemap.xml</code>.</td>
+    <td><span class="tag p0">P0</span></td>
+  </tr>
+  <tr>
+    <td>2</td>
+    <td><strong>Add the <code>Sitemap:</code> directive to robots.txt</strong> and explicitly allow AI crawlers. Current robots.txt has only <code>Disallow</code> rules — no sitemap line, no AI-bot guidance. Use the exact block on p.3.</td>
+    <td>HubSpot: <em>Settings → Content → Pages → robots.txt editor</em> (or theme-level if overridden).</td>
+    <td><span class="tag p0">P0</span></td>
+  </tr>
+  <tr>
+    <td>3</td>
+    <td><strong>Default OG / featured-image fallback</strong> in the blog-post template — output a branded image when a post has no featured image. 58/62 posts currently have an empty <code>og:image</code>, so social &amp; AI cards render blank.</td>
+    <td>Blog post + listing template <code>&lt;head&gt;</code>: set <code>og:image</code> / <code>twitter:image</code> to the post image with a branded default fallback.</td>
+    <td><span class="tag p1">P1</span></td>
+  </tr>
+  <tr>
+    <td>4</td>
+    <td><strong>Author &amp; Organization E-E-A-T schema.</strong> Extend the post's <code>BlogPosting</code> JSON-LD with a real <code>author</code> (name, bio, <code>sameAs</code>, link to <code>/consultancy/wouter</code>) and an <code>Organization</code> with <code>sameAs</code> (LinkedIn + Clay/Smartlead partner profiles you already display). Snippet on p.3.</td>
+    <td>Blog post template schema block.</td>
+    <td><span class="tag p1">P1</span></td>
+  </tr>
+  <tr>
+    <td>5</td>
+    <td><strong>Core Web Vitals pass</strong> on the blog template — lazy-load below-the-fold images, defer non-critical JS, check LCP / CLS / INP. Ranking + UX signal.</td>
+    <td>Theme CSS/JS; verify with PageSpeed Insights on 2–3 post URLs.</td>
+    <td><span class="tag p1">P1</span></td>
+  </tr>
+  <tr>
+    <td>6</td>
+    <td><strong>Cluster service / landing pages</strong> (Cold Email, Clay/GTM, Outbound Systems, RevOps) as conversion targets. Blog posts currently CTA to <code>/</code> only; give each cluster a money page so topical authority routes to something that sells.</td>
+    <td>New site pages, one per cluster; wire blog CTAs to them.</td>
+    <td><span class="tag p1">P1</span></td>
+  </tr>
+  <tr>
+    <td>7</td>
+    <td><strong>Pillar-page hub template</strong> — one pillar per cluster with hub-and-spoke internal linking to concentrate authority (topic-cluster model).</td>
+    <td>New template + HubSpot topic-cluster tool (uses the 5 tags now applied).</td>
+    <td><span class="tag p2">P2</span></td>
+  </tr>
+  <tr>
+    <td>8</td>
+    <td><strong>Publish <code>/llms.txt</code></strong> — an emerging convention some AI crawlers read to find a site's key content. Starter file on p.3.</td>
+    <td>Serve at <code>https://www.genflows.com/llms.txt</code> (HubSpot: a system page or file, or a serverless/hosted file).</td>
+    <td><span class="tag p2">P2</span></td>
+  </tr>
+  <tr>
+    <td>9</td>
+    <td><strong>On-page breadcrumb &amp; related-posts module</strong> (not just in schema) — improves internal linking and dwell time.</td>
+    <td>Blog post template.</td>
+    <td><span class="tag p2">P2</span></td>
+  </tr>
+</table>
+
+<h2>Part 2 · Account owner — credentials &amp; settings (5 minutes each)</h2>
+<table>
+  <tr><th style="width:24px;">#</th><th>Task</th><th>Why it matters / how</th><th style="width:52px;">Priority</th></tr>
+  <tr>
+    <td>1</td>
+    <td><strong>Connect Google Search Console.</strong></td>
+    <td>Unblocks all query/position analysis — striking-distance wins, CTR gaps, indexation truth, backlink counts. Run <code>python3 research/gsc_connect.py</code> and authorize as bivek@genflowsagency.com. If it shows zero properties, first verify genflows.com in Search Console and grant that Google account access.</td>
+    <td><span class="tag p0">P0</span></td>
+  </tr>
+  <tr>
+    <td>2</td>
+    <td><strong>Grant the HubSpot private-app token the <code>files</code> (and <code>files.ui_hidden.read</code>) scope.</strong></td>
+    <td>Enables automated upload + attachment of featured images to the 58 posts that lack one — currently the token can edit posts but not manage files. After granting, the automation can backfill all featured images.</td>
+    <td><span class="tag p1">P1</span></td>
+  </tr>
+  <tr>
+    <td>3</td>
+    <td><strong>After the sitemap is regenerated (Part 1 · #1):</strong> in Search Console, resubmit <code>sitemap.xml</code> and use <em>URL Inspection → Request Indexing</em> for each of the 18 posts on p.3.</td>
+    <td>Tells Google about the newest commercial posts directly instead of waiting for a re-crawl. Requires #1 done first.</td>
+    <td><span class="tag p0">P0</span></td>
+  </tr>
+</table>
+
+<div class="pagebreak"></div>
+<h1 style="font-size:19px;margin-bottom:2px;">Appendix — copy-paste assets &amp; the 18 URLs</h1>
+
+<h3>A · robots.txt — replace the current file with this</h3>
+<pre>User-agent: *
+Disallow: /_hcms/preview/
+Disallow: /hs/manage-preferences/
+Disallow: /hs/preferences-center/
+Disallow: /*?*hs_preview=*
+Disallow: /*?*hsCacheBuster=*
+
+# Allow AI answer-engine crawlers (AEO)
+User-agent: GPTBot
+Allow: /
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://www.genflows.com/sitemap.xml</pre>
+
+<h3>B · Author + Organization schema — extend the post BlogPosting JSON-LD</h3>
+<pre>"author": {
+  "@type": "Person",
+  "name": "Wouter Harink",
+  "url": "https://www.genflows.com/consultancy/wouter",
+  "jobTitle": "GTM Engineer",
+  "sameAs": ["https://www.linkedin.com/in/&lt;wouter-handle&gt;"]
+},
+"publisher": {
+  "@type": "Organization",
+  "name": "GenFlows",
+  "url": "https://www.genflows.com",
+  "logo": "https://www.genflows.com/&lt;logo.png&gt;",
+  "sameAs": [
+    "https://www.linkedin.com/company/&lt;genflows&gt;",
+    "https://www.clay.com/&lt;partner-profile&gt;",
+    "https://smartlead.ai/&lt;partner-profile&gt;"
+  ]
+}</pre>
+<p class="muted">Fill the <code>&lt;…&gt;</code> placeholders with the real handles/URLs. Keep <code>@context</code>/<code>@type: BlogPosting</code> as-is.</p>
+
+<h3>C · llms.txt — starter</h3>
+<pre># GenFlows
+&gt; GTM engineering agency: cold email, LinkedIn outreach automation, and RevOps
+&gt; for B2B outbound teams.
+
+## Core services
+- Cold email infrastructure &amp; deliverability
+- Clay / GTM engineering &amp; workflow automation
+- LinkedIn outreach automation
+- RevOps &amp; outbound systems
+
+## Key content
+- Blog: https://www.genflows.com/blog
+- Sitemap: https://www.genflows.com/sitemap.xml</pre>
+
+<h3>D · The 18 posts missing from the sitemap (for Request Indexing)</h3>
+<p class="muted">All under <code>https://www.genflows.com/blog/</code>:</p>
+<ol style="column-count:2; font-size:9px;">
+<li>ai-cold-email-personalization-2026</li>
+<li>best-ai-sdr-tools-2026-pricing-comparison</li>
+<li>best-crm-b2b-outbound-hubspot-salesforce-pipedrive-attio-2026</li>
+<li>best-email-verification-tools-2026</li>
+<li>best-email-warmup-deliverability-tools-2026</li>
+<li>best-linkedin-automation-tools-heyreach-expandi-comparison-2026</li>
+<li>cold-email-ab-testing-guide-2026</li>
+<li>cold-email-cost-per-meeting-budget-2026</li>
+<li>cold-email-deliverability-monitoring-2026</li>
+<li>cold-email-spf-dkim-dmarc-setup-2026</li>
+<li>crm-data-hygiene-outbound-teams-2026</li>
+<li>how-to-build-b2b-cold-email-list-2026</li>
+<li>how-to-handle-cold-email-replies-objection-handling-2026</li>
+<li>lead-routing-speed-to-lead-2026</li>
+<li>linkedin-message-templates-connection-requests-dm-2026</li>
+<li>linkedin-sales-navigator-outbound-setup-guide-2026</li>
+<li>n8n-vs-make-vs-zapier-gtm-automation-2026</li>
+<li>revops-manager-job-description-salary-2026</li>
+</ol>
+
+<div class="foot">Prepared 22 July 2026 from live HubSpot + genflows.com data. The "Already fixed" items were applied via the HubSpot CMS API and verified live. Companion audit: GenFlows_SEO_AEO_Report_2026-07-21.</div>
+
+</body>
+</html>

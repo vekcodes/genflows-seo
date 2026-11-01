@@ -1,0 +1,179 @@
+<!-- TITLE TAG: Close CRM Workflows for Outbound: Setup & Limits -->
+<!-- META: How Close CRM Workflows (sequences) work for outbound: steps, goals, send windows, plan gating, sending limits, and what to do about LinkedIn and open rates. -->
+<!-- SLUG: blog/close-crm-workflows-sequences-outbound-2026 -->
+
+<div style="background:#f4f7fb;border-left:4px solid #e8732b;padding:18px 22px;margin:0 0 28px;border-radius:6px;">
+  <p style="color:#e8732b;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 10px;font-size:13px;">TL;DR</p>
+  <ul style="margin:0;padding-left:20px;">
+    <li style="margin-bottom:8px;"><strong>Close's automation is called Workflows,</strong> and it covers email, SMS, call and task steps. Older docs URLs still say "sequences".</li>
+    <li style="margin-bottom:8px;"><strong>Workflows need Growth or Scale.</strong> Close's docs say they are not on Solo or Essentials.</li>
+    <li style="margin-bottom:8px;"><strong>Set a goal on every outbound workflow.</strong> Goals (incoming email, SMS or call, meeting booked, status change) pause the run when the prospect engages.</li>
+    <li style="margin-bottom:8px;"><strong>Close sets no email cap of its own.</strong> Your mailbox provider's limits apply, so cold volume still needs several mailboxes.</li>
+    <li style="margin-bottom:0;"><strong>No LinkedIn step is documented.</strong> Run LinkedIn in a separate tool and sync it in.</li>
+  </ul>
+</div>
+
+<p>Close is built for teams that sell by sending and calling, and its automation is the part that makes that scale. Most outbound teams either under-use it or set it up in a way that keeps emailing people who already replied.</p>
+
+<p>This guide covers how Close Workflows work for outbound, which plans include them, the settings that matter, and where they stop. For a head-to-head with HubSpot, see our <a href="/blog/close-crm-vs-hubspot-outbound-sales-teams-2026">Close vs HubSpot comparison</a>, and for connecting a dedicated sending tool, our <a href="/blog/close-crm-cold-email-integration-2026">Close CRM cold email integration guide</a>.</p>
+
+<p><em>Sourcing note: Workflow behaviour comes from Close's help center pages on Workflows, sending email and workflow reporting, and plans from Close's pricing page, all read on 6 October 2026. We found no HubSpot limits from HubSpot's own docs in this research, so we make no numeric HubSpot comparison. Anything we could not confirm is marked <strong>(directional)</strong>.</em></p>
+
+<h2>The Short Answer</h2>
+<p>Use Close Workflows for the parts of outbound that mix email with calls and tasks, and always attach a goal so a reply stops the run. Keep volume cold-email-safe by sending from several mailboxes, because Close adds no sending allowance beyond your mailbox provider. If you need LinkedIn steps, run them in a LinkedIn tool and sync the activity in rather than waiting for a native step.</p>
+
+<h2>What a Close Workflow Can Do</h2>
+<p>Close's help center describes a Workflow as an automated series of steps run against leads or contacts. Older pages and URLs call the same thing a sequence, so you will see both words in guides and in the docs address. The settings below are the ones that decide whether it works for cold outbound.</p>
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+    <th style="padding:10px 12px;">Setting</th>
+    <th style="padding:10px 12px;">What Close's docs say</th>
+    <th style="padding:10px 12px;">Why it matters for outbound</th>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Step types</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Email, SMS, call, task creation and assignment, lead updates, opportunity creation</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">One flow can mix email touches with call tasks</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Delays</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">1 minute up to 365 days, in minutes, hours or days</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Tight early follow-ups, long nurture gaps</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Send window</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Default Mon–Fri, random time 9AM–4PM in the contact's timezone; customisable</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Looks less robotic than a fixed send time</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Blackout dates</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Block automated email and SMS steps only</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Calls and tasks still fire, so check them</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Enrollment</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Manual, bulk from list views, or automatic by trigger</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Triggers can come from form submissions and CRM events</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Run mode</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Run Once is the default for workflows with communication steps; Run Multiple is explicit</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Stops accidental re-sends to the same contact</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Recipient</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">If empty, the lead's Primary Contact is used</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Set the recipient deliberately on multi-contact leads</td>
+  </tr>
+</table>
+
+<h2>Goals: Stop Emailing People Who Replied</h2>
+<p>The most important setting is the goal. Close's docs list six goal types, and a run pauses when its goal is met. Without one, a workflow keeps going after a prospect has replied, which is the fastest way to annoy a warm lead.</p>
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+    <th style="padding:10px 12px;">Goal</th>
+    <th style="padding:10px 12px;">Pauses the run when</th>
+    <th style="padding:10px 12px;">Use it for</th>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Incoming email</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">The contact replies by email</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Every cold email workflow</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Incoming SMS or call</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">The contact texts or calls back</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Multi-channel workflows</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Meeting booked</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">A meeting is booked</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Stops chasers after a booking</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Lead status change</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">A rep changes the lead status</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Manual qualification, not-interested</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Outcome met</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">A custom outcome is reached</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Opportunity created, demo held</td>
+  </tr>
+</table>
+
+<p>For cold email, set the goal to incoming email at minimum, and add meeting booked if you book calls through a scheduling link. Most communication goals need a recipient contact on the lead, so check that every enrolled lead has one. See our <a href="/blog/cold-email-follow-up-sequences-cadence-templates-2026">follow-up cadence guide</a> for the timing to build into the steps.</p>
+
+<h2>Which Plan You Need</h2>
+<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
+  <tr style="background:#1f3a5f;color:#fff;text-align:left;">
+    <th style="padding:10px 12px;">Plan</th>
+    <th style="padding:10px 12px;">Annual / monthly per user</th>
+    <th style="padding:10px 12px;">Workflows</th>
+    <th style="padding:10px 12px;">Bulk email</th>
+    <th style="padding:10px 12px;">Dialer</th>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Solo</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">$9 / $19</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Standard calling</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Essentials</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">$35 / $49</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">No</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Standard calling</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Growth</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">$99 / $109</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Power dialer</td>
+  </tr>
+  <tr style="background:#f8fafc;">
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;"><strong>Scale</strong></td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">$139 / $149</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Yes</td>
+    <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;">Predictive dialer <strong>(directional)</strong></td>
+  </tr>
+</table>
+
+<div style="background:#fff7ed;border-left:4px solid #e8732b;padding:14px 18px;margin:20px 0;border-radius:6px;"><strong>Pricing changes.</strong> The prices above were read from Close's pricing page on 6 October 2026. Confirm them before you budget, and see our <a href="/blog/close-crm-pricing-2026">Close CRM pricing guide</a> for the full cost picture including calling and add-ons.</div>
+
+<h2>Sending Limits and Mailboxes</h2>
+<p>Close's docs say it sets no sending cap of its own. Email goes through your connected SMTP, Gmail or Office 365 account, so your provider's limits apply. Close also warns that sending more than 1,000 emails in 24 hours may make your email server halt outbound mail, and suggests a bulk email service for high volume. Email steps follow your overall sending limits, and other email activity can delay them.</p>
+<p>Each user must also turn on "Allow automated Workflows to send on your behalf" in Settings, and the default email account is set under Settings, then Email. In practice, that means cold outbound should be split across several warmed mailboxes rather than one connected account. Our guides on <a href="/blog/how-many-domains-mailboxes-cold-email-2026">how many domains and mailboxes you need</a> and <a href="/blog/cold-email-domain-mailbox-rotation-2026">domain and mailbox rotation</a> cover the sizing.</p>
+
+<h2>Reporting and What to Measure</h2>
+<p>Close's workflow reporting shows runs completed, percentage of goals met, average time to goal, bounce and error rates, and response by step. Open rates are left out on purpose.</p>
+<div style="background:#f4f7fb;border-left:4px solid #1f3a5f;padding:14px 18px;margin:20px 0;border-radius:6px;"><strong>Open rates are deliberately left out of Close's workflow reporting,</strong> because of Apple Mail Privacy Protection. Judge a workflow on replies, goals met and bounces instead. We cover why in our <a href="/blog/apple-mail-privacy-protection-cold-email-2026">Apple Mail Privacy Protection guide</a>.</div>
+
+<p>Workflow reporting is not available on Close's legacy Base plan, per its help center.</p>
+
+<h2>Where Workflows Stop</h2>
+<ul>
+<li><strong>LinkedIn:</strong> Close's Workflows page does not document a LinkedIn step. Run LinkedIn in a dedicated tool and sync it in, as we describe in the <a href="/blog/heyreach-close-crm-integration-2026">HeyReach Close CRM integration guide</a>.</li>
+<li><strong>Archived leads:</strong> archiving a lead pauses active runs, and on reactivation they fast-forward without the delay, so review them before reactivating.</li>
+<li><strong>Mass triggers:</strong> Close can pause runs through rate limiting when too many triggers fire at once.</li>
+<li><strong>Routing:</strong> replies still need an owner and a response-time rule. See our <a href="/blog/lead-routing-speed-to-lead-2026">lead routing and speed-to-lead guide</a>.</li>
+</ul>
+
+<h2>Close Workflows or HubSpot Sequences?</h2>
+<p>Close's own blog claims its automation ties tightly into calling and SMS, and that HubSpot has no built-in dialer or native SMS <strong>(directional, vendor claim)</strong>. We have not verified HubSpot's current limits against HubSpot's own documentation here, so read our <a href="/blog/hubspot-sequences-vs-cold-email-tools-2026">HubSpot Sequences vs cold email tools guide</a> and the <a href="/blog/close-crm-vs-hubspot-outbound-sales-teams-2026">Close vs HubSpot comparison</a> before deciding.</p>
+
+<h2>Frequently Asked Questions</h2>
+<h3>Are Close Sequences and Workflows the same thing?</h3><p>Close's current help center documents one automation feature called Workflows, with email, SMS, call and task steps. The older docs URL still says "sequences" and returns the same content, so many guides use the two words interchangeably. Close's page does not explicitly say one replaced the other, so we use "Workflows" and note the older name.</p>
+<h3>Which Close plans include Workflows?</h3><p>Close's docs say Workflows are only available on the Growth and Scale plans. Solo and Essentials do not include them, and its pricing page lists bulk email and the power dialer on the same two plans.</p>
+<h3>What happens when a prospect replies?</h3><p>If you set a goal such as incoming email, incoming SMS, incoming call, meeting booked or lead status change, the run pauses when it is met. Close then counts that contact as converted in reporting. Without a goal, the run keeps going, so set one on every outbound workflow.</p>
+<h3>Can I enroll leads in bulk?</h3><p>Yes. Close's docs describe bulk enrollment from the Leads or Contacts list views using the Workflow icon, as well as manual enrollment on a single record and automatic enrollment from triggers. Bulk emailing itself needs Growth or higher.</p>
+<h3>Does Close limit how many emails I can send?</h3><p>Close does not set its own cap. Emails go through your connected mailbox, so your provider's limits apply, and Close warns that sending more than 1,000 emails in 24 hours may cause your email server to halt outbound mail. For cold volume, spread sending across several mailboxes.</p>
+<h3>When do automated messages go out?</h3><p>By default on weekdays, at a random time between 9AM and 4PM in the contact's timezone. You can change the window and add blackout dates, which block only automated email and SMS steps.</p>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;">
+<p><strong>Want Close, cold email and LinkedIn wired into one outbound system?</strong> Start with our <a href="/blog/close-crm-cold-email-integration-2026">Close cold email integration guide</a>, or <a href="/">talk to our team</a> and we will build it with you.</p>
+<p style="color:#64748b;font-size:14px;"><em>By the GenFlows GTM engineering team. Vendor features and pricing change often, so confirm in your own accounts. Last updated October 2026.</em></p>
